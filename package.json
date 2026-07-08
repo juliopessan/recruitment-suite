@@ -1,0 +1,71 @@
+{
+  "name": "recruitment-specialist-agent-suite",
+  "version": "1.0.0",
+  "description": "Multi-agent suite for evaluating candidates for sênior tech roles at Avanade. Analyzes profile, technical skills, culture fit, references, and synthesizes hiring recommendations.",
+  "author": "Avanade Global Talent",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/avanade/recruitment-suite.git"
+  },
+  "keywords": [
+    "hiring",
+    "recruitment",
+    "agent-suite",
+    "github-copilot",
+    "avanade",
+    "talent-acquisition",
+    "candidate-evaluation"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "echo \"No tests configured yet\"",
+    "validate-agents": "echo \"Validate agent YAML files (future)\"",
+    "lint": "echo \"Lint markdown and YAML files (future)\""
+  },
+  "agents": [
+    "00-recruitment-orchestrator.agent.md",
+    "01-candidate-profile-evaluator.agent.md",
+    "02-technical-skills-evaluator.agent.md",
+    "03-culture-fit-analyzer.agent.md",
+    "04-reference-validator.agent.md",
+    "05-hiring-recommendation-engine.agent.md",
+    "06-people-analytics-specialist.agent.md"
+  ],
+  "playbooks": {
+    "quick-screen": {
+      "agents": ["01", "02", "05"],
+      "time": "5-10 min",
+      "use-case": "High volume, fast pass/fail"
+    },
+    "full-evaluation": {
+      "agents": ["01", "02", "03", "04", "05"],
+      "time": "30-45 min",
+      "use-case": "Serious candidates, reference validation ready"
+    },
+    "full-people-analytics": {
+      "agents": ["01", "02", "03", "04", "06", "05"],
+      "time": "40-50 min",
+      "use-case": "HR/People roles requiring Viva Glint, org psychology expertise"
+    },
+    "final-decision": {
+      "agents": ["00"],
+      "time": "10 min",
+      "use-case": "Manager decision support, arbitrate conflicts"
+    }
+  },
+  "constraints": {
+    "stack": "Microsoft only",
+    "output-limit": "8000 characters per agent",
+    "languages": "EN-US (client-facing), PT-BR (internal)",
+    "tone": "Avanade consulting - direct, structured, no filler",
+    "code-generation": "NOT ALLOWED - scoring, recommendations only"
+  },
+  "documentation": {
+    "instructions": ".github/instructions/recruitment-suite.instructions.md",
+    "memory": ".github/memory/recruitment-memory.md",
+    "example": ".examples/sample-evaluation.md"
+  }
+}
