@@ -74,3 +74,12 @@ Thumbs.db
 /candidates-archive/  # Never commit PII
 *.pii
 *.sensitive
+
+# Database files (auto-generated at runtime)
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary runtime files
+/tmp/
+*.sock
