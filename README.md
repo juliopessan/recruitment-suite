@@ -2,7 +2,7 @@
 
 > Multi-agent suite for hiring sênior tech talent at Avanade. Evaluates candidates across 5 dimensions: Profile, Technical Skills, Culture Fit, References, and synthesizes a final hiring recommendation.
 
-**Brand:** Orange DNA | Avanade Global Talent | Recruiting Excellence  
+**Brand:** Orange DNA | Recruiting Excellence  
 **Stack:** 100% Microsoft (GitHub Copilot agents, future Dataverse integration)  
 **Agents:** 6 (1 orchestrator + 5 specialists)
 
@@ -193,7 +193,7 @@ Final = Profile 20% + Tech 35% + Culture 25% + References 15% + Strategic 5%
 ## Support
 
 For questions, issues, or to suggest improvements:
-- 📧 Contact: [Avanade Talent Team]
+- 📧 Contact: [Talent Team]
 - 🐛 Report bugs or request features via GitHub Issues
 - 📚 See [.github/instructions/recruitment-suite.instructions.md](.github/instructions/recruitment-suite.instructions.md) for authoring guidelines
 
