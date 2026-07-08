@@ -4,9 +4,9 @@ Welcome to the Recruitment Specialist Agent Suite! Use this checklist to get up 
 
 ## ✅ Phase 1: Understanding (10 min)
 
-- [ ] **Read:** [README.md](README.md) — Overview of the 6 agents
-- [ ] **Understand:** 3 playbooks — Quick Screen vs. Full Evaluation vs. Final Decision
-- [ ] **Review:** Scoring scale (0–100) and decision thresholds (75+=Go, 60–74=Hold, <60=No-Go)
+- [ ] **Read:** [README.md](README.md) — Overview of the 7 agents
+- [ ] **Understand:** 4 playbooks — Quick Screen vs. Full Evaluation vs. Full + People Analytics vs. Final Decision
+- [ ] **Review:** Scoring scale (0–100) and decision thresholds (75+=Go, 60–74=Hold, 30–59=Hold w/ mitigation, <30=No-Go)
 - [ ] **Note:** Hard constraints (Microsoft-only, 8k char limit, LGPD compliance)
 
 ## ✅ Phase 2: Learning by Example (15 min)
@@ -38,8 +38,9 @@ Welcome to the Recruitment Specialist Agent Suite! Use this checklist to get up 
 2. [ ] **Agent 02** — Technical Skills Evaluator (Tech score, interview focus)
 3. [ ] **Agent 03** — Culture Fit Analyzer (Culture score, risk flags)
 4. [ ] **Agent 04** — Reference Validator (Confidence score, pending verifications)
-5. [ ] **Agent 05** — Recommendation Engine (Final score, Go/No-Go/Hold + rationale)
-6. [ ] **Review:** Summary table with all 5 scores + recommendation
+5. [ ] **Agent 06** — People Analytics Specialist (OPTIONAL: only for HR/People roles with Viva Glint requirement)
+6. [ ] **Agent 05** — Recommendation Engine (Final score, Go/No-Go/Hold + rationale)
+7. [ ] **Review:** Summary table with all scores + recommendation
 
 ## ✅ Phase 4: Interpretation (5 min)
 
@@ -80,10 +81,11 @@ Welcome to the Recruitment Specialist Agent Suite! Use this checklist to get up 
 | **Tech Score** | Technical skill depth (frameworks, languages, hands-on capability) |
 | **Culture Score** | Soft skills + team fit (collaboration, mentoring, Avanade DNA) |
 | **Reference Score** | Track record credibility (CV verification, reference quality) |
-| **Final Score** | Weighted average: Profile 20% + Tech 35% + Culture 25% + Ref 15% + Strategic 5% |
+| **People Analytics Score** | (Optional) Viva Glint expertise, org psychology, transformation capability |
+| **Final Score** | **Tech roles:** Profile 20% + Tech 35% + Culture 25% + Ref 15% + Strategic 5%. **HR roles:** Profile 15% + People Analytics 35% + Culture 25% + Ref 15% + Tech 5% + Strategic 5% |
 | **Go** | Score ≥75 → Extend offer |
-| **Hold** | Score 60–74 → Discuss or get more data |
-| **No-Go** | Score <60 → Pass |
+| **Hold** | Score 30–74 → Discuss, get data, or plan mitigation |
+| **No-Go** | Score <30 → Pass |
 
 ## ✅ Tips & Tricks
 

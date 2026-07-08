@@ -1,10 +1,10 @@
 # Recruitment Specialist Agent Suite
 
-> Multi-agent suite for hiring sênior tech talent at Avanade. Evaluates candidates across 5 dimensions: Profile, Technical Skills, Culture Fit, References, and synthesizes a final hiring recommendation.
+> Multi-agent suite for hiring sênior tech talent at Avanade. Evaluates candidates across 6 dimensions: Profile, Technical Skills, Culture Fit, References, People Analytics (optional), and synthesizes a final hiring recommendation.
 
 **Brand:** Orange DNA | Recruiting Excellence  
 **Stack:** 100% Microsoft (GitHub Copilot agents, future Dataverse integration)  
-**Agents:** 6 (1 orchestrator + 5 specialists)
+**Agents:** 7 (1 orchestrator + 6 specialists)
 
 ---
 
@@ -66,18 +66,25 @@ Gather:
 
 ---
 
-## Scoring Scale
+## Scoring Scale (Authoritative)
 
 | Range | Interpretation | Recommendation |
 |-------|-----------------|-----------------|
 | **75–100** | Excellent fit, exceeds requirements | ✅ **Go** — Move to offer |
-| **60–74** | Good fit, minor gaps, addressable | 🟡 **Hold** — Discuss or get more data |
-| **30–59** | Partial fit, significant gaps | 🔴 Consider **No-Go** |
-| **0–29** | Not qualified, critical gaps | ❌ **No-Go** — Pass |
+| **60–74** | Good fit, minor gaps addressable | 🟡 **Hold** — Manager discussion + data |
+| **30–59** | Partial fit, significant gaps | 🟡 **Hold** — Only Go if compelling mitigation |
+| **0–29** | Critical gaps, not qualified | ❌ **No-Go** — Pass, archive |
 
 **Final Score (Weighted by Orchestrator):**
+
+For **default tech roles:**
 ```
 Final = Profile 20% + Tech 35% + Culture 25% + References 15% + Strategic 5%
+```
+
+For **People Analytics/HR specialist roles:**
+```
+Final = Profile 15% + People Analytics 35% + Culture 25% + References 15% + Tech 5% + Strategic 5%
 ```
 
 ---
