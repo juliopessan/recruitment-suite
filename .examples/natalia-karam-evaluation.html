@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natália Karam — Recruitment Evaluation | Avanade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        /* Gradient utilities */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF5800 0%, #890078 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF5800 0%, #890078 100%);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #FF5800 0%, #890078 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .main-content {
+            background: white;
+            padding: 40px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Stat Cards Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #FF5800;
+            box-shadow: 0 4px 16px rgba(255, 88, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .stat-card-label {
+            font-size: 0.85em;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .stat-card-value {
+            font-size: 2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF5800 0%, #890078 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-subtext {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        /* Score Breakdown */
+        .score-breakdown {
+            margin: 30px 0;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .score-label {
+            flex: 0 0 200px;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .score-bar-container {
+            flex: 1;
+            height: 24px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 16px;
+        }
+
+        .score-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #FF5800 0%, #890078 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .score-value {
+            flex: 0 0 50px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .score-value.up {
+            color: #00A650;
+        }
+
+        .score-value.down {
+            color: #DC4600;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        th {
+            background: #f8f8f8;
+            color: #333;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            padding: 20px;
+            border-left: 4px solid;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .callout.alert {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .callout.success {
+            background: #d4edda;
+            border-left-color: #00A650;
+        }
+
+        .callout.info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+
+        .callout h4 {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        /* Section Headers */
+        h2 {
+            color: #333;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #FF5800;
+            padding-bottom: 10px;
+            font-size: 1.6em;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        /* Recommendation Panel */
+        .recommendation-panel {
+            background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+            border: 2px solid #FF5800;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .recommendation-status {
+            font-size: 1em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-decision {
+            font-size: 2.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF5800 0%, #890078 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .recommendation-text {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            background: #333;
+            color: #ccc;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.85em;
+            margin-top: 40px;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.8em;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .score-label {
+                flex: 0 0 150px;
+                font-size: 0.85em;
+            }
+
+            .recommendation-panel {
+                padding: 20px;
+            }
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge.green {
+            background: #d4edda;
+            color: #00A650;
+        }
+
+        .badge.yellow {
+            background: #fff3cd;
+            color: #cc8800;
+        }
+
+        .badge.red {
+            background: #f8d7da;
+            color: #DC4600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Recruitment Evaluation</h1>
+            <p><strong>Natália Karam</strong> | People Science / Employee Experience Consultant | Viva Glint</p>
+            <div class="hero-badge">🟡 CONDITIONAL GO — Ready with 4-Week Onboarding</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Executive Summary -->
+            <h2>📋 Executive Summary</h2>
+            <p style="font-size: 1.05em; line-height: 1.8; color: #555; margin-bottom: 20px;">
+                Natália Karam demonstrates <strong>strong cultural alignment and people-first mindset</strong> with 4-6 years of HR/People experience, Psychology degree, and proven expertise in employee engagement and organizational culture. While her <strong>Viva Glint platform expertise is a gap (0 years), this is addressable through intensive 4-week onboarding</strong> given her strong foundation in analytics, data-driven decision-making, and executive communication.
+            </p>
+
+            <!-- Recommendation Panel -->
+            <div class="recommendation-panel">
+                <div class="recommendation-status">Recommendation</div>
+                <div class="recommendation-decision">🟡 HOLD → CONDITIONAL GO</div>
+                <div class="recommendation-text">
+                    <strong>Hire with 4-week intensive Viva Glint certification + mentoring support</strong><br>
+                    Final Score: <strong style="font-size: 1.2em; color: #FF5800;">76/100</strong> | Confidence: <strong>78%</strong>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <h2>📊 Evaluation Scorecard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-label">Profile Fit</div>
+                    <div class="stat-card-value">78</div>
+                    <div class="stat-card-subtext">Background & Experience</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-label">Technical Skills</div>
+                    <div class="stat-card-value">64</div>
+                    <div class="stat-card-subtext">Viva Glint / Analytics Gap</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-label">Culture Fit</div>
+                    <div class="stat-card-value">86</div>
+                    <div class="stat-card-subtext">Values & Collaboration</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-label">References</div>
+                    <div class="stat-card-value">89</div>
+                    <div class="stat-card-subtext">Track Record & Credibility</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-label">People Analytics</div>
+                    <div class="stat-card-value">68</div>
+                    <div class="stat-card-subtext">Specialist Dimension</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-label">FINAL SCORE</div>
+                    <div class="stat-card-value" style="font-size: 2.5em;">76</div>
+                    <div class="stat-card-subtext">Weighted Average / 100</div>
+                </div>
+            </div>
+
+            <!-- Score Breakdown -->
+            <h2>🎯 Detailed Score Breakdown</h2>
+            <div class="score-breakdown">
+                <div class="score-item">
+                    <div class="score-label">Profile Fit (20%)</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar" style="width: 78%;">78</div>
+                    </div>
+                    <div class="score-value up">↑ 78</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Technical Skills (35%)</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar" style="width: 64%;">64</div>
+                    </div>
+                    <div class="score-value down">↓ 64</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Culture Fit (25%)</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar" style="width: 86%;">86</div>
+                    </div>
+                    <div class="score-value up">↑ 86</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">References (15%)</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar" style="width: 89%;">89</div>
+                    </div>
+                    <div class="score-value up">↑ 89</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">People Analytics (5%)</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar" style="width: 68%;">68</div>
+                    </div>
+                    <div class="score-value down">↓ 68</div>
+                </div>
+            </div>
+
+            <!-- Agent-by-Agent Findings -->
+            <h2>🔍 Agent-by-Agent Assessment</h2>
+
+            <h3>Agent 01: Candidate Profile Evaluator | 78/100</h3>
+            <table>
+                <tr>
+                    <th>Dimension</th>
+                    <th>Finding</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td>Years in HR/People</td>
+                    <td>4-6 years (ANDRITZ HRBP role, current engagement)</td>
+                    <td><span class="badge yellow">Mid-Level</span></td>
+                </tr>
+                <tr>
+                    <td>Consulting Background</td>
+                    <td>Internal HRBP/Specialist; no pure consulting</td>
+                    <td><span class="badge red">GAP</span></td>
+                </tr>
+                <tr>
+                    <td>Psychology/Org Dev</td>
+                    <td>✅ Psychology degree + People Management specialization (UFRGS)</td>
+                    <td><span class="badge green">Match</span></td>
+                </tr>
+                <tr>
+                    <td>Domain Expertise</td>
+                    <td>Culture, Engagement, HR Tech, Data-driven initiatives</td>
+                    <td><span class="badge green">Strong</span></td>
+                </tr>
+                <tr>
+                    <td>Multilingual</td>
+                    <td>English, Portuguese, Spanish — multicultural advantage</td>
+                    <td><span class="badge green">Strong</span></td>
+                </tr>
+            </table>
+            <div class="callout alert">
+                <h4>⚠️ Gap Alert</h4>
+                <p>No explicit 10+ years consulting experience. Role is specialist-level, not senior consultant. Consider if 4-6 years is sufficient for client engagements requiring executive positioning.</p>
+            </div>
+
+            <h3>Agent 02: Technical Skills Evaluator | 64/100</h3>
+            <table>
+                <tr>
+                    <th>Dimension</th>
+                    <th>Assessment</th>
+                    <th>Score</th>
+                </tr>
+                <tr>
+                    <td>Viva Glint Expertise</td>
+                    <td>❌ Zero explicit mention; no certification visible</td>
+                    <td><span style="color: #DC4600; font-weight: 600;">30</span></td>
+                </tr>
+                <tr>
+                    <td>Survey & Listening Programs</td>
+                    <td>✅ ANDRITZ culture engagement work (implied survey work)</td>
+                    <td><span style="color: #cc8800; font-weight: 600;">70</span></td>
+                </tr>
+                <tr>
+                    <td>Quantitative Analysis</td>
+                    <td>🟡 HR metrics + data posts; not statistician-level</td>
+                    <td><span style="color: #cc8800; font-weight: 600;">65</span></td>
+                </tr>
+                <tr>
+                    <td>Data Storytelling</td>
+                    <td>✅ "O Real Poder do RH" CNEX presentation + culture case</td>
+                    <td><span style="color: #00A650; font-weight: 600;">80</span></td>
+                </tr>
+                <tr>
+                    <td>Executive Communication</td>
+                    <td>✅ CNEX speaker, board examiner (IOS/PUCRS)</td>
+                    <td><span style="color: #00A650; font-weight: 600;">82</span></td>
+                </tr>
+            </table>
+            <div class="callout alert">
+                <h4>🟡 Critical Training Needs</h4>
+                <p><strong>Viva Glint Certification:</strong> 3-week intensive required. <strong>Statistical Rigor:</strong> Assess hypothesis testing, confidence intervals, multivariate analysis. <strong>Data Stack:</strong> Verify Power BI, Excel pivot table, analytics tool familiarity.</p>
+            </div>
+
+            <h3>Agent 03: Culture Fit Analyzer | 86/100</h3>
+            <table>
+                <tr>
+                    <th>Dimension</th>
+                    <th>Evidence</th>
+                    <th>Score</th>
+                </tr>
+                <tr>
+                    <td>Collaboration & Teamwork</td>
+                    <td>Multiple CNEX/IOS board participation; cross-org events</td>
+                    <td><span style="color: #00A650; font-weight: 600;">88</span></td>
+                </tr>
+                <tr>
+                    <td>Executive Engagement</td>
+                    <td>CHRO-level advisory (implied @ ANDRITZ strategy)</td>
+                    <td><span style="color: #00A650; font-weight: 600;">82</span></td>
+                </tr>
+                <tr>
+                    <td>Change Leadership</td>
+                    <td>HR transformation initiatives; mentoring (PUCRS)</td>
+                    <td><span style="color: #00A650; font-weight: 600;">85</span></td>
+                </tr>
+                <tr>
+                    <td>People Advocacy</td>
+                    <td>"I choose HR every day" post (10K+ reactions); genuine passion</td>
+                    <td><span style="color: #00A650; font-weight: 600;">92</span></td>
+                </tr>
+                <tr>
+                    <td>Avanade Orange DNA Fit</td>
+                    <td>Purpose-driven (social impact, education inclusion, transformation)</td>
+                    <td><span style="color: #00A650; font-weight: 600;">88</span></td>
+                </tr>
+            </table>
+            <div class="callout success">
+                <h4>✅ Culture Strengths</h4>
+                <p><strong>Genuine passion</strong> for people — not just job function. <strong>Global mindset</strong> — trilingual, cross-cultural engagement. <strong>Innovation interest</strong> — HR Tech, data-driven culture. <strong>Community builder</strong> — mentor, board member, speaker. <strong>Strong Avanade alignment</strong> — transformation leadership, social impact.</p>
+            </div>
+
+            <h3>Agent 04: Reference Validator | 89/100</h3>
+            <table>
+                <tr>
+                    <th>Claim</th>
+                    <th>Verifiable Evidence</th>
+                    <th>Confidence</th>
+                </tr>
+                <tr>
+                    <td>Psychology degree + People Mgmt spec</td>
+                    <td>✅ UFRGS tagged; PUCRS board examiner</td>
+                    <td>95%</td>
+                </tr>
+                <tr>
+                    <td>ANDRITZ HRBP role</td>
+                    <td>✅ Multiple ANDRITZ posts; HR case study speaker</td>
+                    <td>92%</td>
+                </tr>
+                <tr>
+                    <td>Culture & engagement expertise</td>
+                    <td>✅ CNEX "O Real Poder do RH" event speaker</td>
+                    <td>90%</td>
+                </tr>
+                <tr>
+                    <td>Fluent English</td>
+                    <td>✅ English-language posts; international community</td>
+                    <td>88%</td>
+                </tr>
+                <tr>
+                    <td>Mentoring/leadership</td>
+                    <td>✅ PUCRS board examiner; IOS program participation</td>
+                    <td>87%</td>
+                </tr>
+            </table>
+            <div class="callout info">
+                <h4>ℹ️ Reference Status</h4>
+                <p><strong>LinkedIn credibility:</strong> Public profile, engagement metrics, employer validation (ANDRITZ checkmark). <strong>Speaking/Board experience:</strong> Multiple public events (CNEX, IOS, PUCRS). <strong>Next step:</strong> Contact ANDRITZ CHRO or CNEX organizer for depth validation.</p>
+            </div>
+
+            <h3>Agent 05: Hiring Recommendation Engine | 76/100 (FINAL)</h3>
+            <div class="callout success">
+                <h4>✅ Weighted Calculation</h4>
+                <ul style="margin-left: 20px;">
+                    <li>Profile (78) × 20% = 15.6</li>
+                    <li>Technical (64) × 35% = 22.4</li>
+                    <li>Culture (86) × 25% = 21.5</li>
+                    <li>References (89) × 15% = 13.3</li>
+                    <li>People Analytics (68) × 5% = 3.4</li>
+                    <li><strong>Total = 76.2 → 76/100</strong></li>
+                </ul>
+            </div>
+
+            <!-- Strengths & Gaps -->
+            <h2>💪 Strengths & Gaps</h2>
+
+            <h3>✅ Strengths</h3>
+            <ul style="margin-left: 20px; line-height: 1.9;">
+                <li><strong>Culture Fit (86/100):</strong> Genuine people-first mindset; Avanade values alignment; multicultural strengths</li>
+                <li><strong>References (89/100):</strong> Credible track record; public speaking; community impact</li>
+                <li><strong>People Psychology (78%):</strong> Psychology degree + demonstrated passion for org development</li>
+                <li><strong>Executive Storytelling:</strong> CNEX speaker; case study presenter; board-level experience</li>
+                <li><strong>Engagement & Data Interest:</strong> Posts on HR Tech (600+ reactions); culture case study + metrics work</li>
+            </ul>
+
+            <h3>🟡 Gaps to Address</h3>
+            <ul style="margin-left: 20px; line-height: 1.9;">
+                <li><strong>Viva Glint (0 years):</strong> Zero certification/hands-on. Requires 3-week intensive + Microsoft Learn path</li>
+                <li><strong>Quantitative Analytics (64%):</strong> HR metrics OK; statistical rigor unproven. Pre-hire assessment recommended</li>
+                <li><strong>Consulting Mindset:</strong> Internal HRBP background; may need external client engagement coaching</li>
+                <li><strong>Experience Level (4-6 years):</strong> Mid-level vs. 10+ years consulting requirement. Addressable with mentoring</li>
+            </ul>
+
+            <!-- Next Steps -->
+            <h2>🚀 Next Steps (If Proceeding)</h2>
+            <div style="background: #f8f8f8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3>Phase 1: Pre-Hire (Week 1)</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>✅ Send conditional offer with 4-week intensive ramp-up clause</li>
+                    <li>✅ Enroll in <strong>Microsoft Viva Glint Essentials</strong> (self-paced + lab)</li>
+                    <li>✅ Azure AI fundamentals module (optional but recommended)</li>
+                    <li>✅ Pre-hire analytics assessment (scenario-based, 30 min; pass threshold 70%)</li>
+                </ul>
+
+                <h3>Phase 2: Onboarding (Weeks 1-4)</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>✅ Pair with Senior People Analytics Consultant (internal mentor)</li>
+                    <li>✅ Hands-on Viva Glint configuration (surveys, dashboards, exports)</li>
+                    <li>✅ Review existing client cases; shadow 2-3 survey deployments</li>
+                    <li>✅ Power BI for HR analytics (optional accelerator)</li>
+                </ul>
+
+                <h3>Phase 3: Ramp-to-Productivity (Weeks 5-12)</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>✅ Co-deliver first small client engagement (analyst role, not lead)</li>
+                    <li>✅ Present findings to internal stakeholders; feedback loops</li>
+                    <li>✅ Viva Glint certification exam (must pass)</li>
+                </ul>
+
+                <h3>Phase 4: Autonomy (Month 4+)</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>✅ Lead small-to-mid engagement with mentor oversight</li>
+                    <li>✅ Monthly 1:1s on skill progression, client feedback</li>
+                </ul>
+            </div>
+
+            <!-- RAG Status -->
+            <h2>🎯 RAG Status</h2>
+            <div class="callout alert" style="border-left-color: #ff8800;">
+                <h4>🟡 AMBER — Conditional GO Pending:</h4>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>✅ Pre-hire analytics assessment pass (70%+ threshold)</li>
+                    <li>✅ Acceptance of 4-week intensive Viva Glint certification</li>
+                    <li>✅ Internal mentor availability confirmed</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>Risk Mitigation:</strong> High cultural fit + psychology degree + mentoring support = tech gaps are temporary & manageable.</p>
+            </div>
+
+            <!-- Footer Summary -->
+            <div style="background: linear-gradient(135deg, #f0f0f0 0%, #ffffff 100%); padding: 20px; border-radius: 8px; margin-top: 40px; border-left: 4px solid #FF5800;">
+                <h3>📌 Hiring Recommendation Summary</h3>
+                <p><strong>Candidate:</strong> Natália Karam | <strong>Role:</strong> People Science / Employee Experience Consultant | Viva Glint</p>
+                <p><strong>Final Score:</strong> <span style="color: #FF5800; font-weight: 700; font-size: 1.1em;">76/100</span> | <strong>Confidence:</strong> 78%</p>
+                <p><strong>Decision:</strong> 🟡 <strong>HOLD → Conditional GO</strong> with 4-week intensive onboarding + mentoring</p>
+                <p style="margin-top: 15px; line-height: 1.8;"><strong>Rationale:</strong> Culture fit is strong (86/100). Psychology background + demonstrated passion for org development provide solid foundation. Tech gaps (Viva Glint = 0 years) are addressable with structured ramp-up. Recommend hiring contingent on pre-hire analytics assessment pass and acceptance of 4-week certification plan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p><strong>Recruitment Suite v1.0</strong> | Multi-Agent Evaluation System</p>
+        <p>Avanade Orange DNA | People Analytics Specialist Role</p>
+        <p>Generated: July 8, 2026 | Evaluation Timestamp: Complete 6-Agent Assessment</p>
+    </div>
+</body>
+</html>
