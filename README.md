@@ -82,7 +82,59 @@ Final = Profile 20% + Tech 35% + Culture 25% + References 15% + Strategic 5%
 
 ---
 
-## Key Rules
+## 📝 Job Description Templates
+
+Pre-built, reusable templates for recurring AI & Data roles. All templates follow Avanade standard format with benefits, responsibilities, and qualifications.
+
+**Available Templates:** [`.github/templates/`](.github/templates/)
+
+| # | Title | Stack | Seniority |
+|---|-------|-------|-----------|
+| 01 | Senior Platform Engineer | Azure / Kubernetes | Sênior (8–12y) |
+| 02 | Engenheiro(a) de Dados Sênior | GCP / BigQuery | Sênior (5–7y) |
+| 03 | Data Architect Sênior | Microsoft Fabric / Databricks | Sênior (8+y) |
+| 04 | Cientista de Dados Sênior | Azure Databricks / MLOps | Sênior (6+y) |
+| 05 | Consultor(a) de Transformação Digital | Microsoft Ecosystem | Sênior (7+y) |
+| 06 | Lead Engenheiro(a) de Dados | Azure / Data Mesh | Lead (7+y) |
+| 07 | Solution Architect | Azure Data Platform | Sênior (8+y) |
+| 08 | Analista de Visualização de Dados Sênior | Power BI / Azure | Sênior (5+y) |
+| 09 | GenAI Engineer | Azure OpenAI / Semantic Kernel | Sênior (6+y) |
+
+**How to Use:**
+1. Browse [`.github/templates/README.md`](.github/templates/README.md) for index
+2. Copy relevant template into evaluation markdown
+3. Customize title/location as needed
+4. Reference for traceability
+
+---
+
+## 🎯 Complete Evaluation Workflow
+
+End-to-end candidate evaluation workflow: **Markdown input → Agent analysis → HTML report output**
+
+**Documentation:** [`.examples/`](.examples/)
+
+| Guide | Purpose | Start Here |
+|-------|---------|------------|
+| [README.md](.examples/README.md) | Main entry point | ⭐ Começar aqui |
+| [WORKFLOW.md](.examples/WORKFLOW.md) | Complete step-by-step process | Complete process |
+| [EVALUATION_TEMPLATE.md](.examples/EVALUATION_TEMPLATE.md) | Copy for new candidates | New evaluation |
+| [CANDIDATES_ROADMAP.md](.examples/CANDIDATES_ROADMAP.md) | Tracking + archive | View history |
+| [WORKFLOW_STATUS.md](.examples/WORKFLOW_STATUS.md) | Verification & status | Implementation details |
+
+**Quick Start:** 
+1. Read [`.examples/README.md`](.examples/README.md)
+2. Copy [`.examples/EVALUATION_TEMPLATE.md`](.examples/EVALUATION_TEMPLATE.md)
+3. Run playbook (Quick Screen / Full / Full+Analytics)
+4. Generate HTML report
+5. Update [`.examples/CANDIDATES_ROADMAP.md`](.examples/CANDIDATES_ROADMAP.md)
+
+**Examples:**
+- [sample-evaluation.md](.examples/sample-evaluation.md) — Full Evaluation example
+- [sample-evaluation.html](.examples/sample-evaluation.html) — Rendered HTML
+- [`candidates/`](.examples/candidates/) — Archive folder for all new evaluations
+
+---
 
 ✅ **Do:**
 - Use **scoring matrices** (tables first, then narrative)
