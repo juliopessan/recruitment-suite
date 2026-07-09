@@ -50,14 +50,24 @@ async def run_analysis(
 
     # 2. LinkedIn enrichment via Exa (best-effort)
     linkedin_profile = None
+    enrichment_error: Optional[str] = None
     if linkedin_url:
         try:
             linkedin_profile = enrich_linkedin(linkedin_url)
             notes.append("LinkedIn enriched via Exa")
         except EnrichmentError as exc:
+            enrichment_error = str(exc)
             notes.append(f"LinkedIn enrichment skipped: {exc}")
 
     if not cv_text and not linkedin_profile:
+        if enrichment_error:
+            # LinkedIn was the only source and Exa could not deliver — say why
+            detail = f"LinkedIn enrichment failed: {enrichment_error}"
+            if "EXA_API_KEY" in enrichment_error:
+                detail += ". Configure the EXA_API_KEY environment variable on the server, or upload a CV file instead."
+            else:
+                detail += ". Try uploading a CV file instead."
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail)
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             "Provide a CV file and/or a LinkedIn URL so the agents have candidate data",

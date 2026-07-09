@@ -91,3 +91,16 @@ class TestAnalyze:
         assert response.status_code == 200
         notes = " ".join(response.json()["pipeline_notes"])
         assert "enrichment skipped" in notes
+
+    def test_analyze_linkedin_only_without_exa_key_explains_why(self, cleanup_after_each, monkeypatch):
+        """LinkedIn-only requests fail with an actionable message when Exa is unavailable."""
+        monkeypatch.delenv("EXA_API_KEY", raising=False)
+        response = client.post(
+            "/api/analyze/run",
+            data={
+                "job_description": SAMPLE_JD,
+                "linkedin_url": "https://linkedin.com/in/someone",
+            },
+        )
+        assert response.status_code == 502
+        assert "EXA_API_KEY" in response.json()["detail"]
