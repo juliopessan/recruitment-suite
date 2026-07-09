@@ -43,27 +43,35 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-primary-500 to-secondary-600">
-      {/* Ambient animated blobs */}
-      <motion.div
-        aria-hidden
-        className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-white/10 blur-3xl"
-        animate={{ x: [0, 40, 0], y: [0, 24, 0], scale: [1, 1.15, 1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        aria-hidden
-        className="absolute -bottom-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-secondary-300/20 blur-3xl"
-        animate={{ x: [0, -32, 0], y: [0, -20, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-      />
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-gray-50 to-white text-gray-900 flex flex-col">
+      {/* Header */}
+      <header className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <motion.h1
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700"
+        >
+          Recruitment Suite
+        </motion.h1>
+        <motion.button
+          onClick={() => navigate('/')}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+        >
+          ← Back
+        </motion.button>
+      </header>
 
-      <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 24 }}
-        className="card w-full max-w-md relative z-10 backdrop-blur"
-      >
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 24 }}
+          className="w-full max-w-md bg-white rounded-xl shadow-lg border border-gray-200 p-8"
+        >
         <motion.h1
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -120,7 +128,20 @@ export default function LoginPage() {
         <p className="text-center text-sm text-gray-600 mt-6">
           Demo: Use any email and password
         </p>
+
+        <div className="text-center mt-8 pt-6 border-t border-gray-200">
+          <p className="text-sm text-gray-600 mb-3">New to Recruitment Suite?</p>
+          <motion.button
+            onClick={() => navigate('/')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-primary-600 font-medium hover:text-primary-700 text-sm"
+          >
+            Learn more about our platform →
+          </motion.button>
+        </div>
       </motion.div>
+      </div>
     </div>
   )
 }

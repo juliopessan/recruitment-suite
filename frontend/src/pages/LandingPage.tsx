@@ -93,6 +93,28 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white text-gray-900">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700"
+          >
+            Recruitment Suite
+          </motion.div>
+          <motion.button
+            onClick={() => navigate('/login')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-2 rounded-lg border border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition-all"
+          >
+            Sign In
+          </motion.button>
+        </div>
+      </header>
+
       {/* Hero Section */}
       <Page className="max-w-6xl mx-auto px-4 py-20">
         <motion.div
