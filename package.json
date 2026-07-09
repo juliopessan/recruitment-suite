@@ -86,5 +86,8 @@
     "instructions": ".github/instructions/recruitment-suite.instructions.md",
     "memory": ".github/memory/recruitment-memory.md",
     "example": ".examples/sample-evaluation.md"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
   }
 }
