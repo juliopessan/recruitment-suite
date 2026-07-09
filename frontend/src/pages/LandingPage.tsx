@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
+import { logout } from '@/store/slices/authSlice'
 import {
   Brain,
   Zap,
@@ -11,11 +13,19 @@ import {
   ArrowRight,
   Users,
   Sparkles,
+  LogOut,
 } from 'lucide-react'
 import { Page, StaggerItem, LiftCard, AnimatedNumber, scoreColor } from '@/components/motion'
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const user = useAppSelector((state) => state.auth.user)
+
+  const handleLogout = () => {
+    dispatch(logout())
+    window.location.reload()
+  }
 
   const features = [
     {
@@ -104,14 +114,33 @@ export default function LandingPage() {
           >
             Recruitment Suite
           </motion.div>
-          <motion.button
-            onClick={() => navigate('/login')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-2 rounded-lg border border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition-all"
-          >
-            Sign In
-          </motion.button>
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600">
+                  Welcome, <span className="font-medium">{user.name}</span>
+                </span>
+                <motion.button
+                  onClick={handleLogout}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-4 py-2 rounded-lg border border-red-600 text-red-600 font-medium hover:bg-red-50 transition-all flex items-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </motion.button>
+              </>
+            ) : (
+              <motion.button
+                onClick={() => navigate('/login')}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-2 rounded-lg border border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition-all"
+              >
+                Sign In
+              </motion.button>
+            )}
+          </div>
         </div>
       </header>
 
