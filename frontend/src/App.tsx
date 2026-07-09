@@ -10,6 +10,7 @@ import MainLayout from '@/components/layouts/MainLayout'
 import AuthLayout from '@/components/layouts/AuthLayout'
 
 // Pages
+import LandingPage from '@/pages/LandingPage'
 import LoginPage from '@/pages/LoginPage'
 import DashboardPage from '@/pages/DashboardPage'
 import AnalyzePage from '@/pages/AnalyzePage'
@@ -29,10 +30,11 @@ function AppContent() {
     <Routes>
       {!token ? (
         <>
+          <Route path="/" element={<LandingPage />} />
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
           </Route>
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </>
       ) : (
         <>
