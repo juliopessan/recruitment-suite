@@ -22,6 +22,7 @@ import JobDetailPage from '@/pages/jobs/JobDetailPage'
 import JobFormPage from '@/pages/jobs/JobFormPage'
 import EvaluationsPage from '@/pages/evaluations/EvaluationsPage'
 import EvaluationResultPage from '@/pages/evaluations/EvaluationResultPage'
+import SettingsPage from '@/pages/SettingsPage'
 
 function AppContent() {
   const token = useAppSelector((state) => state.auth.token)
@@ -51,6 +52,7 @@ function AppContent() {
             <Route path="/jobs/:id/edit" element={<JobFormPage />} />
             <Route path="/evaluations" element={<EvaluationsPage />} />
             <Route path="/evaluations/:id" element={<EvaluationResultPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
