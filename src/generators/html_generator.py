@@ -1,5 +1,6 @@
 """HTML Report Generator."""
 
+from datetime import datetime, timezone
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from src.models import EvaluationResult
@@ -23,12 +24,21 @@ class HTMLReportGenerator:
             autoescape=True,
         )
 
-    def generate(self, evaluation_result: EvaluationResult) -> str:
+    def generate(
+        self,
+        evaluation_result: EvaluationResult,
+        candidate_name: str = None,
+        job_title: str = None,
+        job_company: str = None,
+    ) -> str:
         """
         Generate HTML report.
 
         Args:
             evaluation_result: Complete evaluation result
+            candidate_name: Display name for the candidate (falls back to candidate_id)
+            job_title: Display title for the job (falls back to job_id)
+            job_company: Optional company name shown next to the job title
 
         Returns:
             HTML string
@@ -37,8 +47,10 @@ class HTMLReportGenerator:
 
         # Prepare context
         context = {
-            "candidate": evaluation_result.evaluation.candidate_id,
-            "job_id": evaluation_result.evaluation.job_id,
+            "candidate_name": candidate_name or evaluation_result.evaluation.candidate_id,
+            "job_title": job_title or evaluation_result.evaluation.job_id,
+            "job_company": job_company,
+            "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
             "final_score": evaluation_result.evaluation.final_score,
             "recommendation": evaluation_result.recommendation.status.value,
             "confidence": evaluation_result.recommendation.confidence_level,
@@ -56,6 +68,30 @@ class HTMLReportGenerator:
         }
 
         return template.render(**context)
+
+    def generate_from_context(self, context: dict) -> str:
+        """
+        Generate HTML report from a raw context dict (e.g. built from a DB record),
+        bypassing the EvaluationResult domain object. Missing optional keys default
+        to sensible empty values so the template never errors on partial data.
+
+        Args:
+            context: Fields matching the report.html.jinja template variables
+
+        Returns:
+            HTML string
+        """
+        template = self.env.get_template("report.html.jinja")
+        defaults = {
+            "job_company": None,
+            "people_analytics_score": None,
+            "strengths": [],
+            "gaps": [],
+            "flags": [],
+            "next_steps": [],
+            "onboarding": [],
+        }
+        return template.render(**{**defaults, **context})
 
     def save(self, evaluation_result: EvaluationResult, output_path: str) -> str:
         """

@@ -1,9 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { FileText } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchEvaluation } from '@/store/slices/evaluationsSlice'
 import { Page, StaggerItem, AnimatedNumber, ScoreBar, scoreColor } from '@/components/motion'
+
+const API_URL =
+  import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:8000')
 
 export default function EvaluationResultPage() {
   const { id } = useParams<{ id: string }>()
@@ -55,9 +59,20 @@ export default function EvaluationResultPage() {
     <Page className="space-y-6">
       <StaggerItem className="flex justify-between items-center">
         <h1>Evaluation Result</h1>
-        <button onClick={() => navigate('/evaluations')} className="btn-secondary">
-          Back
-        </button>
+        <div className="flex gap-2">
+          <a
+            href={`${API_URL}/api/evaluations/${id}/report`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary flex items-center gap-2"
+          >
+            <FileText size={16} />
+            View Full Report
+          </a>
+          <button onClick={() => navigate('/evaluations')} className="btn-secondary">
+            Back
+          </button>
+        </div>
       </StaggerItem>
 
       <motion.div

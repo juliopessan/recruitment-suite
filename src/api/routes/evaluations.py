@@ -3,10 +3,12 @@
 from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from src.database import EvaluationRecord, CandidateRecord, JobRecord, get_db
 from src.models import Candidate, JobDescription, Evaluation, EvaluationResult
 from src.agents.orchestrator import RecruitmentOrchestrator
+from src.generators import HTMLReportGenerator
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -176,6 +178,49 @@ def list_evaluations(
 
     evaluations = query.offset(skip).limit(limit).all()
     return evaluations
+
+
+@router.get("/{evaluation_id}/report", response_class=HTMLResponse)
+def get_evaluation_report(evaluation_id: str, db: Session = Depends(get_db)):
+    """Render a detailed HTML report for an evaluation."""
+    evaluation = db.query(EvaluationRecord).filter(
+        EvaluationRecord.id == evaluation_id
+    ).first()
+
+    if not evaluation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Evaluation {evaluation_id} not found"
+        )
+
+    candidate = db.query(CandidateRecord).filter(
+        CandidateRecord.id == evaluation.candidate_id
+    ).first()
+    job = db.query(JobRecord).filter(JobRecord.id == evaluation.job_id).first()
+
+    generator = HTMLReportGenerator()
+    html = generator.generate_from_context({
+        "candidate_name": candidate.name if candidate else evaluation.candidate_id,
+        "job_title": job.title if job else evaluation.job_id,
+        "job_company": job.company if job else None,
+        "generated_at": evaluation.created_at.strftime("%Y-%m-%d %H:%M UTC") if evaluation.created_at else "",
+        "final_score": evaluation.final_score,
+        "recommendation": evaluation.recommendation_status,
+        "confidence": evaluation.confidence,
+        "profile_score": evaluation.profile_score,
+        "technical_score": evaluation.technical_score,
+        "culture_score": evaluation.culture_score,
+        "reference_score": evaluation.reference_score,
+        "people_analytics_score": evaluation.people_analytics_score,
+        "strategic_bonus": evaluation.strategic_bonus,
+        "strengths": evaluation.strengths or [],
+        "gaps": evaluation.gaps or [],
+        "flags": evaluation.critical_flags or [],
+        "next_steps": evaluation.next_steps or [],
+        "onboarding": evaluation.onboarding_plan or [],
+    })
+
+    return HTMLResponse(content=html)
 
 
 @router.get("/candidate/{candidate_id}/history", response_model=List[EvaluationResponse])

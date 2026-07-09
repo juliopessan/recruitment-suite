@@ -342,6 +342,29 @@ class TestEvaluations:
         assert "rationale" in data
         assert "strengths" in data
 
+    def test_get_evaluation_html_report(self, setup_candidate_and_job):
+        """Test retrieving the detailed HTML report for an evaluation."""
+        cand_id, job_id = setup_candidate_and_job
+
+        eval_data = {
+            "candidate_id": cand_id,
+            "job_id": job_id,
+            "playbook": "quick-screen"
+        }
+        create_response = client.post("/api/evaluations/run", json=eval_data)
+        eval_id = create_response.json()["id"]
+
+        response = client.get(f"/api/evaluations/{eval_id}/report")
+        assert response.status_code == 200
+        assert "text/html" in response.headers["content-type"]
+        assert "Candidate Evaluation Report" in response.text
+        assert "Score Breakdown" in response.text
+
+    def test_get_evaluation_html_report_not_found(self):
+        """Test HTML report for a nonexistent evaluation returns 404."""
+        response = client.get("/api/evaluations/nonexistent_eval/report")
+        assert response.status_code == 404
+
     def test_list_evaluations(self, setup_candidate_and_job):
         """Test listing evaluations."""
         cand_id, job_id = setup_candidate_and_job
