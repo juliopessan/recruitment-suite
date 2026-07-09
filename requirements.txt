@@ -1,13 +1,15 @@
-click==8.1.7
-pydantic==2.5.0
-jinja2==3.1.2
-weasyprint==60.1
-requests==2.31.0
-python-dotenv==1.0.0
-pandas==2.1.3
-pyyaml==6.0.1
-sqlalchemy==2.0.23
-fastapi==0.104.1
-uvicorn==0.24.0
-pytest==7.4.3
-httpx==0.25.2
+click>=8.1
+pydantic>=2.9
+jinja2>=3.1
+requests>=2.31
+python-dotenv>=1.0
+pandas>=2.1
+pyyaml>=6.0
+sqlalchemy>=2.0
+fastapi>=0.110
+uvicorn>=0.29
+pytest>=7.4
+httpx>=0.27
+
+# Optional: PDF report generation (requires system cairo/pango libs)
+# weasyprint>=60
