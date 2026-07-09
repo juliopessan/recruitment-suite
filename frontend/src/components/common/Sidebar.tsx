@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Home,
+  Sparkles,
   Users,
   Briefcase,
   CheckCircle,
@@ -17,6 +18,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { to: '/', icon: <Home size={20} />, label: 'Dashboard' },
+  { to: '/analyze', icon: <Sparkles size={20} />, label: 'Analyze' },
   { to: '/candidates', icon: <Users size={20} />, label: 'Candidates' },
   { to: '/jobs', icon: <Briefcase size={20} />, label: 'Jobs' },
   { to: '/evaluations', icon: <CheckCircle size={20} />, label: 'Evaluations' },

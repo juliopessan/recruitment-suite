@@ -10,6 +10,9 @@ fastapi>=0.110
 uvicorn>=0.29
 pytest>=7.4
 httpx>=0.27
+pypdf>=4.0
+python-docx>=1.1
+python-multipart>=0.0.9
 
 # Optional: PDF report generation (requires system cairo/pango libs)
 # weasyprint>=60

@@ -12,6 +12,7 @@ import AuthLayout from '@/components/layouts/AuthLayout'
 // Pages
 import LoginPage from '@/pages/LoginPage'
 import DashboardPage from '@/pages/DashboardPage'
+import AnalyzePage from '@/pages/AnalyzePage'
 import CandidatesPage from '@/pages/candidates/CandidatesPage'
 import CandidateDetailPage from '@/pages/candidates/CandidateDetailPage'
 import CandidateFormPage from '@/pages/candidates/CandidateFormPage'
@@ -37,6 +38,7 @@ function AppContent() {
         <>
           <Route element={<MainLayout />}>
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/analyze" element={<AnalyzePage />} />
             <Route path="/candidates" element={<CandidatesPage />} />
             <Route path="/candidates/new" element={<CandidateFormPage />} />
             <Route path="/candidates/:id" element={<CandidateDetailPage />} />
