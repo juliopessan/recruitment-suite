@@ -1,0 +1,4 @@
+Force production deployment
+Version: 1.0.0
+Date: 2024-12-19
+Deploy main branch to https://recruitment-suite.vercel.app
