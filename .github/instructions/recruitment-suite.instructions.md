@@ -103,34 +103,46 @@ When creating or editing a `.agent.md`:
 ## 6. Scoring Methodology (Unified)
 
 All agents use **0–100 scale** with this interpretation:
-- **0–30:** Not qualified / Critical gap / Recommended pass (No-Go)
-- **30–60:** Partial fit / Gaps addressable / Needs more data (Hold)
-- **60–75:** Good fit / Minor gaps / Consider with caveats (Go with conditions)
-- **75–100:** Excellent fit / Exceeds requirement / Strong Go
+- **0–29:** Not qualified / Critical gaps / Recommended pass → **No-Go**
+- **30–59:** Partial fit / Significant gaps addressable / Needs more data → **Hold** (unless compelling mitigation)
+- **60–74:** Good fit / Minor gaps / Ready for discussion → **Hold** (clarify, then decide)
+- **75–100:** Excellent fit / Exceeds requirements → **Go** (move to offer)
 
 **Weighted Final Score (Orchestrator):**
+
+For **Tech + Profile + Culture + References** roles (default):
 ```
 Final Score = (Profile 20% + Tech 35% + Culture 25% + References 15% + Strategic 5%)
 ```
 
-**Decision Thresholds:**
-- ≥75: Go (move to offer)
-- 60–74: Hold (need clarification or manager discussion)
-- <60: No-Go (pass, archive)
+For **People Analytics/HR specialist** roles:
+```
+Final Score = (Profile 15% + People Analytics 35% + Culture 25% + References 15% + Strategic 5% + Tech 5%)
+```
+(Use when JD explicitly requires People Science / Viva Glint expertise; weighted via Agent 06)
+
+**Decision Thresholds (Authoritative):**
+- **75+:** ✅ **Go** — Move to offer
+- **60–74:** 🟡 **Hold** — Need manager discussion or additional data (see flag summary)
+- **30–59:** 🟡 **Hold** — Significant gaps; only Go if compelling strategic reason + manager approval
+- **<30:** ❌ **No-Go** — Pass, archive
 
 ## 7. Smart-Routing Rules (Orchestrator)
 
-- If Final Score < 50 → Recommend No-Go immediately
-- If any score < 50 AND that dimension is critical → Escalate for manager call
-- If Culture-Tech gap > 30 points → Flag for structured behavioral interview
-- If Reference verification pending → Conditional Go only (offer contingent on ref check)
-- If multiple gaps (Profile + Tech both <60) → No-Go, unless strategic exception
+- If Final Score <30 → **No-Go** (automatic)
+- If Final Score 30–59 + significant gaps → **Hold** (manager judgment; only Go with compelling mitigation)
+- If Final Score 60–74 → **Hold** (requires manager discussion or additional data)
+- If Final Score 75+ + no critical flags → **Go** (move to offer)
+- If any score < 50 AND dimension is critical (Tech for engineer, Culture for lead) → **Escalate** for manager call
+- If Culture-Tech gap > 30 points → **Flag** for structured behavioral interview
+- If Reference verification pending → **Conditional Go only** (offer contingent on ref check)
+- If Profile < 50 AND Tech < 50 → **Recommend No-Go** (multiple foundational gaps)
 
 ## 8. Live Reference Documents
 
-- (Coming) `attached/sample-job-description.md` — Sr. DevOps Engineer at Avanade
-- (Coming) `attached/sample-evaluation.md` — Full run example (all 6 agents)
-- (Coming) `attached/playbook-runs/` — Historical playbook executions (for metrics)
+- ✅ `.examples/sample-evaluation.md` — Full playbook run example (anonymized)
+- `.examples/CANDIDATES_ROADMAP.md` — Candidate pipeline template
+- (Coming) `playbook-runs/` — Historical playbook executions + metrics dashboard
 
 ## 9. Open Backlog
 

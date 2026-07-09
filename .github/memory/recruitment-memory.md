@@ -40,7 +40,7 @@ recruitment-suite/
 └── package.json
 ```
 
-## 4. Agent Inventory (6 agents)
+## 4. Agent Inventory (7 agents)
 
 | # | Agent | Role | Key Responsibility |
 |---|-------|------|-------------------|
@@ -92,9 +92,9 @@ Final Score = (Profile 20% + Tech 35% + Culture 25% + References 15% + Strategic
 
 ## 9. Active Reference Documents
 
-- (Coming) `attached/sample-job-description.md` — Sr. DevOps Engineer example
-- (Coming) `attached/sample-evaluation.md` — Full playbook run
-- (Coming) `attached/playbook-runs/` — Historical executions
+- ✅ `.examples/sample-evaluation.md` — Full playbook run (anonymized)
+- ✅ `.github/templates/` — Job description templates (9 pre-built roles)
+- (Coming) `playbook-runs/` — Historical executions + metrics
 
 ## 10. Open Backlog
 

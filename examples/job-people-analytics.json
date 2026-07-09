@@ -1,0 +1,43 @@
+{
+  "id": "job_001_people_analytics",
+  "title": "People Analytics / Employee Experience Consultant",
+  "company": "Avanade",
+  "location": "São Paulo, Brazil",
+  "description": "Design and execute employee listening strategies using Viva Glint. Transform insights into meaningful actions for organizational performance.",
+  "responsibilities": [
+    "Plan, configure, and implement employee listening programs using Viva Glint",
+    "Manage full survey lifecycle (planning, deployment, monitoring, reporting)",
+    "Analyze quantitative and qualitative data to identify engagement drivers",
+    "Translate insights into strategic recommendations for executive leadership",
+    "Act as trusted advisor to senior stakeholders including CHRO-level",
+    "Deliver executive presentations focused on business value",
+    "Lead change management and organizational enablement initiatives",
+    "Apply people analytics frameworks to link employee experience with business outcomes"
+  ],
+  "required_skills": [
+    "People Analytics",
+    "Viva Glint",
+    "Quantitative Analysis",
+    "Organizational Psychology",
+    "Executive Communication",
+    "Change Management",
+    "Survey Methodology",
+    "Statistical Analysis"
+  ],
+  "nice_to_have_skills": [
+    "Microsoft Viva Insights",
+    "Viva Copilot",
+    "Power BI",
+    "Python/R",
+    "HR Transformation",
+    "M365 Integration"
+  ],
+  "years_experience_required": 10,
+  "seniority_level": "Senior",
+  "required_languages": [
+    "English",
+    "Portuguese"
+  ],
+  "hiring_urgency": "Medium",
+  "team_context": "LATAM People Analytics expansion. Supporting digital transformation in employee experience. Reporting to Chief People Officer."
+}

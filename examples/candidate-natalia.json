@@ -1,0 +1,25 @@
+{
+  "id": "cand_natalia_karam",
+  "profile": {
+    "name": "Natália Karam",
+    "email": "natalia@example.com",
+    "phone": "+55 51 98765-4321",
+    "location": "Porto Alegre, Brazil",
+    "linkedin_url": "https://linkedin.com/in/nataliakaram",
+    "total_years_experience": 12,
+    "education": [
+      "Psychology (UFRGS, 2011-2017)",
+      "People Management (PUCRS, 2019-2020)"
+    ],
+    "certifications": [
+      "Bootcamp - Programming for Beginners (IGTI)",
+      "Internal HR Consulting (FALE/Helena Brochado)"
+    ],
+    "languages": [
+      "Portuguese",
+      "English",
+      "Spanish"
+    ]
+  },
+  "cv_text": "Global HR Specialist at ANDRITZ with 12+ years experience. Psychology degree. Viva Glint expertise. People analytics, engagement management, leadership development, culture transformation."
+}

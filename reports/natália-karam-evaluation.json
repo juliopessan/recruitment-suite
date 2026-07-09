@@ -1,0 +1,240 @@
+{
+  "evaluation": {
+    "id": "eval_1783589652.314549",
+    "candidate_id": "cand_natalia_karam",
+    "job_id": "job_001_people_analytics",
+    "agent_scores": {
+      "01-profile": {
+        "agent": "01-profile",
+        "score": 81,
+        "timestamp": "2026-07-09 09:34:12.314689",
+        "dimension_scores": [
+          {
+            "dimension": "Years of Experience",
+            "score": 85,
+            "weight": 0.25,
+            "contribution": 21.25,
+            "gaps": [],
+            "strengths": [
+              "Exceeds requirement"
+            ],
+            "agent": "01-profile"
+          },
+          {
+            "dimension": "Education & Domain Expertise",
+            "score": 75,
+            "weight": 0.3,
+            "contribution": 22.5,
+            "gaps": [],
+            "strengths": [],
+            "agent": "01-profile"
+          },
+          {
+            "dimension": "Career Trajectory",
+            "score": 80,
+            "weight": 0.2,
+            "contribution": 16.0,
+            "gaps": [],
+            "strengths": [],
+            "agent": "01-profile"
+          },
+          {
+            "dimension": "Language Requirements",
+            "score": 95,
+            "weight": 0.15,
+            "contribution": 14.25,
+            "gaps": [],
+            "strengths": [],
+            "agent": "01-profile"
+          }
+        ],
+        "analysis": "\nProfile Evaluation for Nat\u00e1lia Karam:\n\n**Experience:** 12 years (requires 10y)\n**Education:** Psychology (UFRGS, 2011-2017), People Management (PUCRS, 2019-2020)\n**Languages:** Portuguese, English, Spanish\n\nStrengths: Meets/exceeds 10y requirement (12y), Career progression visible in profile, All required languages: English, Portuguese\nGaps: None detected\n",
+        "red_flags": [],
+        "recommendations": []
+      },
+      "03-culture": {
+        "agent": "03-culture",
+        "score": 92,
+        "timestamp": "2026-07-09 09:34:12.314785",
+        "dimension_scores": [
+          {
+            "dimension": "Soft-skill Signals",
+            "score": 87,
+            "weight": 0.6,
+            "contribution": 52.199999999999996,
+            "gaps": [],
+            "strengths": [],
+            "agent": "03-culture"
+          },
+          {
+            "dimension": "Team-context Alignment",
+            "score": 100,
+            "weight": 0.25,
+            "contribution": 25.0,
+            "gaps": [],
+            "strengths": [],
+            "agent": "03-culture"
+          },
+          {
+            "dimension": "Communication Readiness",
+            "score": 100,
+            "weight": 0.15,
+            "contribution": 15.0,
+            "gaps": [],
+            "strengths": [],
+            "agent": "03-culture"
+          }
+        ],
+        "analysis": "Culture fit for Nat\u00e1lia Karam: 4 soft-skill signal(s) detected; 3 language(s). Strengths: Soft-skill signals: leadership, culture, engagement, transformation; Team-context alignment: analytics, experience., people, transformation; Multilingual (3 languages)",
+        "red_flags": [],
+        "recommendations": []
+      },
+      "04-references": {
+        "agent": "04-references",
+        "score": 95,
+        "timestamp": "2026-07-09 09:34:12.314843",
+        "dimension_scores": [
+          {
+            "dimension": "Record Verifiability",
+            "score": 95,
+            "weight": 1.0,
+            "contribution": 95.0,
+            "gaps": [],
+            "strengths": [
+              "LinkedIn profile provided",
+              "Education entries include verifiable dates/institutions",
+              "2 certification(s) verifiable with issuers"
+            ],
+            "agent": "04-references"
+          }
+        ],
+        "analysis": "Reference validation for Nat\u00e1lia Karam: verifiability score 95/100 based on public profiles, dated education and certifications. Formal reference calls still pending.",
+        "red_flags": [],
+        "recommendations": [
+          "Complete formal reference calls before offer"
+        ]
+      },
+      "06-people-analytics": {
+        "agent": "06-people-analytics",
+        "score": 88,
+        "timestamp": "2026-07-09 09:34:12.314928",
+        "dimension_scores": [
+          {
+            "dimension": "Employee Listening Platforms",
+            "score": 100,
+            "weight": 0.2,
+            "contribution": 20.0,
+            "gaps": [],
+            "strengths": [
+              "viva glint",
+              "glint"
+            ],
+            "agent": "06-people-analytics"
+          },
+          {
+            "dimension": "Analytics & Statistics",
+            "score": 100,
+            "weight": 0.2,
+            "contribution": 20.0,
+            "gaps": [],
+            "strengths": [
+              "people analytics",
+              "r"
+            ],
+            "agent": "06-people-analytics"
+          },
+          {
+            "dimension": "Organizational Psychology",
+            "score": 100,
+            "weight": 0.2,
+            "contribution": 20.0,
+            "gaps": [],
+            "strengths": [
+              "psychology",
+              "engagement"
+            ],
+            "agent": "06-people-analytics"
+          },
+          {
+            "dimension": "Survey & Listening Programs",
+            "score": 40,
+            "weight": 0.2,
+            "contribution": 8.0,
+            "gaps": [],
+            "strengths": [],
+            "agent": "06-people-analytics"
+          },
+          {
+            "dimension": "HR Domain Experience",
+            "score": 100,
+            "weight": 0.2,
+            "contribution": 20.0,
+            "gaps": [],
+            "strengths": [
+              "hr",
+              "people management",
+              "leadership development"
+            ],
+            "agent": "06-people-analytics"
+          }
+        ],
+        "analysis": "People Analytics evaluation for Nat\u00e1lia Karam: 4/5 expertise dimensions evidenced. Employee Listening Platforms: viva glint, glint; Analytics & Statistics: people analytics, r; Organizational Psychology: psychology, engagement; HR Domain Experience: hr, people management, leadership development",
+        "red_flags": [
+          "No evidence of Survey & Listening Programs"
+        ],
+        "recommendations": [
+          "Assess in case study: Survey & Listening Programs"
+        ]
+      },
+      "05-recommendation": {
+        "agent": "05-recommendation",
+        "score": 88,
+        "timestamp": "2026-07-09 09:34:12.315011",
+        "dimension_scores": [],
+        "analysis": "\nFINAL HIRING RECOMMENDATION\n\nCandidate: Nat\u00e1lia Karam\nPosition: People Analytics / Employee Experience Consultant at Avanade\n\nFinal Score: 88/100\nRecommendation: GO\nConfidence: 88%\n\nScore Breakdown:\n- Profile: 81/100 (20%)\n- Technical: 0/100 (35%)\n- Culture: 92/100 (25%)\n- References: 95/100 (15%)\n- Strategic Bonus: +3\n\nKey Strengths:\n\n\nAddressable Gaps:\n\n\nCritical Flags:\n\u2022 None detected\n\nNext Steps:\n\n\nOnboarding Plan:\n\u2022 TBD\n",
+        "red_flags": [],
+        "recommendations": []
+      }
+    },
+    "profile_score": 81,
+    "technical_score": 0,
+    "culture_score": 92,
+    "reference_score": 95,
+    "people_analytics_score": 88,
+    "strategic_bonus": 3,
+    "final_score": 88,
+    "confidence": 90,
+    "created_at": "2026-07-09 09:34:12.314575",
+    "updated_at": "2026-07-09 09:34:12.314575"
+  },
+  "recommendation": {
+    "final_score": 88,
+    "status": "GO",
+    "rationale": "Final score 88/100: Proceed to offer stage",
+    "key_strengths": [
+      "Strong Profile (81/100)",
+      "Strong Technical (88/100)",
+      "Strong Culture (92/100)",
+      "Strong References (95/100)"
+    ],
+    "addressable_gaps": [],
+    "critical_flags": [],
+    "next_steps": [
+      "\u2705 Extend offer",
+      "\u2705 Complete reference verification",
+      "\u2705 Background check",
+      "\u2705 Schedule onboarding"
+    ],
+    "onboarding_plan": [
+      "Week 1-2: Orientation & company culture",
+      "Week 2-4: Technical deep-dive & skill assessment",
+      "Week 4-6: First project (paired with mentor)",
+      "Week 6+: Full autonomy & ramp-up"
+    ],
+    "confidence_level": 90,
+    "created_at": "2026-07-09 09:34:12.315054"
+  },
+  "report_html": null,
+  "report_json": null,
+  "created_at": "2026-07-09 09:34:12.316030"
+}
