@@ -6,7 +6,7 @@ export interface Toast {
   message: string
 }
 
-interface UIState {
+export interface UIState {
   toasts: Toast[]
   modals: {
     [key: string]: boolean

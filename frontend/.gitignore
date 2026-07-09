@@ -41,3 +41,6 @@ yarn-error.log*
 
 # OS
 Thumbs.db
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

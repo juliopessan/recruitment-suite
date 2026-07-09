@@ -9,7 +9,7 @@ export default function CandidatesPage() {
   const { items: candidates, isLoading } = useAppSelector((state) => state.candidates)
 
   useEffect(() => {
-    dispatch(fetchCandidates())
+    dispatch(fetchCandidates({}))
   }, [dispatch])
 
   return (

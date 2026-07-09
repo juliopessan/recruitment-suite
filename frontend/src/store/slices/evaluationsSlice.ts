@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { Evaluation, EvaluationRequest } from '@/types'
 import { apiClient } from '@/services/api'
 
-interface EvaluationsState {
+export interface EvaluationsState {
   items: Evaluation[]
   currentEvaluation: Evaluation | null
   isLoading: boolean

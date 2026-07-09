@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { Job } from '@/types'
 import { apiClient } from '@/services/api'
 
-interface JobsState {
+export interface JobsState {
   items: Job[]
   selectedId: string | null
   isLoading: boolean
@@ -24,7 +24,7 @@ const initialState: JobsState = {
 
 export const fetchJobs = createAsyncThunk(
   'jobs/fetchJobs',
-  async ({ skip = 0, limit = 20 }: { skip?: number; limit?: number }) => {
+  async ({ skip = 0, limit = 20 }: { skip?: number; limit?: number } = {}) => {
     return await apiClient.getJobs(skip, limit)
   }
 )
