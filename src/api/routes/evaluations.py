@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from src.database import EvaluationRecord, CandidateRecord, JobRecord, get_db
 from src.models import Candidate, JobDescription, Evaluation, EvaluationResult
 from src.agents.orchestrator import RecruitmentOrchestrator
-from src.generators import HTMLReportGenerator
+from src.generators import HTMLReportGenerator, build_agent_analysis
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -132,6 +132,7 @@ def run_evaluation(
         critical_flags=result.recommendation.critical_flags or [],
         next_steps=result.recommendation.next_steps or [],
         onboarding_plan=result.recommendation.onboarding_plan or [],
+        agent_analysis=build_agent_analysis(result.evaluation),
         playbook=request.playbook,
         use_people_analytics=1 if request.use_people_analytics else 0
     )
@@ -218,6 +219,7 @@ def get_evaluation_report(evaluation_id: str, db: Session = Depends(get_db)):
         "flags": evaluation.critical_flags or [],
         "next_steps": evaluation.next_steps or [],
         "onboarding": evaluation.onboarding_plan or [],
+        "agent_analysis": evaluation.agent_analysis or {},
     })
 
     return HTMLResponse(content=html)

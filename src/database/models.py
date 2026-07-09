@@ -102,6 +102,11 @@ class EvaluationRecord(Base):
     next_steps = Column(JSON, default=[])
     onboarding_plan = Column(JSON, nullable=True)
 
+    # Per-agent narrative analysis and dimension breakdown, keyed by category
+    # (Profile/Technical/Culture/References/People Analytics). Powers the
+    # "why this score" detail in the HTML report.
+    agent_analysis = Column(JSON, nullable=True)
+
     # Metadata
     playbook = Column(String(50), default="full-evaluation")
     use_people_analytics = Column(Integer, default=0)  # Boolean as int

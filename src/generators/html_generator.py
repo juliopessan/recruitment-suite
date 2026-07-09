@@ -3,7 +3,46 @@
 from datetime import datetime, timezone
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
-from src.models import EvaluationResult
+from src.models import EvaluationResult, Evaluation
+
+# Maps internal agent_scores keys to the display labels used in the report.
+_AGENT_LABELS = {
+    "01-profile": "Profile",
+    "02-technical": "Technical",
+    "03-culture": "Culture Fit",
+    "04-references": "References",
+    "06-people-analytics": "People Analytics",
+}
+
+
+def build_agent_analysis(evaluation: Evaluation) -> dict:
+    """
+    Extract each agent's narrative analysis and dimension breakdown, keyed by
+    display label, so it can be persisted alongside the evaluation and shown
+    in the report as the "why this score" detail. Without this, the rich
+    per-dimension reasoning computed by each agent is discarded once the
+    aggregate scores are saved.
+    """
+    analysis: dict = {}
+    for key, label in _AGENT_LABELS.items():
+        agent_score = evaluation.agent_scores.get(key)
+        if not agent_score:
+            continue
+        analysis[label] = {
+            "analysis": agent_score.analysis.strip(),
+            "dimensions": [
+                {
+                    "dimension": d.dimension,
+                    "score": d.score,
+                    "weight": d.weight,
+                    "gaps": d.gaps,
+                    "strengths": d.strengths,
+                }
+                for d in agent_score.dimension_scores
+            ],
+            "red_flags": agent_score.red_flags,
+        }
+    return analysis
 
 
 class HTMLReportGenerator:
@@ -65,6 +104,7 @@ class HTMLReportGenerator:
             "flags": evaluation_result.recommendation.critical_flags,
             "next_steps": evaluation_result.recommendation.next_steps,
             "onboarding": evaluation_result.recommendation.onboarding_plan,
+            "agent_analysis": build_agent_analysis(evaluation_result.evaluation),
         }
 
         return template.render(**context)
@@ -90,6 +130,7 @@ class HTMLReportGenerator:
             "flags": [],
             "next_steps": [],
             "onboarding": [],
+            "agent_analysis": {},
         }
         return template.render(**{**defaults, **context})
 

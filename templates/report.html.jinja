@@ -10,7 +10,7 @@
   .container { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
   .card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 1.5rem 2rem; margin-bottom: 1.25rem; }
   h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
-  h2 { font-size: 1.05rem; border-bottom: 1px solid #e5e7eb; padding-bottom: .4rem; margin-top: 0; }
+  h2 { font-size: 1.05rem; border-bottom: 1px solid #e5e7eb; padding-bottom: .4rem; margin-top: 0; display: flex; align-items: center; }
   .muted { color: #6b7280; font-size: .9rem; }
   .score-hero { display: flex; align-items: center; gap: 1.5rem; }
   .score-value { font-size: 3rem; font-weight: 700; }
@@ -19,11 +19,51 @@
   .badge.HOLD { background: #fef9c3; color: #854d0e; }
   .badge.NO_GO { background: #fee2e2; color: #991b1b; }
   table { width: 100%; border-collapse: collapse; }
-  td, th { text-align: left; padding: .5rem .25rem; border-bottom: 1px solid #f1f5f9; }
+  td, th { text-align: left; padding: .5rem .25rem; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
   .bar { background: #e5e7eb; border-radius: 4px; height: 8px; width: 100%; }
   .bar > div { background: #3b82f6; border-radius: 4px; height: 8px; }
   ul { margin: .25rem 0; padding-left: 1.25rem; }
   li { margin: .2rem 0; }
+
+  /* Info tooltip (CSS-only, keyboard accessible via tabindex) */
+  .info-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: #e5e7eb; color: #4b5563; font-size: 10px; font-weight: 700;
+    cursor: help; position: relative; margin-left: 6px; flex-shrink: 0;
+  }
+  .info-icon .tip {
+    visibility: hidden; opacity: 0; transition: opacity .15s ease;
+    position: absolute; z-index: 30; bottom: 135%; left: 50%; transform: translateX(-50%);
+    background: #111827; color: #f9fafb; padding: .55rem .75rem; border-radius: 6px;
+    font-size: .78rem; font-weight: 400; line-height: 1.4; width: 240px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.25); text-align: left;
+  }
+  .info-icon .tip::after {
+    content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: #111827;
+  }
+  .info-icon:hover .tip, .info-icon:focus .tip { visibility: visible; opacity: 1; }
+
+  /* Why-this-score disclosure */
+  details.why { margin: .35rem 0 .9rem; }
+  details.why > summary {
+    cursor: pointer; font-size: .82rem; color: #2563eb; font-weight: 600;
+    list-style: none; user-select: none;
+  }
+  details.why > summary::-webkit-details-marker { display: none; }
+  details.why > summary::before { content: "▸ "; }
+  details.why[open] > summary::before { content: "▾ "; }
+  .why-body {
+    margin-top: .5rem; padding: .75rem 1rem; background: #f9fafb;
+    border-left: 3px solid #3b82f6; border-radius: 4px; font-size: .85rem; color: #374151;
+  }
+  .why-body p { margin: 0 0 .5rem; white-space: pre-line; }
+  .dim-table { width: 100%; font-size: .8rem; margin-top: .4rem; }
+  .dim-table td, .dim-table th { padding: .3rem .4rem; border-bottom: 1px solid #e5e7eb; }
+  .tag-gap { color: #b45309; }
+  .tag-strength { color: #15803d; }
+  .score-row-label { display: flex; align-items: center; }
 </style>
 </head>
 <body>
@@ -40,8 +80,19 @@
     </div>
   </div>
 
+  {% set score_defs = {
+    "Profile": "Experience level, education/domain background, career trajectory and language fit against the role's stated requirements.",
+    "Technical": "Match between the candidate's hard skills / technology stack and the job's required and nice-to-have skills.",
+    "Culture Fit": "Alignment with team dynamics, communication style, and company values inferred from the candidate's profile and CV.",
+    "References": "Strength and verification status of professional references and past-performance signals.",
+    "People Analytics": "Specialized expertise in HR analytics, people data and organizational-insight tooling. Replaces Technical for HR/People roles.",
+  } %}
+
   <div class="card">
-    <h2>Score Breakdown</h2>
+    <h2>
+      Score Breakdown
+      <span class="info-icon" tabindex="0">i<span class="tip">Each score (0-100) is produced by a dedicated agent, then combined with fixed weights into the Final Score. Click a row below to see exactly why it scored the way it did.</span></span>
+    </h2>
     <table>
       {% for label, value in [
         ("Profile", profile_score),
@@ -50,47 +101,123 @@
         ("References", reference_score),
       ] %}
       <tr>
-        <td style="width:180px">{{ label }}</td>
+        <td style="width:180px">
+          <span class="score-row-label">{{ label }}<span class="info-icon" tabindex="0">i<span class="tip">{{ score_defs[label] }}</span></span></span>
+        </td>
         <td style="width:60px"><strong>{{ value }}</strong></td>
         <td><div class="bar"><div style="width: {{ value }}%"></div></div></td>
       </tr>
+      {% if agent_analysis.get(label) %}
+      <tr><td colspan="3" style="border-bottom:none; padding-top:0;">
+        <details class="why">
+          <summary>Why {{ value }}/100?</summary>
+          <div class="why-body">
+            {% if agent_analysis[label].analysis %}<p>{{ agent_analysis[label].analysis }}</p>{% endif %}
+            {% if agent_analysis[label].dimensions %}
+            <table class="dim-table">
+              <tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Notes</th></tr>
+              {% for d in agent_analysis[label].dimensions %}
+              <tr>
+                <td>{{ d.dimension }}</td>
+                <td>{{ d.score }}</td>
+                <td>{{ (d.weight * 100) | round | int }}%</td>
+                <td>
+                  {% for s in d.strengths %}<span class="tag-strength">✓ {{ s }}</span><br>{% endfor %}
+                  {% for g in d.gaps %}<span class="tag-gap">△ {{ g }}</span><br>{% endfor %}
+                </td>
+              </tr>
+              {% endfor %}
+            </table>
+            {% endif %}
+          </div>
+        </details>
+      </td></tr>
+      {% endif %}
       {% endfor %}
       {% if people_analytics_score is not none %}
       <tr>
-        <td style="width:180px">People Analytics</td>
+        <td style="width:180px">
+          <span class="score-row-label">People Analytics<span class="info-icon" tabindex="0">i<span class="tip">{{ score_defs["People Analytics"] }}</span></span></span>
+        </td>
         <td style="width:60px"><strong>{{ people_analytics_score }}</strong></td>
         <td><div class="bar"><div style="width: {{ people_analytics_score }}%"></div></div></td>
       </tr>
+      {% if agent_analysis.get("People Analytics") %}
+      <tr><td colspan="3" style="border-bottom:none; padding-top:0;">
+        <details class="why">
+          <summary>Why {{ people_analytics_score }}/100?</summary>
+          <div class="why-body">
+            {% if agent_analysis["People Analytics"].analysis %}<p>{{ agent_analysis["People Analytics"].analysis }}</p>{% endif %}
+            {% if agent_analysis["People Analytics"].dimensions %}
+            <table class="dim-table">
+              <tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Notes</th></tr>
+              {% for d in agent_analysis["People Analytics"].dimensions %}
+              <tr>
+                <td>{{ d.dimension }}</td>
+                <td>{{ d.score }}</td>
+                <td>{{ (d.weight * 100) | round | int }}%</td>
+                <td>
+                  {% for s in d.strengths %}<span class="tag-strength">✓ {{ s }}</span><br>{% endfor %}
+                  {% for g in d.gaps %}<span class="tag-gap">△ {{ g }}</span><br>{% endfor %}
+                </td>
+              </tr>
+              {% endfor %}
+            </table>
+            {% endif %}
+          </div>
+        </details>
+      </td></tr>
       {% endif %}
-      <tr><td>Strategic Bonus</td><td colspan="2"><strong>+{{ strategic_bonus }}</strong></td></tr>
+      {% endif %}
+      <tr>
+        <td>
+          <span class="score-row-label">Strategic Bonus<span class="info-icon" tabindex="0">i<span class="tip">Extra points (up to +5) awarded for hiring urgency and market scarcity of this skill set. Added on top of the weighted score.</span></span></span>
+        </td>
+        <td colspan="2"><strong>+{{ strategic_bonus }}</strong></td>
+      </tr>
     </table>
   </div>
 
   <div class="card">
-    <h2>Key Strengths</h2>
+    <h2>
+      Key Strengths
+      <span class="info-icon" tabindex="0">i<span class="tip">Dimensions where the candidate scored 80/100 or higher — clear competitive advantages for this role.</span></span>
+    </h2>
     <ul>{% for s in strengths %}<li>{{ s }}</li>{% else %}<li class="muted">None identified</li>{% endfor %}</ul>
   </div>
 
   <div class="card">
-    <h2>Addressable Gaps</h2>
+    <h2>
+      Addressable Gaps
+      <span class="info-icon" tabindex="0">i<span class="tip">Dimensions scoring 60-74/100 — learnable gaps, not blockers, worth covering in an onboarding or development plan.</span></span>
+    </h2>
     <ul>{% for g in gaps %}<li>{{ g }}</li>{% else %}<li class="muted">None identified</li>{% endfor %}</ul>
   </div>
 
   {% if flags %}
   <div class="card">
-    <h2>Critical Flags</h2>
+    <h2>
+      Critical Flags
+      <span class="info-icon" tabindex="0">i<span class="tip">A dimension scored below 50/100, or there's a &gt;30-point gap between Technical and Culture Fit — review before proceeding.</span></span>
+    </h2>
     <ul>{% for f in flags %}<li>⚠️ {{ f }}</li>{% endfor %}</ul>
   </div>
   {% endif %}
 
   <div class="card">
-    <h2>Next Steps</h2>
+    <h2>
+      Next Steps
+      <span class="info-icon" tabindex="0">i<span class="tip">Actions are chosen automatically from the final recommendation: GO → offer & onboarding, HOLD → gather more data, NO_GO → respectful rejection.</span></span>
+    </h2>
     <ul>{% for step in next_steps %}<li>{{ step }}</li>{% endfor %}</ul>
   </div>
 
   {% if onboarding %}
   <div class="card">
-    <h2>Onboarding Plan</h2>
+    <h2>
+      Onboarding Plan
+      <span class="info-icon" tabindex="0">i<span class="tip">A suggested 6+ week ramp-up plan, generated only when the recommendation is GO.</span></span>
+    </h2>
     <ul>{% for item in onboarding %}<li>{{ item }}</li>{% endfor %}</ul>
   </div>
   {% endif %}

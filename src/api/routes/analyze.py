@@ -11,6 +11,7 @@ from src.agents.orchestrator import RecruitmentOrchestrator
 from src.services.cv_parser import CVParseError, extract_cv_text, guess_candidate_fields
 from src.services.linkedin_enricher import EnrichmentError, enrich_linkedin
 from src.services.jd_parser import is_people_analytics_role, parse_job_description
+from src.generators import build_agent_analysis
 
 router = APIRouter()
 
@@ -170,6 +171,7 @@ async def run_analysis(
         critical_flags=result.recommendation.critical_flags or [],
         next_steps=result.recommendation.next_steps or [],
         onboarding_plan=result.recommendation.onboarding_plan or [],
+        agent_analysis=build_agent_analysis(result.evaluation),
         playbook="agentic-analysis",
         use_people_analytics=1 if use_pa else 0,
     )
