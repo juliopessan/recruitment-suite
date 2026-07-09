@@ -5,7 +5,8 @@ import { toast } from 'react-toastify'
 import { FileText, Linkedin, Sparkles, UploadCloud, X } from 'lucide-react'
 import { Page, StaggerItem } from '@/components/motion'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL =
+  import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:8000')
 
 interface AnalysisResponse {
   evaluation_id: string

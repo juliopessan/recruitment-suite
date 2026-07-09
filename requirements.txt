@@ -3,7 +3,6 @@ pydantic>=2.9
 jinja2>=3.1
 requests>=2.31
 python-dotenv>=1.0
-pandas>=2.1
 pyyaml>=6.0
 sqlalchemy>=2.0
 fastapi>=0.110
@@ -14,5 +13,7 @@ pypdf>=4.0
 python-docx>=1.1
 python-multipart>=0.0.9
 
+# Optional (CLI batch mode): pip install pandas
+# pandas>=2.1
 # Optional: PDF report generation (requires system cairo/pango libs)
 # weasyprint>=60

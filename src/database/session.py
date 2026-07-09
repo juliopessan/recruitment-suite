@@ -5,10 +5,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from .models import Base
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///./recruitment_suite.db"
+# On serverless platforms (Vercel/Lambda) the project dir is read-only;
+# fall back to /tmp there. Set DATABASE_URL (e.g. Postgres) for persistence.
+_default_sqlite = (
+    "sqlite:////tmp/recruitment_suite.db"
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME")
+    else "sqlite:///./recruitment_suite.db"
 )
+DATABASE_URL = os.getenv("DATABASE_URL", _default_sqlite)
 
 engine = create_engine(
     DATABASE_URL,
