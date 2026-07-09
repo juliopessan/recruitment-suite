@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { Candidate } from '@/types'
 import { apiClient } from '@/services/api'
 
-interface CandidatesState {
+export interface CandidatesState {
   items: Candidate[]
   selectedId: string | null
   isLoading: boolean
@@ -24,7 +24,7 @@ const initialState: CandidatesState = {
 
 export const fetchCandidates = createAsyncThunk(
   'candidates/fetchCandidates',
-  async ({ skip = 0, limit = 20 }: { skip?: number; limit?: number }) => {
+  async ({ skip = 0, limit = 20 }: { skip?: number; limit?: number } = {}) => {
     return await apiClient.getCandidates(skip, limit)
   }
 )

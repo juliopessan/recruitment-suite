@@ -9,7 +9,7 @@ export default function JobsPage() {
   const { items: jobs, isLoading } = useAppSelector((state) => state.jobs)
 
   useEffect(() => {
-    dispatch(fetchJobs())
+    dispatch(fetchJobs({}))
   }, [dispatch])
 
   return (

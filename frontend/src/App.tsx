@@ -21,16 +21,6 @@ import JobFormPage from '@/pages/jobs/JobFormPage'
 import EvaluationsPage from '@/pages/evaluations/EvaluationsPage'
 import EvaluationResultPage from '@/pages/evaluations/EvaluationResultPage'
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const token = useAppSelector((state) => state.auth.token)
-
-  if (!token) {
-    return <Navigate to="/login" replace />
-  }
-
-  return <>{children}</>
-}
-
 function AppContent() {
   const token = useAppSelector((state) => state.auth.token)
 
