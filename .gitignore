@@ -63,6 +63,12 @@ logs/
 node_modules/
 npm-debug.log
 yarn-error.log
+package-lock.json
+pnpm-lock.yaml
+
+# Test results
+test-results/
+.playwright/
 
 # OS
 Thumbs.db
