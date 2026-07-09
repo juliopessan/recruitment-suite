@@ -105,3 +105,25 @@ class BaseAgent(ABC):
             strengths=strengths or [],
             agent=self.agent_type,
         )
+
+    def _candidate_corpus(self, candidate: Candidate) -> str:
+        """Aggregate all candidate text into a searchable lowercase corpus."""
+        parts = [
+            candidate.cv_text or "",
+            " ".join(candidate.profile.education or []),
+            " ".join(candidate.profile.certifications or []),
+        ]
+        if candidate.linkedin_profile:
+            parts.append(str(candidate.linkedin_profile))
+        return " ".join(parts).lower()
+
+    def _match_skills(self, skills, corpus: str):
+        """Split a skill list into (matched, missing) against the corpus."""
+        matched, missing = [], []
+        for skill in skills or []:
+            tokens = [t for t in skill.lower().replace("/", " ").split() if len(t) > 2]
+            if skill.lower() in corpus or (tokens and all(t in corpus for t in tokens)):
+                matched.append(skill)
+            else:
+                missing.append(skill)
+        return matched, missing

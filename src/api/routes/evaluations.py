@@ -26,8 +26,8 @@ class EvaluationResponse(BaseModel):
     final_score: float
     recommendation_status: str
     confidence: int
-    created_at: str | None
-    updated_at: str | None
+    created_at: datetime | None
+    updated_at: datetime | None
 
     class Config:
         from_attributes = True
@@ -83,7 +83,8 @@ def run_evaluation(
             "languages": candidate_record.languages or [],
             "education": candidate_record.education or [],
             "certifications": candidate_record.certifications or []
-        }
+        },
+        cv_text=candidate_record.cv_text,
     )
 
     job = JobDescription(
@@ -103,7 +104,7 @@ def run_evaluation(
     )
 
     orchestrator = RecruitmentOrchestrator()
-    result: EvaluationResult = orchestrator.run_evaluation(
+    result: EvaluationResult = orchestrator.evaluate(
         candidate=candidate,
         job=job,
         playbook=request.playbook,
@@ -121,14 +122,14 @@ def run_evaluation(
         people_analytics_score=result.evaluation.people_analytics_score,
         strategic_bonus=result.evaluation.strategic_bonus,
         final_score=result.evaluation.final_score,
-        confidence=result.recommendation.confidence,
-        recommendation_status=result.recommendation.status,
+        confidence=result.recommendation.confidence_level,
+        recommendation_status=result.recommendation.status.value,
         rationale=result.recommendation.rationale,
-        strengths=result.recommendation.strengths or [],
-        gaps=result.recommendation.gaps or [],
+        strengths=result.recommendation.key_strengths or [],
+        gaps=result.recommendation.addressable_gaps or [],
         critical_flags=result.recommendation.critical_flags or [],
         next_steps=result.recommendation.next_steps or [],
-        onboarding_plan=result.onboarding_plan or {},
+        onboarding_plan=result.recommendation.onboarding_plan or [],
         playbook=request.playbook,
         use_people_analytics=1 if request.use_people_analytics else 0
     )

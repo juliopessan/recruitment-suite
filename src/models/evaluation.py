@@ -77,13 +77,12 @@ class Evaluation(BaseModel):
     ) -> int:
         """Calculate weighted final score."""
         if use_people_analytics and self.people_analytics_score is not None:
-            # HR/People roles formula
+            # HR/People roles formula (weights sum to 0.95; strategic bonus adds up to 5 pts)
             weighted = (
                 self.profile_score * 0.15
-                + self.people_analytics_score * 0.35
+                + self.people_analytics_score * 0.40
                 + self.culture_score * 0.25
                 + self.reference_score * 0.15
-                + self.strategic_bonus * 0.05
             )
         else:
             # Tech roles formula (default)
@@ -92,9 +91,8 @@ class Evaluation(BaseModel):
                 + self.technical_score * 0.35
                 + self.culture_score * 0.25
                 + self.reference_score * 0.15
-                + self.strategic_bonus * 0.05
             )
-        self.final_score = round(weighted)
+        self.final_score = min(100, round(weighted + self.strategic_bonus))
         return self.final_score
 
 

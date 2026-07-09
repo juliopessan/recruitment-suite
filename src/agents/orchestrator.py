@@ -60,11 +60,12 @@ class RecruitmentOrchestrator:
         agent_scores["01-profile"] = score_01
         evaluation.profile_score = score_01.score
 
-        # Agent 02: Technical
-        print(f"🔍 [Agent 02] Evaluating technical skills...")
-        score_02 = self.agent_02.evaluate(candidate, job)
-        agent_scores["02-technical"] = score_02
-        evaluation.technical_score = score_02.score
+        # Agent 02: Technical (replaced by Agent 06 for people-analytics roles)
+        if not use_people_analytics:
+            print(f"🔍 [Agent 02] Evaluating technical skills...")
+            score_02 = self.agent_02.evaluate(candidate, job)
+            agent_scores["02-technical"] = score_02
+            evaluation.technical_score = score_02.score
 
         # Agent 03: Culture
         print(f"🔍 [Agent 03] Evaluating culture fit...")
@@ -99,13 +100,14 @@ class RecruitmentOrchestrator:
         agent_scores["05-recommendation"] = score_05
 
         evaluation.agent_scores = agent_scores
-        evaluation.confidence = self._calculate_confidence(evaluation)
+        evaluation.confidence = self._calculate_confidence(evaluation, use_people_analytics)
 
         # Create recommendation
         recommendation = self._create_recommendation(
             evaluation,
             candidate,
             job,
+            use_people_analytics,
         )
 
         return EvaluationResult(
@@ -129,7 +131,11 @@ class RecruitmentOrchestrator:
 
         return min(5, bonus)
 
-    def _calculate_confidence(self, evaluation: Evaluation) -> int:
+    def _calculate_confidence(
+        self,
+        evaluation: Evaluation,
+        use_people_analytics: bool = False,
+    ) -> int:
         """Calculate confidence level (0-100)."""
         # Start at 90%
         confidence = 90
@@ -137,7 +143,7 @@ class RecruitmentOrchestrator:
         # Reduce if any score is very low
         min_score = min(
             evaluation.profile_score,
-            evaluation.technical_score,
+            self._effective_technical(evaluation, use_people_analytics),
             evaluation.culture_score,
             evaluation.reference_score,
         )
@@ -152,11 +158,22 @@ class RecruitmentOrchestrator:
 
         return max(0, min(100, confidence))
 
+    def _effective_technical(
+        self,
+        evaluation: Evaluation,
+        use_people_analytics: bool = False,
+    ) -> int:
+        """Technical dimension score: Agent 06 replaces Agent 02 for PA roles."""
+        if use_people_analytics and evaluation.people_analytics_score is not None:
+            return evaluation.people_analytics_score
+        return evaluation.technical_score
+
     def _create_recommendation(
         self,
         evaluation: Evaluation,
         candidate: Candidate,
         job: JobDescription,
+        use_people_analytics: bool = False,
     ) -> object:
         """Create final recommendation from evaluation."""
         from src.models import Recommendation, RecommendationStatus
@@ -178,9 +195,9 @@ class RecruitmentOrchestrator:
             final_score=final_score,
             status=status,
             rationale=f"Final score {final_score}/100: {action}",
-            key_strengths=self._extract_strengths(evaluation),
-            addressable_gaps=self._extract_gaps(evaluation),
-            critical_flags=self._extract_flags(evaluation),
+            key_strengths=self._extract_strengths(evaluation, use_people_analytics),
+            addressable_gaps=self._extract_gaps(evaluation, use_people_analytics),
+            critical_flags=self._extract_flags(evaluation, use_people_analytics),
             next_steps=self._generate_next_steps(status, final_score),
             onboarding_plan=self._generate_onboarding(status),
             confidence_level=evaluation.confidence,
@@ -188,12 +205,16 @@ class RecruitmentOrchestrator:
 
         return recommendation
 
-    def _extract_strengths(self, evaluation: Evaluation) -> List[str]:
+    def _extract_strengths(
+        self,
+        evaluation: Evaluation,
+        use_people_analytics: bool = False,
+    ) -> List[str]:
         """Extract key strengths from evaluation."""
         strengths = []
         scores = {
             "Profile": evaluation.profile_score,
-            "Technical": evaluation.technical_score,
+            "Technical": self._effective_technical(evaluation, use_people_analytics),
             "Culture": evaluation.culture_score,
             "References": evaluation.reference_score,
         }
@@ -204,12 +225,16 @@ class RecruitmentOrchestrator:
 
         return strengths or ["Meets job requirements"]
 
-    def _extract_gaps(self, evaluation: Evaluation) -> List[str]:
+    def _extract_gaps(
+        self,
+        evaluation: Evaluation,
+        use_people_analytics: bool = False,
+    ) -> List[str]:
         """Extract addressable gaps."""
         gaps = []
         scores = {
             "Profile": evaluation.profile_score,
-            "Technical": evaluation.technical_score,
+            "Technical": self._effective_technical(evaluation, use_people_analytics),
             "Culture": evaluation.culture_score,
         }
 
@@ -219,18 +244,22 @@ class RecruitmentOrchestrator:
 
         return gaps
 
-    def _extract_flags(self, evaluation: Evaluation) -> List[str]:
+    def _extract_flags(
+        self,
+        evaluation: Evaluation,
+        use_people_analytics: bool = False,
+    ) -> List[str]:
         """Extract critical flags."""
         flags = []
+        technical = self._effective_technical(evaluation, use_people_analytics)
 
-        if evaluation.profile_score < 50 or evaluation.technical_score < 50:
-            if evaluation.profile_score < 50:
-                flags.append(f"Critical Profile gap: {evaluation.profile_score}/100")
-            if evaluation.technical_score < 50:
-                flags.append(f"Critical Technical gap: {evaluation.technical_score}/100")
+        if evaluation.profile_score < 50:
+            flags.append(f"Critical Profile gap: {evaluation.profile_score}/100")
+        if technical < 50:
+            flags.append(f"Critical Technical gap: {technical}/100")
 
         # Check culture-tech gap
-        gap = abs(evaluation.technical_score - evaluation.culture_score)
+        gap = abs(technical - evaluation.culture_score)
         if gap > 30:
             flags.append(f"Large Culture-Tech gap ({gap} points)")
 

@@ -8,13 +8,16 @@ from src.models import EvaluationResult
 class HTMLReportGenerator:
     """Generates HTML recruitment reports using Jinja2 templates."""
 
-    def __init__(self, template_dir: str = "templates"):
+    def __init__(self, template_dir: str = None):
         """
         Initialize HTML generator.
 
         Args:
-            template_dir: Directory containing Jinja2 templates
+            template_dir: Directory containing Jinja2 templates.
+                Defaults to the repo's templates/ directory, independent of cwd.
         """
+        if template_dir is None:
+            template_dir = str(Path(__file__).resolve().parents[2] / "templates")
         self.env = Environment(
             loader=FileSystemLoader(template_dir),
             autoescape=True,
@@ -43,6 +46,7 @@ class HTMLReportGenerator:
             "technical_score": evaluation_result.evaluation.technical_score,
             "culture_score": evaluation_result.evaluation.culture_score,
             "reference_score": evaluation_result.evaluation.reference_score,
+            "people_analytics_score": evaluation_result.evaluation.people_analytics_score,
             "strategic_bonus": evaluation_result.evaluation.strategic_bonus,
             "strengths": evaluation_result.recommendation.key_strengths,
             "gaps": evaluation_result.recommendation.addressable_gaps,

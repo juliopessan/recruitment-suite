@@ -10,7 +10,7 @@ class JobDescription(BaseModel):
     id: str
     title: str
     company: str
-    location: str
+    location: Optional[str] = None
 
     description: str
     responsibilities: List[str] = Field(default_factory=list)

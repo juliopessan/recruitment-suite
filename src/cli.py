@@ -114,9 +114,12 @@ def evaluate(
             html_gen.save(result, str(html_path))
 
         if format in ["pdf", "all"]:
-            pdf_gen = PDFReportGenerator()
-            pdf_path = output_path / f"{base_name}.pdf"
-            pdf_gen.save(result, str(pdf_path))
+            try:
+                pdf_gen = PDFReportGenerator()
+                pdf_path = output_path / f"{base_name}.pdf"
+                pdf_gen.save(result, str(pdf_path))
+            except ImportError:
+                click.echo("⚠️  PDF skipped: weasyprint not installed (pip install weasyprint)")
 
         if format in ["json", "all"]:
             json_path = output_path / f"{base_name}.json"
@@ -127,7 +130,7 @@ def evaluate(
 
     except Exception as e:
         click.echo(f"❌ Error: {e}", err=True)
-        raise click.Exit(1)
+        raise SystemExit(1)
 
 
 @cli.command()
@@ -222,7 +225,7 @@ def batch(candidates_file, job_file, output_dir, format):
 
     except Exception as e:
         click.echo(f"❌ Error: {e}", err=True)
-        raise click.Exit(1)
+        raise SystemExit(1)
 
 
 @cli.command()

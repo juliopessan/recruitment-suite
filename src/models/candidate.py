@@ -11,7 +11,7 @@ class CandidateProfile(BaseModel):
     name: str
     email: str
     phone: Optional[str] = None
-    location: str
+    location: Optional[str] = None
     linkedin_url: Optional[str] = None
     github_url: Optional[str] = None
 

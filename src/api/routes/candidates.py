@@ -1,5 +1,6 @@
 """Candidate CRUD endpoints."""
 
+from datetime import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -22,8 +23,8 @@ class CandidateResponse(BaseModel):
     phone: str | None
     location: str | None
     total_years_experience: int
-    created_at: str | None
-    updated_at: str | None
+    created_at: datetime | None
+    updated_at: datetime | None
 
     class Config:
         from_attributes = True

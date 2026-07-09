@@ -46,8 +46,9 @@ class Agent05Recommendation(BaseAgent):
             analysis = "No evaluation data available"
             return self._create_score(score=score, analysis=analysis)
 
-        # Calculate final score
-        final_score = evaluation.calculate_final_score()
+        # Final score was already computed by the orchestrator (with the correct
+        # people-analytics weighting); recalculating here would overwrite it.
+        final_score = evaluation.final_score
 
         # Determine recommendation
         recommendation = Recommendation.from_score(final_score, confidence=88)

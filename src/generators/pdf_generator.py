@@ -1,7 +1,6 @@
 """PDF Report Generator."""
 
 from pathlib import Path
-from weasyprint import HTML
 from src.models import EvaluationResult
 from .html_generator import HTMLReportGenerator
 
@@ -28,6 +27,8 @@ class PDFReportGenerator:
         Returns:
             PDF bytes
         """
+        from weasyprint import HTML  # Imported lazily: needs system libs (cairo/pango)
+
         html_string = self.html_generator.generate(evaluation_result)
 
         # Convert HTML to PDF

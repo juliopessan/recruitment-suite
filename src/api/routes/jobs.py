@@ -1,5 +1,6 @@
 """Job CRUD endpoints."""
 
+from datetime import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -14,16 +15,16 @@ class JobCreate(BaseModel):
     id: str
     title: str
     company: str
-    location: str | None
+    location: str | None = None
     description: str
-    responsibilities: List[str]
-    required_skills: List[str]
-    nice_to_have_skills: List[str]
+    responsibilities: List[str] = []
+    required_skills: List[str] = []
+    nice_to_have_skills: List[str] = []
     years_experience_required: int
-    seniority_level: str
-    required_languages: List[str]
-    hiring_urgency: str
-    team_context: str | None
+    seniority_level: str = "Senior"
+    required_languages: List[str] = []
+    hiring_urgency: str = "Medium"
+    team_context: str | None = None
 
 
 class JobResponse(BaseModel):
@@ -33,8 +34,8 @@ class JobResponse(BaseModel):
     location: str | None
     years_experience_required: int
     seniority_level: str
-    created_at: str | None
-    updated_at: str | None
+    created_at: datetime | None
+    updated_at: datetime | None
 
     class Config:
         from_attributes = True
