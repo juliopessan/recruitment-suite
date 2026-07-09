@@ -58,7 +58,8 @@
     margin-top: .5rem; padding: .75rem 1rem; background: #f9fafb;
     border-left: 3px solid #3b82f6; border-radius: 4px; font-size: .85rem; color: #374151;
   }
-  .why-body p { margin: 0 0 .5rem; white-space: pre-line; }
+  .why-body p { margin: 0 0 .5rem; }
+  .why-body p:last-child { margin-bottom: 0; }
   .dim-table { width: 100%; font-size: .8rem; margin-top: .4rem; }
   .dim-table td, .dim-table th { padding: .3rem .4rem; border-bottom: 1px solid #e5e7eb; }
   .tag-gap { color: #b45309; }
@@ -112,7 +113,7 @@
         <details class="why">
           <summary>Why {{ value }}/100?</summary>
           <div class="why-body">
-            {% if agent_analysis[label].analysis %}<p>{{ agent_analysis[label].analysis }}</p>{% endif %}
+            {{ agent_analysis[label].analysis | analysis_html }}
             {% if agent_analysis[label].dimensions %}
             <table class="dim-table">
               <tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Notes</th></tr>
@@ -147,7 +148,7 @@
         <details class="why">
           <summary>Why {{ people_analytics_score }}/100?</summary>
           <div class="why-body">
-            {% if agent_analysis["People Analytics"].analysis %}<p>{{ agent_analysis["People Analytics"].analysis }}</p>{% endif %}
+            {{ agent_analysis["People Analytics"].analysis | analysis_html }}
             {% if agent_analysis["People Analytics"].dimensions %}
             <table class="dim-table">
               <tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Notes</th></tr>

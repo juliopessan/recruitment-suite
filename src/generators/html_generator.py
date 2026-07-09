@@ -1,9 +1,34 @@
 """HTML Report Generator."""
 
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
+from markupsafe import Markup, escape
 from src.models import EvaluationResult, Evaluation
+
+_BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
+
+
+def render_analysis_html(text: str) -> Markup:
+    """
+    Turn an agent's plain-text narrative (which may contain lightweight
+    **bold** markdown) into clean, escaped HTML: bold spans, paragraphs on
+    blank lines, line breaks within a paragraph. Escapes first so nothing in
+    the source text (candidate name, skills, etc.) can inject markup.
+    """
+    if not text:
+        return Markup("")
+    escaped = str(escape(text.strip()))
+    escaped = _BOLD_RE.sub(r"<strong>\1</strong>", escaped)
+
+    paragraphs = re.split(r"\n\s*\n", escaped)
+    html = "".join(
+        f"<p>{para.strip().replace(chr(10), '<br>')}</p>"
+        for para in paragraphs
+        if para.strip()
+    )
+    return Markup(html)
 
 # Maps internal agent_scores keys to the display labels used in the report.
 _AGENT_LABELS = {
@@ -62,6 +87,7 @@ class HTMLReportGenerator:
             loader=FileSystemLoader(template_dir),
             autoescape=True,
         )
+        self.env.filters["analysis_html"] = render_analysis_html
 
     def generate(
         self,
