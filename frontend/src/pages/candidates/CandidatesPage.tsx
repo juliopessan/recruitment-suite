@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchCandidates } from '@/store/slices/candidatesSlice'
 
@@ -43,8 +44,14 @@ export default function CandidatesPage() {
               </tr>
             </thead>
             <tbody>
-              {candidates.map((candidate) => (
-                <tr key={candidate.id} className="border-b hover:bg-gray-50">
+              {candidates.map((candidate, i) => (
+                <motion.tr
+                  key={candidate.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.35, ease: 'easeOut' }}
+                  className="border-b hover:bg-gray-50"
+                >
                   <td className="table-cell">{candidate.name}</td>
                   <td className="table-cell">{candidate.email}</td>
                   <td className="table-cell">{candidate.total_years_experience} years</td>
@@ -56,7 +63,7 @@ export default function CandidatesPage() {
                       View
                     </button>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>

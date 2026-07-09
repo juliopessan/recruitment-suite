@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchEvaluations } from '@/store/slices/evaluationsSlice'
 
@@ -37,8 +38,14 @@ export default function EvaluationsPage() {
               </tr>
             </thead>
             <tbody>
-              {evaluations.map((evaluation) => (
-                <tr key={evaluation.id} className="border-b hover:bg-gray-50">
+              {evaluations.map((evaluation, i) => (
+                <motion.tr
+                  key={evaluation.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.35, ease: 'easeOut' }}
+                  className="border-b hover:bg-gray-50"
+                >
                   <td className="table-cell font-medium">{evaluation.id}</td>
                   <td className="table-cell">
                     <div className="flex items-center">
@@ -74,7 +81,7 @@ export default function EvaluationsPage() {
                       View
                     </button>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchJobs } from '@/store/slices/jobsSlice'
 
@@ -41,8 +42,14 @@ export default function JobsPage() {
               </tr>
             </thead>
             <tbody>
-              {jobs.map((job) => (
-                <tr key={job.id} className="border-b hover:bg-gray-50">
+              {jobs.map((job, i) => (
+                <motion.tr
+                  key={job.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.35, ease: 'easeOut' }}
+                  className="border-b hover:bg-gray-50"
+                >
                   <td className="table-cell">{job.title}</td>
                   <td className="table-cell">{job.company}</td>
                   <td className="table-cell">{job.years_experience_required} years</td>
@@ -55,7 +62,7 @@ export default function JobsPage() {
                       View
                     </button>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
