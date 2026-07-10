@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { FileText, RefreshCw } from 'lucide-react'
+import { FileText, RefreshCw, Download } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchEvaluation, addInterviewNotes } from '@/store/slices/evaluationsSlice'
@@ -17,6 +17,7 @@ export default function EvaluationResultPage() {
   const evaluation = useAppSelector((state) => state.evaluations.currentEvaluation)
   const [notes, setNotes] = useState('')
   const [isRecalculating, setIsRecalculating] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -38,6 +39,28 @@ export default function EvaluationResultPage() {
       toast.error('Failed to recalculate scores')
     } finally {
       setIsRecalculating(false)
+    }
+  }
+
+  const handleDownloadHtml = async () => {
+    if (!id) return
+    setIsDownloading(true)
+    try {
+      const res = await fetch(`${API_URL}/api/evaluations/${id}/report`)
+      if (!res.ok) throw new Error('Failed to fetch report')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `evaluation-report-${id}.html`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      toast.error('Failed to download report')
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -85,10 +108,19 @@ export default function EvaluationResultPage() {
             target="_blank"
             rel="noopener noreferrer"
             className="btn-secondary flex items-center gap-2"
+            title="Open the full report — use its Print / Save as PDF button to export as PDF"
           >
             <FileText size={16} />
             View Full Report
           </a>
+          <button
+            onClick={handleDownloadHtml}
+            disabled={isDownloading}
+            className="btn-secondary flex items-center gap-2"
+          >
+            <Download size={16} />
+            {isDownloading ? 'Downloading…' : 'Download HTML'}
+          </button>
           <button onClick={() => navigate('/evaluations')} className="btn-secondary">
             Back
           </button>

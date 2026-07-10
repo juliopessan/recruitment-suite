@@ -6,10 +6,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from src.database import EvaluationRecord, CandidateRecord, JobRecord, get_db
-from src.models import Candidate, JobDescription, Evaluation, EvaluationResult
+from src.models import Candidate, JobDescription, Evaluation, EvaluationResult, DimensionScore
 from src.agents.orchestrator import RecruitmentOrchestrator
+from src.agents.agent_03_culture import SOFT_SKILL_SIGNALS
+from src.agents.agent_06_people_analytics import PA_SIGNALS
 from src.generators import HTMLReportGenerator, build_agent_analysis
 from src.services.i18n_service import DEFAULT_LOCALE, normalize_locale
+from src.services.interview_boost import compute_interview_bonus
 from pydantic import BaseModel, Field
 
 router = APIRouter()
@@ -270,19 +273,61 @@ def add_interview_notes(
         language=language,
     )
 
+    # Interview-verified evidence is stronger than an unverified CV claim: if
+    # the notes explicitly reconfirm a required skill, soft-skill signal, or
+    # People Analytics signal the corpus-matching agents already knew about,
+    # credit it again here — otherwise notes that only restate existing CV
+    # content move nothing, which reads as "the notes did nothing."
+    technical_bonus, technical_hits = (
+        (0, []) if use_pa
+        else compute_interview_bonus(request.notes, (job.required_skills or []) + (job.nice_to_have_skills or []))
+    )
+    pa_terms = [s for signals in PA_SIGNALS.values() for s in signals]
+    pa_bonus, pa_hits = (
+        compute_interview_bonus(request.notes, pa_terms) if use_pa else (0, [])
+    )
+    culture_bonus, culture_hits = compute_interview_bonus(request.notes, SOFT_SKILL_SIGNALS)
+
+    boosted_technical = min(100, result.evaluation.technical_score + technical_bonus)
+    boosted_culture = min(100, result.evaluation.culture_score + culture_bonus)
+    boosted_pa = (
+        min(100, result.evaluation.people_analytics_score + pa_bonus)
+        if result.evaluation.people_analytics_score is not None else None
+    )
+
+    def _record_bonus(agent_key: str, new_score: int, bonus: int, hits: list):
+        """Append an explicit dimension entry so the report explains the bump."""
+        agent_score = result.evaluation.agent_scores.get(agent_key)
+        if agent_score is None or bonus <= 0:
+            return
+        agent_score.score = new_score
+        agent_score.dimension_scores.append(DimensionScore(
+            dimension="Interview Verification Bonus",
+            score=min(100, 70 + bonus * 2),
+            weight=0.0,
+            strengths=[f"Reconfirmed in interview: {h}" for h in hits],
+            agent=agent_score.agent,
+        ))
+
+    if not use_pa:
+        _record_bonus("02-technical", boosted_technical, technical_bonus, technical_hits)
+    _record_bonus("03-culture", boosted_culture, culture_bonus, culture_hits)
+    if use_pa:
+        _record_bonus("06-people-analytics", boosted_pa, pa_bonus, pa_hits)
+
     # Interview notes are additional evidence, never a reason to know less than
     # before: each dimension can only go up, never down, from the pre-notes score.
     clamped = Evaluation(
         candidate_id=evaluation.candidate_id,
         job_id=evaluation.job_id,
         profile_score=max(evaluation.profile_score, result.evaluation.profile_score),
-        technical_score=max(evaluation.technical_score, result.evaluation.technical_score),
-        culture_score=max(evaluation.culture_score, result.evaluation.culture_score),
+        technical_score=max(evaluation.technical_score, boosted_technical),
+        culture_score=max(evaluation.culture_score, boosted_culture),
         reference_score=max(evaluation.reference_score, result.evaluation.reference_score),
         people_analytics_score=(
-            max(evaluation.people_analytics_score, result.evaluation.people_analytics_score)
-            if evaluation.people_analytics_score is not None and result.evaluation.people_analytics_score is not None
-            else result.evaluation.people_analytics_score
+            max(evaluation.people_analytics_score, boosted_pa)
+            if evaluation.people_analytics_score is not None and boosted_pa is not None
+            else boosted_pa
         ),
         strategic_bonus=max(evaluation.strategic_bonus, result.evaluation.strategic_bonus),
     )

@@ -65,9 +65,35 @@
   .tag-gap { color: #b45309; }
   .tag-strength { color: #15803d; }
   .score-row-label { display: flex; align-items: center; }
+
+  /* Export toolbar (screen-only) */
+  .export-toolbar {
+    position: fixed; top: 1rem; right: 1rem; z-index: 40; display: flex; gap: .5rem;
+  }
+  .export-btn {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #111827; color: #fff; border: none; border-radius: 8px;
+    padding: .55rem 1rem; font-size: .85rem; font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,.15);
+  }
+  .export-btn:hover { background: #1f2937; }
+
+  @media print {
+    body { background: #fff; }
+    .container { max-width: none; margin: 0; }
+    .card { box-shadow: none; border: 1px solid #e5e7eb; break-inside: avoid; }
+    .export-toolbar { display: none; }
+    .info-icon .tip { display: none; }
+    /* Print every "why this score" detail expanded, regardless of on-screen state */
+    details.why summary { display: none; }
+    .why-body { display: block !important; margin-top: 0; }
+  }
 </style>
 </head>
 <body>
+<div class="export-toolbar">
+  <button class="export-btn" onclick="window.print()">🖨️ {{ 'report.export_pdf' | t(language) }}</button>
+</div>
 <div class="container">
   {% set status_keys = {"GO": "report.status_go", "HOLD": "report.status_hold", "NO_GO": "report.status_no_go"} %}
   <div class="card score-hero">
@@ -114,6 +140,7 @@
         ("Culture Fit", culture_score),
         ("References", reference_score),
       ] %}
+      {% if label != "Technical" or people_analytics_score is none %}
       <tr>
         <td style="width:180px">
           <span class="score-row-label">{{ dim_keys[label] | t(language) }}<span class="info-icon" tabindex="0">i<span class="tip">{{ dim_tips[label] | t(language) }}</span></span></span>
@@ -146,6 +173,7 @@
           </div>
         </details>
       </td></tr>
+      {% endif %}
       {% endif %}
       {% endfor %}
       {% if people_analytics_score is not none %}

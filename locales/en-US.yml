@@ -62,3 +62,4 @@ en-US:
     interview_notes: "Post-Interview Notes"
     interview_notes_tip: "Recruiter notes added after the interview, fed back into the agents to recalculate the scores above."
     score_before_notes: "Score before interview notes"
+    export_pdf: "Print / Save as PDF"

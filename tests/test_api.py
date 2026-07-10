@@ -480,6 +480,52 @@ class TestEvaluations:
         assert after["technical_score"] >= before["technical_score"]
         assert after["pre_interview_score"] == before["final_score"]
 
+    def test_add_interview_notes_bonus_for_reconfirmed_skills(self, cleanup_after_each):
+        """
+        Notes that reconfirm a skill the CV already claimed should still raise
+        the score (interview-verified > unverified CV claim), even though the
+        corpus-matching agents find nothing new to match.
+        """
+        db = SessionLocal()
+        db.add(CandidateRecord(
+            id="cand_bonus",
+            name="Bonus Candidate",
+            email="bonus@example.com",
+            total_years_experience=8,
+            languages=[], education=[], certifications=[],
+            cv_text="People Analytics Consultant with Viva Glint experience.",
+        ))
+        db.add(JobRecord(
+            id="job_bonus",
+            title="People Analytics Consultant",
+            company="TestCo",
+            description="Need People Analytics, Viva Glint",
+            required_skills=["Viva Glint"],
+            years_experience_required=5,
+            seniority_level="Senior",
+            hiring_urgency="Medium",
+        ))
+        db.commit()
+        db.close()
+
+        create_response = client.post("/api/evaluations/run", json={
+            "candidate_id": "cand_bonus",
+            "job_id": "job_bonus",
+            "use_people_analytics": True,
+        })
+        eval_id = create_response.json()["id"]
+        before = client.get(f"/api/evaluations/{eval_id}").json()
+
+        response = client.post(
+            f"/api/evaluations/{eval_id}/notes",
+            json={"notes": "Candidate demonstrated strong Python and Power BI skills live in the interview."},
+        )
+        assert response.status_code == 200
+        after = response.json()
+
+        assert after["people_analytics_score"] > before["people_analytics_score"]
+        assert after["final_score"] > before["final_score"]
+
     def test_get_evaluation_html_report(self, setup_candidate_and_job):
         """Test retrieving the detailed HTML report for an evaluation."""
         cand_id, job_id = setup_candidate_and_job
@@ -519,6 +565,23 @@ class TestEvaluations:
         assert "Post-Interview Notes" in response.text
         assert "Reference check confirmed strong leadership skills." in response.text
         assert "Score before interview notes" in response.text
+
+    def test_get_evaluation_html_report_hides_technical_row_in_pa_mode(self, setup_candidate_and_job):
+        """Test the report never shows the unused Technical(0) row for People Analytics evaluations."""
+        cand_id, job_id = setup_candidate_and_job
+
+        eval_data = {
+            "candidate_id": cand_id,
+            "job_id": job_id,
+            "playbook": "quick-screen",
+            "use_people_analytics": True,
+        }
+        create_response = client.post("/api/evaluations/run", json=eval_data)
+        eval_id = create_response.json()["id"]
+
+        response = client.get(f"/api/evaluations/{eval_id}/report")
+        assert response.status_code == 200
+        assert "<strong>0</strong>" not in response.text
 
     def test_get_evaluation_html_report_pt_br(self, setup_candidate_and_job):
         """Test the HTML report renders in Portuguese when the evaluation was run with language=pt-BR."""

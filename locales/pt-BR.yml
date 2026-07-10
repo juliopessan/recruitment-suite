@@ -62,3 +62,4 @@ pt-BR:
     interview_notes: "Notas Pós-Entrevista"
     interview_notes_tip: "Notas do recrutador adicionadas após a entrevista, realimentadas nos agentes para recalcular as notas acima."
     score_before_notes: "Nota antes das notas da entrevista"
+    export_pdf: "Imprimir / Salvar como PDF"
