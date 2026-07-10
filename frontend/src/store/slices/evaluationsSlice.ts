@@ -1,6 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { AxiosError } from 'axios'
 import { Evaluation, EvaluationRequest } from '@/types'
 import { apiClient } from '@/services/api'
+
+function apiErrorMessage(error: unknown, fallback: string): string {
+  const axiosError = error as AxiosError<{ detail?: string }>
+  return axiosError.response?.data?.detail || fallback
+}
 
 export interface EvaluationsState {
   items: Evaluation[]
@@ -38,8 +44,12 @@ export const fetchEvaluation = createAsyncThunk(
 
 export const addInterviewNotes = createAsyncThunk(
   'evaluations/addInterviewNotes',
-  async ({ id, notes }: { id: string; notes: string }) => {
-    return await apiClient.addInterviewNotes(id, notes)
+  async ({ id, notes }: { id: string; notes: string }, { rejectWithValue }) => {
+    try {
+      return await apiClient.addInterviewNotes(id, notes)
+    } catch (error) {
+      return rejectWithValue(apiErrorMessage(error, 'Failed to add interview notes'))
+    }
   }
 )
 
@@ -108,7 +118,7 @@ const evaluationsSlice = createSlice({
       })
       .addCase(addInterviewNotes.rejected, (state, action) => {
         state.isLoading = false
-        state.error = action.error.message || 'Failed to add interview notes'
+        state.error = (action.payload as string) || action.error.message || 'Failed to add interview notes'
       })
       .addCase(fetchEvaluations.pending, (state) => {
         state.isLoading = true

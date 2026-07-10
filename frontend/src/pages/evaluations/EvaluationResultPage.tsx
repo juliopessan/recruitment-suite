@@ -35,8 +35,13 @@ export default function EvaluationResultPage() {
       const updated = await dispatch(addInterviewNotes({ id, notes: notes.trim() })).unwrap()
       toast.success(`Scores recalculated: ${updated.final_score}/100 — ${updated.recommendation_status}`)
       setNotes('')
-    } catch {
-      toast.error('Failed to recalculate scores')
+    } catch (err) {
+      const message = typeof err === 'string' ? err : 'Failed to recalculate scores'
+      if (message.toLowerCase().includes('not found')) {
+        toast.error('This evaluation is no longer available on the server. Please re-run the analysis.')
+      } else {
+        toast.error(message)
+      }
     } finally {
       setIsRecalculating(false)
     }
