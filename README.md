@@ -1,263 +1,188 @@
-# Recruitment Specialist Agent Suite
+# Recruitment Suite
 
-> Multi-agent suite for hiring sênior tech talent at Avanade. Evaluates candidates across 6 dimensions: Profile, Technical Skills, Culture Fit, References, People Analytics (optional), and synthesizes a final hiring recommendation.
+> Agentic candidate evaluation platform. Upload a CV, add a LinkedIn URL, paste a job description in free text — six specialized agents score the candidate across Profile, Technical Skills, Culture Fit, References, and (optionally) People Analytics, and synthesize a hiring recommendation with a full HTML report in English or Portuguese.
 
-**Brand:** Orange DNA | Recruiting Excellence  
-**Stack:** 100% Microsoft (GitHub Copilot agents, future Dataverse integration)  
-**Agents:** 7 (1 orchestrator + 6 specialists)
+**Stack:** FastAPI (Python) + React/Vite (TypeScript) · SQLAlchemy · Redux Toolkit · Tailwind + Framer Motion
+**Deployment:** Vercel (frontend + backend as a single serverless project)
+**Live:** https://recruitment-suite.vercel.app
 
 ---
 
-## Quick Start
+## What it does
 
-### 1. Choose Your Playbook
+1. **Agentic analysis** — upload a CV (PDF/DOCX/TXT) and/or a LinkedIn URL, paste a free-text job description. The pipeline extracts CV text, enriches the LinkedIn profile via the [Exa API](https://exa.ai), parses the JD (skills, seniority, years required, languages, urgency, People Analytics detection), and runs the full multi-agent evaluation — all from one form.
+2. **Multi-agent scoring** — 6 agents evaluate independently, then an orchestrator combines their scores into a weighted final score and a GO / HOLD / NO-GO recommendation with rationale, strengths, gaps, critical flags, next steps, and an onboarding plan.
+3. **Post-interview recalculation** — after the interview, add free-text notes. The pipeline re-runs against the CV + notes, and an interview-verification bonus credits skills the interviewer directly confirmed (even if the CV already claimed them) — every score can only rise or hold, never regress below the pre-notes baseline.
+4. **Bilingual reports** — every generated evaluation (recommendation text, next steps, onboarding plan, report chrome) is rendered in **English (en-US)** or **Portuguese (pt-BR)**, selected per analysis.
+5. **Exportable HTML report** — a full, printable, branded report per evaluation with a score-breakdown accordion (each dimension explains *why* it scored that way), strengths/gaps/critical-flags, a rationale pull-quote, a next-steps/onboarding roadmap, and the post-interview notes. One click prints to PDF via the browser (no server-side PDF dependency) or downloads the raw HTML.
+6. **Full CRUD app** — candidates, jobs, and evaluations also have a conventional REST API and a React SPA (Dashboard, Candidates, Jobs, Evaluations, Analyze, Settings) for manual, non-agentic use.
 
-| Playbook | Agents | Time | Use When |
-|----------|--------|------|----------|
-| **Quick Screen** | 01 → 02 → 05 | 5–10 min | High volume, need fast pass/fail |
-| **Full Evaluation** | 01 → 02 → 03 → 04 → 05 | 30–45 min | Serious candidates, reference validation ready |
-| **Full + People Analytics** | 01 → 02 → 03 → 04 → 06 → 05 | 40–50 min | HR/People roles requiring Viva Glint, org psychology expertise |
-| **Final Decision** | Orchestrator (01–06) | 10 min | Manager needs to break tie between conflicting scores |
+---
 
-### 2. Prepare Input
+## The 6 agents + orchestrator
 
-Gather:
-- **Job Description** (title, key requirements, level, team context)
-- **Candidate Profile** (CV, background, or structured profile)
-- **References** (contact info, if ready for reference check)
+| Agent | Focus | Score field |
+|---|---|---|
+| **Orchestrator** | Runs the pipeline, computes the weighted final score, builds the recommendation (rationale, strengths, gaps, flags, next steps, onboarding) | `final_score`, `recommendation_status` |
+| **01 · Profile** | Years of experience vs. requirement, education/domain match, career trajectory, language fit | `profile_score` |
+| **02 · Technical** | Required/nice-to-have skill coverage matched against CV + LinkedIn text, certifications | `technical_score` |
+| **03 · Culture Fit** | Soft-skill signals (leadership, mentoring, collaboration, stakeholder management), job team-context alignment, multilingual proficiency | `culture_score` |
+| **04 · References** | Verifiability of the record — LinkedIn/GitHub presence, dated education, certifications (not a live reference call) | `reference_score` |
+| **05 · Recommendation** | Synthesizes all scores into the final decision | *(built into orchestrator)* |
+| **06 · People Analytics** *(optional, HR/People roles)* | 8 hybrid HR+Tech signal buckets: Employee Listening Platforms, Analytics & Statistics, Organizational Psychology, Survey & Listening Programs, HR Domain Experience, Executive Stakeholder Engagement, Change Management & Transformation, Microsoft Ecosystem (Viva Insights/M365/Copilot/Teams) | `people_analytics_score` |
 
-### 3. Invoke Agents
+Agent 06 replaces Agent 02 in the weighted formula when a role is detected (or explicitly flagged) as People Analytics/HR.
 
-**Quick Screen:**
+### Scoring formula
+
 ```
-👉 Agent 01: "Evaluate candidate profile: [CV], JD: [Job Description]"
-👉 Agent 02: "Assess technical skills: [CV], JD required stack: [Tech Stack]"
-👉 Agent 05: "Synthesize scores and recommend: [Scores from 01 & 02]"
-```
-
-**Full Evaluation:**
-```
-👉 Agent 01: Profile evaluation
-👉 Agent 02: Technical skills evaluation
-👉 Agent 03: Culture fit analysis
-👉 Agent 04: Reference validation
-👉 Agent 05: Final hiring recommendation
+Tech roles:            Final = Profile 20% + Technical 35% + Culture 25% + References 15% + Strategic bonus (0-5)
+People Analytics roles: Final = Profile 15% + People Analytics 40% + Culture 25% + References 15% + Strategic bonus (0-5)
 ```
 
-### 4. Decision
+| Final Score | Recommendation |
+|---|---|
+| 75–100 | ✅ **GO** — proceed to offer |
+| 30–74 | 🟡 **HOLD** — manager discussion / more data |
+| 0–29 | ❌ **NO-GO** — pass, archive |
 
-- **🟢 Go:** Move to offer
-- **🟡 Hold:** Need more data or manager discussion
-- **🔴 No-Go:** Pass, archive
+### Post-interview recalculation
 
----
+`POST /api/evaluations/{id}/notes` appends the interview notes to the candidate's CV text and re-runs the whole pipeline. Two safeguards keep it honest:
+- **Never regresses**: every dimension is clamped to `max(pre-notes score, recalculated score)`.
+- **Interview-verification bonus**: notes that reconfirm a skill/signal the CV *already* claimed still earn credit (up to +12 per dimension) — because a skill demonstrated live to an interviewer is stronger evidence than an unverified CV line. The bonus and the matched terms are shown in the report's per-dimension "why" breakdown.
 
-## Agent Roles
-
-| Agent | Focus | Input | Output |
-|-------|-------|-------|--------|
-| **00-Orchestrator** | Coordinate evaluation pipeline, route candidates, synthesize final recommendation | JD + candidate + context | Executive summary + recommendation (Go/No-Go/Hold) |
-| **01-Profile Evaluator** | CV analysis, background fit, years of experience, domain expertise, career trajectory | CV + JD | Profile Fit Score (0–100) + experience gaps + strengths |
-| **02-Tech Skills Evaluator** | Technical depth, frameworks, languages, certifications, hands-on capability | CV + JD tech stack | Tech Score (0–100) + skill gaps + interview focus areas |
-| **03-Culture Fit Analyzer** | Soft skills, collaboration, mentoring, Avanade values alignment, team dynamics | CV + team context | Culture Fit Score (0–100) + risk flags + team fit assessment |
-| **04-Reference Validator** | Track record verification, reference quality, achievement credibility, timeline integrity | CV + references list | Reference Confidence Score (0–100) + verification status |
-| **05-Recommendation Engine** | Synthesize all scores, detect conflicts, emit final decision | All agent scores + context | **Final Score (0–100)** + **Recommendation (Go/No-Go/Hold)** + rationale |
-| **06-People Analytics Specialist** | **(NEW)** Viva Glint expertise, people science knowledge, org psychology, transformation capability | CV + HR/People-focused JD | People Analytics Score (0–100) + domain-specific gaps + readiness assessment |
+The very first pre-notes score/status is snapshotted once (`pre_interview_score`/`pre_interview_status`) so the report can always show the before/after delta, no matter how many rounds of notes are added afterward.
 
 ---
 
-## Scoring Scale (Authoritative)
+## Backend (FastAPI)
 
-| Range | Interpretation | Recommendation |
-|-------|-----------------|-----------------|
-| **75–100** | Excellent fit, exceeds requirements | ✅ **Go** — Move to offer |
-| **60–74** | Good fit, minor gaps addressable | 🟡 **Hold** — Manager discussion + data |
-| **30–59** | Partial fit, significant gaps | 🟡 **Hold** — Only Go if compelling mitigation |
-| **0–29** | Critical gaps, not qualified | ❌ **No-Go** — Pass, archive |
-
-**Final Score (Weighted by Orchestrator):**
-
-For **default tech roles:**
 ```
-Final = Profile 20% + Tech 35% + Culture 25% + References 15% + Strategic 5%
-```
-
-For **People Analytics/HR specialist roles:**
-```
-Final = Profile 15% + People Analytics 35% + Culture 25% + References 15% + Tech 5% + Strategic 5%
+src/
+  agents/         # 6 evaluation agents + orchestrator
+  api/
+    main.py       # FastAPI app, CORS, /health
+    routes/       # candidates, jobs, evaluations, analyze
+  cli.py          # click CLI (single/batch evaluation, report generation)
+  database/       # SQLAlchemy models + session (SQLite by default)
+  generators/     # HTML report generator (Jinja2) + optional PDF (weasyprint, CLI-only)
+  models/         # Pydantic domain models (Candidate, Job, Evaluation, Recommendation)
+  services/
+    cv_parser.py         # Extract text + guess fields from PDF/DOCX/TXT
+    linkedin_enricher.py # Exa API profile enrichment
+    jd_parser.py          # Free-text JD → structured JobDescription + People Analytics detection
+    i18n_service.py       # EN-US / PT-BR translation wrapper (python-i18n)
+    interview_boost.py    # Interview-verification scoring bonus
+templates/
+  report.html.jinja  # The evaluation report (branded, i18n, print-ready)
+locales/
+  en-US.yml, pt-BR.yml  # All translatable strings (recommendation text, report chrome)
 ```
 
----
+### REST API
 
-## 📝 Job Description Templates
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/health` | Liveness + safe `EXA_API_KEY` presence check (no secret exposed) |
+| `POST` | `/api/analyze/run` | **Agentic pipeline**: CV upload + LinkedIn URL + free-text JD → full evaluation |
+| `POST` `GET` `GET /{id}` `PUT /{id}` `DELETE /{id}` | `/api/candidates` | Candidate CRUD |
+| `POST` `GET` `GET /{id}` `PUT /{id}` `DELETE /{id}` | `/api/jobs` | Job CRUD |
+| `POST` | `/api/evaluations/run` | Run an evaluation for an existing candidate + job (manual flow) |
+| `GET` | `/api/evaluations/{id}` | Evaluation detail (scores, rationale, strengths/gaps/flags) |
+| `POST` | `/api/evaluations/{id}/notes` | Add post-interview notes and recalculate |
+| `GET` | `/api/evaluations/{id}/report` | Full branded HTML report (printable to PDF) |
+| `GET` | `/api/evaluations` | List, filterable by `candidate_id` / `job_id` |
+| `GET` | `/api/evaluations/candidate/{id}/history` | All evaluations for a candidate |
+| `GET` | `/api/evaluations/job/{id}/results` | All evaluations for a job, ranked by score |
 
-Pre-built, reusable templates for recurring AI & Data roles. All templates follow Avanade standard format with benefits, responsibilities, and qualifications.
+All evaluation/analyze endpoints accept a `language` field (`en-US` default, or `pt-BR`) that controls the language of every generated string and the report.
 
-**Available Templates:** [`.github/templates/`](.github/templates/)
+### CLI (`python -m src.cli`)
 
-| # | Title | Stack | Seniority |
-|---|-------|-------|-----------|
-| 01 | Senior Platform Engineer | Azure / Kubernetes | Sênior (8–12y) |
-| 02 | Engenheiro(a) de Dados Sênior | GCP / BigQuery | Sênior (5–7y) |
-| 03 | Data Architect Sênior | Microsoft Fabric / Databricks | Sênior (8+y) |
-| 04 | Cientista de Dados Sênior | Azure Databricks / MLOps | Sênior (6+y) |
-| 05 | Consultor(a) de Transformação Digital | Microsoft Ecosystem | Sênior (7+y) |
-| 06 | Lead Engenheiro(a) de Dados | Azure / Data Mesh | Lead (7+y) |
-| 07 | Solution Architect | Azure Data Platform | Sênior (8+y) |
-| 08 | Analista de Visualização de Dados Sênior | Power BI / Azure | Sênior (5+y) |
-| 09 | GenAI Engineer | Azure OpenAI / Semantic Kernel | Sênior (6+y) |
+```
+evaluate    --candidate-file <json> --job-file <json> [--playbook quick-screen|full-evaluation|full-people-analytics] [--output-dir reports]
+batch       --candidates-file <json> --job-file <json> [--output-dir reports] [--format html|json]
+version
+```
 
-**How to Use:**
-1. Browse [`.github/templates/README.md`](.github/templates/README.md) for index
-2. Copy relevant template into evaluation markdown
-3. Customize title/location as needed
-4. Reference for traceability
+### Configuration (`.env`)
 
----
-
-## 🎯 Complete Evaluation Workflow
-
-End-to-end candidate evaluation workflow: **Markdown input → Agent analysis → HTML report output**
-
-**Documentation:** [`.examples/`](.examples/)
-
-| Guide | Purpose | Start Here |
-|-------|---------|------------|
-| [README.md](.examples/README.md) | Main entry point | ⭐ Começar aqui |
-| [WORKFLOW.md](.examples/WORKFLOW.md) | Complete step-by-step process | Complete process |
-| [EVALUATION_TEMPLATE.md](.examples/EVALUATION_TEMPLATE.md) | Copy for new candidates | New evaluation |
-| [CANDIDATES_ROADMAP.md](.examples/CANDIDATES_ROADMAP.md) | Tracking + archive | View history |
-| [WORKFLOW_STATUS.md](.examples/WORKFLOW_STATUS.md) | Verification & status | Implementation details |
-
-**Quick Start:** 
-1. Read [`.examples/README.md`](.examples/README.md)
-2. Copy [`.examples/EVALUATION_TEMPLATE.md`](.examples/EVALUATION_TEMPLATE.md)
-3. Run playbook (Quick Screen / Full / Full+Analytics)
-4. Generate HTML report
-5. Update [`.examples/CANDIDATES_ROADMAP.md`](.examples/CANDIDATES_ROADMAP.md)
-
-**Examples:**
-- [sample-evaluation.md](.examples/sample-evaluation.md) — Full Evaluation example
-- [sample-evaluation.html](.examples/sample-evaluation.html) — Rendered HTML
-- [`candidates/`](.examples/candidates/) — Archive folder for all new evaluations
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | SQLite by default (`sqlite:///./recruitment_suite.db`); **on Vercel serverless this falls back to an ephemeral `/tmp` file that resets on cold start** — set a persistent Postgres URL (Vercel Postgres/Neon/Supabase) for production durability |
+| `EXA_API_KEY` | Required for LinkedIn enrichment in `/api/analyze/run`; degrades gracefully (uses CV only) if missing |
+| `SQL_ECHO`, `API_HOST`, `API_PORT`, `CORS_ORIGINS` | Standard FastAPI/dev server tuning |
 
 ---
 
-✅ **Do:**
-- Use **scoring matrices** (tables first, then narrative)
-- Flag **gaps clearly** (vs. strengths for balance)
-- **Escalate conflicts** (ex: Tech=90 but Culture=55) for manager discussion
-- **Justify recommendations** in 1–2 sentences
-- **Respect LGPD** — no PII retention beyond session
+## Frontend (React + Vite + TypeScript)
 
-❌ **Don't:**
-- Generate code, scripts, or deployment templates
-- Use non-Microsoft stack (AWS, GCP, Workable API, etc.)
-- Exceed 8 000 characters per agent response
-- Make subjective decisions without objective criteria
-- Stereotype by background, gender, age, etc.
+```
+frontend/src/
+  pages/
+    LandingPage.tsx              # Public marketing page (unauthenticated)
+    LoginPage.tsx                # Mock auth (demo: any email/password)
+    DashboardPage.tsx            # KPI overview
+    AnalyzePage.tsx              # Agentic pipeline UI: CV drop-zone, LinkedIn URL, JD textarea, EN-US/PT-BR toggle
+    SettingsPage.tsx
+    candidates/ jobs/ evaluations/  # Conventional CRUD list/detail/form pages
+  components/
+    layouts/       # MainLayout (sidebar+navbar), AuthLayout
+    common/        # Navbar, Sidebar
+    motion/        # Framer Motion primitives (Page transitions, AnimatedNumber, ScoreBar, LiftCard)
+  store/           # Redux Toolkit slices (auth, candidates, jobs, evaluations, ui)
+  services/api.ts  # Axios client, same-origin in production
+```
 
----
-
-## Example: Senior DevOps Engineer Evaluation
-
-### Input
-**Job:** Sr. DevOps Engineer at Avanade  
-**Candidate:** Alex Chen, 10 years DevOps (5y AWS, 3y Azure, recent Kubernetes focus)
-
-### Playbook: Full Evaluation
-
-**Agent 01 (Profile):**
-> "Alex has 10y in DevOps, 5y AWS hyperscaler, 3y Azure at consulting firm. Clear progression IC → Tech Lead. Fit: 78. Gap: Limited M365 governance, but core DevOps strong."
-
-**Agent 02 (Tech):**
-> "Strong in Kubernetes (4y hands-on), Terraform (3y), Python (5y). Missing: Bicep (Azure IaC preferred), less hands-on in CI/CD architecture. Tech Score: 82. Interview: Bicep depth, CI/CD design."
-
-**Agent 03 (Culture):**
-> "Strong collaboration signals (led 3 teams, mentoring history). Growth mindset evident (AWS→Azure transition). Culture: 85. Risk: All background at hyperscaler/startup; gauge consulting-culture fit."
-
-**Agent 04 (References):**
-> "Former manager available, references strong on delivery. CV claims verified. Confidence: 90."
-
-**Agent 05 (Orchestrator):**
-> **Final Score: 84** 
-> **Recommendation: 🟢 Go**
-> 
-> Rationale: Excellent technical fit (82), strong culture signal (85), clean references (90). Minor gap in Bicep addressable via onboarding. Profile slightly below bar (78) due to consulting experience, but technical + culture strength outweigh.
->
-> **Next Steps:**
-> 1. Schedule technical interview (focus: Bicep, CI/CD design)
-> 2. Manager round (culture fit discussion)
-> 3. Extend offer pending reference verification
+Same-origin API calls in production (Vercel rewrites `/api/*` to the serverless function); `VITE_API_URL` overrides for local dev against `localhost:8000`.
 
 ---
 
-## Example: People Science Consultant — Full + People Analytics Evaluation
+## Deployment (Vercel)
 
-### Input
-**Job:** People Science Consultant | Employee Experience (Viva Glint focus)  
-**Candidate:** Maria Souza, 12y People Analytics (MA Org Psychology, 3y Viva Glint certified)
+Single Vercel project serves both halves:
+- **Frontend**: Vite build → static, served from `frontend/dist`
+- **Backend**: `api/index.py` exposes the FastAPI app as an ASGI serverless function; `vercel.json` rewrites `/api/*` and `/health` to it, everything else falls through to the SPA
 
-### Playbook: Full + People Analytics (40–50 min)
+Required environment variable in the Vercel dashboard: `EXA_API_KEY` (Production + Preview). Without it, LinkedIn-only analysis fails with an actionable 502 explaining the missing key; CV-only analysis still works.
 
-**Agent 01 (Profile):** 85/100  
-> 12y progression IC → Senior Analyst; MA Org Psychology; Viva certification 3y. Clear domain depth. Gap: No C-suite exposure yet.
+Alternative self-hosting paths are included for a persistent backend: `Dockerfile` and `render.yaml` (Render.com).
 
-**Agent 02 (Tech):** 80/100  
-> Viva Glint certified, strong SQL + Power BI, light on Python/R. Analytics capability strong but quantitative chops could deepen.
-
-**Agent 03 (Culture):** 84/100  
-> Mentored 2 junior analysts, collaborative leadership style. Startup → Consulting transition signals adaptability and growth mindset.
-
-**Agent 04 (References):** 90/100  
-> All CV claims verified by CHRO reference. Testimonials emphasize data storytelling and org-wide influence.
-
-**Agent 06 (People Analytics Specialist - NEW):** 82/100  
-> Org Psychology MA exceptional (20/20), Viva Glint depth solid (24/25), stats rigor good (18/20), storytelling strong (19/20), transformation leadership emerging (15/15). Ready for scaling people initiatives.
-
-**Agent 05 (Recommendation Engine):** **82/100 Final**  
-> **🟢 Go — Extend Offer with Mentor Support**
-> 
-> Maria is an **excellent fit** for this People Science role. Viva Glint expertise + org psychology education + track record of influence make her ideal. Minor stat-rigor gap addressable via onboarding.
->
-> **Confidence:** 92%  
-> **Next Steps:**
-> 1. Extend offer with 3-month mentoring plan (C-suite storytelling ramp-up)
-> 2. Onboarding focus: Advanced analytics (Python/R optional, not mandatory)
-> 3. Assign internal mentor (CHRO or VP People)
+⚠️ **Known limitation**: the default SQLite database is ephemeral on Vercel serverless (`/tmp`, wiped on cold start). Evaluations can disappear between sessions. For production durability, point `DATABASE_URL` at a persistent Postgres instance.
 
 ---
 
+## Local development
 
+```bash
+# Backend
+pip install -r requirements.txt
+cp .env.example .env   # fill in EXA_API_KEY if you want LinkedIn enrichment
+uvicorn src.api:app --reload --port 8000
 
-- **[.github/instructions/recruitment-suite.instructions.md](.github/instructions/recruitment-suite.instructions.md)** — Hard constraints, conventions, rules
-- **[.github/memory/recruitment-memory.md](.github/memory/recruitment-memory.md)** — Living state, agent inventory, playbooks
-- **[.examples/sample-evaluation.md](.examples/sample-evaluation.md)** — Full playbook example
-- **[.examples/maria-souza-people-science-evaluation.html](.examples/maria-souza-people-science-evaluation.html)** — Full + People Analytics example (82/100, Avanade brand)
-- **[package.json](package.json)** — Metadata
+# Frontend
+cd frontend
+npm install
+npm run dev             # http://localhost:5173, proxies to localhost:8000
+```
 
----
+### Tests
 
-## Roadmap (v2+)
-
-- [ ] Candidate database integration (Microsoft Dataverse)
-- [ ] LGPD retention & archival policy
-- [ ] Salary benchmarking agent
-- [ ] Entra ID background check integration
-- [ ] Metrics dashboard (hiring cycle, quality of hire, diversity)
-- [ ] Feedback loop: track hired candidates → performance → agent tuning
-
----
-
-## Support
-
-For questions, issues, or to suggest improvements:
-- 📧 Contact: [Talent Team]
-- 🐛 Report bugs or request features via GitHub Issues
-- 📚 See [.github/instructions/recruitment-suite.instructions.md](.github/instructions/recruitment-suite.instructions.md) for authoring guidelines
+```bash
+pytest tests/ -q                                        # API, agents, i18n, interview notes
+cd frontend && npx tsc --noEmit -p tsconfig.app.json     # type-check
+```
 
 ---
 
-**Version:** 1.0  
-**Last Updated:** 2026-07-08  
-**Status:** Production Ready ✅
+## Design principles
+
+- **No LLM calls in the agents** — every score is a deterministic, explainable heuristic (keyword/skill matching, weighted formulas), so the same input always produces the same output and every number has a traceable "why."
+- **Graceful degradation** — a missing LinkedIn key, missing CV, or missing JD fields never crash the pipeline; they show up as gaps/flags instead.
+- **i18n as a first-class concern** — all agent-generated text and report chrome route through `src/services/i18n_service.py` / `locales/*.yml`, not hardcoded strings.
+- **Reversible, additive interview feedback** — post-interview notes can only improve a candidate's score, never penalize them, matching how a real interview should be treated as additional evidence.
+
+---
+
+**Status:** Live on Vercel.
