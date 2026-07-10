@@ -1,5 +1,7 @@
 """FastAPI application for Recruitment Suite."""
 
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,4 +35,11 @@ app.include_router(analyze.router, prefix="/api/analyze", tags=["analyze"])
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "version": "1.0.0"}
+    exa_key = os.environ.get("EXA_API_KEY")
+    return {
+        "status": "ok",
+        "version": "1.0.0",
+        # Presence/shape only — never expose the actual key value.
+        "exa_api_key_configured": bool(exa_key),
+        "exa_api_key_length": len(exa_key) if exa_key else 0,
+    }
