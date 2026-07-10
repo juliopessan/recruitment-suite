@@ -333,8 +333,7 @@
 <section style="background:#fff;border-top:1px solid var(--g10)">
   <div class="wrap">
     <div class="bar-rule"></div>
-    <div class="eyebrow">{{ 'report.next_steps' | t(language) }}</div>
-    <h2 class="h">{{ 'report.next_steps_tip' | t(language) }}</h2>
+    <h2 class="h">{{ 'report.next_steps' | t(language) }}</h2>
     <div class="road">
       {% for step in next_steps %}
       <div class="step"><div class="sn">{{ loop.index }}</div><p>{{ step }}</p></div>
