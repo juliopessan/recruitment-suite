@@ -428,6 +428,58 @@ class TestEvaluations:
         )
         assert response.status_code == 404
 
+    def test_add_interview_notes_never_decreases_scores(self, cleanup_after_each):
+        """
+        Regression test: interview notes are additive evidence and must never
+        lower a score. This previously regressed because the candidate was
+        rebuilt from the DB without linkedin_profile, silently dropping any
+        soft-skill/technical signal that only lived there (not in cv_text).
+        """
+        db = SessionLocal()
+        db.add(CandidateRecord(
+            id="cand_notes_regress",
+            name="Notes Regression Candidate",
+            email="notes_regress@example.com",
+            total_years_experience=8,
+            languages=[], education=[], certifications=[],
+            cv_text="Data analyst with Python and SQL experience.",
+            linkedin_profile={
+                "summary": "Strong leadership, team collaboration, stakeholder "
+                            "communication and mentoring track record."
+            },
+        ))
+        db.add(JobRecord(
+            id="job_notes_regress",
+            title="Data Analyst",
+            company="TestCo",
+            description="Need Python and SQL",
+            required_skills=["Python", "SQL"],
+            years_experience_required=5,
+            seniority_level="Senior",
+            hiring_urgency="Medium",
+        ))
+        db.commit()
+        db.close()
+
+        create_response = client.post("/api/evaluations/run", json={
+            "candidate_id": "cand_notes_regress",
+            "job_id": "job_notes_regress",
+        })
+        eval_id = create_response.json()["id"]
+        before = client.get(f"/api/evaluations/{eval_id}").json()
+
+        response = client.post(
+            f"/api/evaluations/{eval_id}/notes",
+            json={"notes": "Candidate confirmed strong SQL skills in the technical interview."},
+        )
+        assert response.status_code == 200
+        after = response.json()
+
+        assert after["final_score"] >= before["final_score"]
+        assert after["culture_score"] >= before["culture_score"]
+        assert after["technical_score"] >= before["technical_score"]
+        assert after["pre_interview_score"] == before["final_score"]
+
     def test_get_evaluation_html_report(self, setup_candidate_and_job):
         """Test retrieving the detailed HTML report for an evaluation."""
         cand_id, job_id = setup_candidate_and_job

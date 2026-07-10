@@ -98,6 +98,7 @@ def run_evaluation(
             "certifications": candidate_record.certifications or []
         },
         cv_text=candidate_record.cv_text,
+        linkedin_profile=candidate_record.linkedin_profile,
     )
 
     job = JobDescription(
@@ -233,6 +234,7 @@ def add_interview_notes(
             "certifications": candidate_record.certifications or [],
         },
         cv_text=combined_cv_text,
+        linkedin_profile=candidate_record.linkedin_profile,
     )
 
     job = JobDescription(
@@ -254,6 +256,11 @@ def add_interview_notes(
     language = normalize_locale(evaluation.language)
     use_pa = bool(evaluation.use_people_analytics)
 
+    # Snapshot the pre-notes baseline exactly once, before anything is overwritten.
+    if evaluation.pre_interview_score is None:
+        evaluation.pre_interview_score = evaluation.final_score
+        evaluation.pre_interview_status = evaluation.recommendation_status
+
     orchestrator = RecruitmentOrchestrator()
     result: EvaluationResult = orchestrator.evaluate(
         candidate=candidate,
@@ -263,27 +270,44 @@ def add_interview_notes(
         language=language,
     )
 
-    # Snapshot the pre-notes baseline exactly once.
-    if evaluation.pre_interview_score is None:
-        evaluation.pre_interview_score = evaluation.final_score
-        evaluation.pre_interview_status = evaluation.recommendation_status
+    # Interview notes are additional evidence, never a reason to know less than
+    # before: each dimension can only go up, never down, from the pre-notes score.
+    clamped = Evaluation(
+        candidate_id=evaluation.candidate_id,
+        job_id=evaluation.job_id,
+        profile_score=max(evaluation.profile_score, result.evaluation.profile_score),
+        technical_score=max(evaluation.technical_score, result.evaluation.technical_score),
+        culture_score=max(evaluation.culture_score, result.evaluation.culture_score),
+        reference_score=max(evaluation.reference_score, result.evaluation.reference_score),
+        people_analytics_score=(
+            max(evaluation.people_analytics_score, result.evaluation.people_analytics_score)
+            if evaluation.people_analytics_score is not None and result.evaluation.people_analytics_score is not None
+            else result.evaluation.people_analytics_score
+        ),
+        strategic_bonus=max(evaluation.strategic_bonus, result.evaluation.strategic_bonus),
+    )
+    clamped.calculate_final_score(use_people_analytics=use_pa)
+    clamped.confidence = result.evaluation.confidence
+    clamped.agent_scores = result.evaluation.agent_scores
 
-    evaluation.profile_score = result.evaluation.profile_score
-    evaluation.technical_score = result.evaluation.technical_score
-    evaluation.culture_score = result.evaluation.culture_score
-    evaluation.reference_score = result.evaluation.reference_score
-    evaluation.people_analytics_score = result.evaluation.people_analytics_score
-    evaluation.strategic_bonus = result.evaluation.strategic_bonus
-    evaluation.final_score = result.evaluation.final_score
-    evaluation.confidence = result.recommendation.confidence_level
-    evaluation.recommendation_status = result.recommendation.status.value
-    evaluation.rationale = result.recommendation.rationale
-    evaluation.strengths = result.recommendation.key_strengths or []
-    evaluation.gaps = result.recommendation.addressable_gaps or []
-    evaluation.critical_flags = result.recommendation.critical_flags or []
-    evaluation.next_steps = result.recommendation.next_steps or []
-    evaluation.onboarding_plan = result.recommendation.onboarding_plan or []
-    evaluation.agent_analysis = build_agent_analysis(result.evaluation)
+    recommendation = orchestrator._create_recommendation(clamped, candidate, job, use_pa, language)
+
+    evaluation.profile_score = clamped.profile_score
+    evaluation.technical_score = clamped.technical_score
+    evaluation.culture_score = clamped.culture_score
+    evaluation.reference_score = clamped.reference_score
+    evaluation.people_analytics_score = clamped.people_analytics_score
+    evaluation.strategic_bonus = clamped.strategic_bonus
+    evaluation.final_score = clamped.final_score
+    evaluation.confidence = recommendation.confidence_level
+    evaluation.recommendation_status = recommendation.status.value
+    evaluation.rationale = recommendation.rationale
+    evaluation.strengths = recommendation.key_strengths or []
+    evaluation.gaps = recommendation.addressable_gaps or []
+    evaluation.critical_flags = recommendation.critical_flags or []
+    evaluation.next_steps = recommendation.next_steps or []
+    evaluation.onboarding_plan = recommendation.onboarding_plan or []
+    evaluation.agent_analysis = build_agent_analysis(clamped)
     evaluation.interview_notes = request.notes
     evaluation.notes_updated_at = datetime.utcnow()
 
