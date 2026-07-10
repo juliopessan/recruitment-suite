@@ -36,6 +36,13 @@ export const fetchEvaluation = createAsyncThunk(
   }
 )
 
+export const addInterviewNotes = createAsyncThunk(
+  'evaluations/addInterviewNotes',
+  async ({ id, notes }: { id: string; notes: string }) => {
+    return await apiClient.addInterviewNotes(id, notes)
+  }
+)
+
 export const fetchEvaluations = createAsyncThunk(
   'evaluations/fetchEvaluations',
   async ({ candidateId, jobId, skip = 0, limit = 20 }: {
@@ -90,6 +97,18 @@ const evaluationsSlice = createSlice({
       })
       .addCase(fetchEvaluation.fulfilled, (state, action) => {
         state.currentEvaluation = action.payload
+      })
+      .addCase(addInterviewNotes.pending, (state) => {
+        state.isLoading = true
+        state.error = null
+      })
+      .addCase(addInterviewNotes.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.currentEvaluation = action.payload
+      })
+      .addCase(addInterviewNotes.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.error.message || 'Failed to add interview notes'
       })
       .addCase(fetchEvaluations.pending, (state) => {
         state.isLoading = true

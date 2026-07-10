@@ -10,7 +10,7 @@ from src.models import Candidate, JobDescription, Evaluation, EvaluationResult
 from src.agents.orchestrator import RecruitmentOrchestrator
 from src.generators import HTMLReportGenerator, build_agent_analysis
 from src.services.i18n_service import DEFAULT_LOCALE, normalize_locale
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter()
 
@@ -49,6 +49,14 @@ class EvaluationDetailResponse(EvaluationResponse):
     strengths: List[str]
     gaps: List[str]
     critical_flags: List[str]
+    interview_notes: Optional[str] = None
+    pre_interview_score: Optional[float] = None
+    pre_interview_status: Optional[str] = None
+    notes_updated_at: Optional[datetime] = None
+
+
+class InterviewNotesRequest(BaseModel):
+    notes: str = Field(..., min_length=3)
 
 
 @router.post("/run", response_model=EvaluationResponse)
@@ -166,6 +174,125 @@ def get_evaluation(evaluation_id: str, db: Session = Depends(get_db)):
     return evaluation
 
 
+@router.post("/{evaluation_id}/notes", response_model=EvaluationDetailResponse)
+def add_interview_notes(
+    evaluation_id: str,
+    request: InterviewNotesRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Add post-interview notes and recalculate the evaluation's scores.
+
+    The notes are appended to the candidate's CV text as interview evidence
+    and the full multi-agent pipeline re-runs against it, so anything the
+    interview surfaced (skills demonstrated, culture-fit signals, reference
+    concerns, etc.) can move the scores. The very first pre-notes score is
+    kept (pre_interview_score/status) so the report can show the before/after
+    delta; re-adding notes again re-evaluates but does not overwrite that
+    original baseline.
+    """
+    evaluation = db.query(EvaluationRecord).filter(
+        EvaluationRecord.id == evaluation_id
+    ).first()
+    if not evaluation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Evaluation {evaluation_id} not found"
+        )
+
+    candidate_record = db.query(CandidateRecord).filter(
+        CandidateRecord.id == evaluation.candidate_id
+    ).first()
+    if not candidate_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Candidate {evaluation.candidate_id} not found"
+        )
+
+    job_record = db.query(JobRecord).filter(JobRecord.id == evaluation.job_id).first()
+    if not job_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job {evaluation.job_id} not found"
+        )
+
+    combined_cv_text = (
+        f"{candidate_record.cv_text or ''}\n\n[Post-Interview Notes]\n{request.notes}"
+    ).strip()
+
+    candidate = Candidate(
+        id=candidate_record.id,
+        profile={
+            "name": candidate_record.name,
+            "email": candidate_record.email,
+            "phone": candidate_record.phone,
+            "location": candidate_record.location,
+            "total_years_experience": candidate_record.total_years_experience,
+            "languages": candidate_record.languages or [],
+            "education": candidate_record.education or [],
+            "certifications": candidate_record.certifications or [],
+        },
+        cv_text=combined_cv_text,
+    )
+
+    job = JobDescription(
+        id=job_record.id,
+        title=job_record.title,
+        company=job_record.company,
+        location=job_record.location,
+        description=job_record.description,
+        responsibilities=job_record.responsibilities or [],
+        required_skills=job_record.required_skills or [],
+        nice_to_have_skills=job_record.nice_to_have_skills or [],
+        years_experience_required=job_record.years_experience_required,
+        seniority_level=job_record.seniority_level,
+        required_languages=job_record.required_languages or [],
+        hiring_urgency=job_record.hiring_urgency,
+        team_context=job_record.team_context,
+    )
+
+    language = normalize_locale(evaluation.language)
+    use_pa = bool(evaluation.use_people_analytics)
+
+    orchestrator = RecruitmentOrchestrator()
+    result: EvaluationResult = orchestrator.evaluate(
+        candidate=candidate,
+        job=job,
+        playbook=evaluation.playbook,
+        use_people_analytics=use_pa,
+        language=language,
+    )
+
+    # Snapshot the pre-notes baseline exactly once.
+    if evaluation.pre_interview_score is None:
+        evaluation.pre_interview_score = evaluation.final_score
+        evaluation.pre_interview_status = evaluation.recommendation_status
+
+    evaluation.profile_score = result.evaluation.profile_score
+    evaluation.technical_score = result.evaluation.technical_score
+    evaluation.culture_score = result.evaluation.culture_score
+    evaluation.reference_score = result.evaluation.reference_score
+    evaluation.people_analytics_score = result.evaluation.people_analytics_score
+    evaluation.strategic_bonus = result.evaluation.strategic_bonus
+    evaluation.final_score = result.evaluation.final_score
+    evaluation.confidence = result.recommendation.confidence_level
+    evaluation.recommendation_status = result.recommendation.status.value
+    evaluation.rationale = result.recommendation.rationale
+    evaluation.strengths = result.recommendation.key_strengths or []
+    evaluation.gaps = result.recommendation.addressable_gaps or []
+    evaluation.critical_flags = result.recommendation.critical_flags or []
+    evaluation.next_steps = result.recommendation.next_steps or []
+    evaluation.onboarding_plan = result.recommendation.onboarding_plan or []
+    evaluation.agent_analysis = build_agent_analysis(result.evaluation)
+    evaluation.interview_notes = request.notes
+    evaluation.notes_updated_at = datetime.utcnow()
+
+    db.commit()
+    db.refresh(evaluation)
+
+    return evaluation
+
+
 @router.get("", response_model=List[EvaluationResponse])
 def list_evaluations(
     candidate_id: Optional[str] = None,
@@ -227,6 +354,10 @@ def get_evaluation_report(evaluation_id: str, db: Session = Depends(get_db)):
         "onboarding": evaluation.onboarding_plan or [],
         "agent_analysis": evaluation.agent_analysis or {},
         "language": normalize_locale(evaluation.language),
+        "interview_notes": evaluation.interview_notes,
+        "pre_interview_score": evaluation.pre_interview_score,
+        "pre_interview_status": evaluation.pre_interview_status,
+        "notes_updated_at": evaluation.notes_updated_at.strftime("%Y-%m-%d %H:%M UTC") if evaluation.notes_updated_at else None,
     })
 
     return HTMLResponse(content=html)

@@ -377,6 +377,57 @@ class TestEvaluations:
         assert "rationale" in data
         assert "strengths" in data
 
+    def test_add_interview_notes_recalculates_scores(self, setup_candidate_and_job):
+        """Test that posting interview notes re-runs the pipeline and snapshots the baseline score."""
+        cand_id, job_id = setup_candidate_and_job
+
+        eval_data = {
+            "candidate_id": cand_id,
+            "job_id": job_id,
+            "playbook": "quick-screen",
+        }
+        create_response = client.post("/api/evaluations/run", json=eval_data)
+        eval_id = create_response.json()["id"]
+        original_score = create_response.json()["final_score"]
+
+        response = client.post(
+            f"/api/evaluations/{eval_id}/notes",
+            json={"notes": "Candidate demonstrated excellent Python and SQL skills live during the technical interview."},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["interview_notes"] is not None
+        assert "Python" in data["interview_notes"]
+        assert data["pre_interview_score"] == original_score
+        assert data["notes_updated_at"] is not None
+
+    def test_add_interview_notes_keeps_original_baseline_on_second_call(self, setup_candidate_and_job):
+        """Test that re-adding notes doesn't overwrite the first pre-interview baseline."""
+        cand_id, job_id = setup_candidate_and_job
+
+        eval_data = {
+            "candidate_id": cand_id,
+            "job_id": job_id,
+            "playbook": "quick-screen",
+        }
+        create_response = client.post("/api/evaluations/run", json=eval_data)
+        eval_id = create_response.json()["id"]
+
+        first = client.post(f"/api/evaluations/{eval_id}/notes", json={"notes": "First round notes."})
+        baseline = first.json()["pre_interview_score"]
+
+        second = client.post(f"/api/evaluations/{eval_id}/notes", json={"notes": "Second round notes, updated."})
+        assert second.json()["pre_interview_score"] == baseline
+        assert "Second round" in second.json()["interview_notes"]
+
+    def test_add_interview_notes_not_found(self):
+        """Test adding notes to a nonexistent evaluation returns 404."""
+        response = client.post(
+            "/api/evaluations/nonexistent_eval/notes",
+            json={"notes": "Some notes"},
+        )
+        assert response.status_code == 404
+
     def test_get_evaluation_html_report(self, setup_candidate_and_job):
         """Test retrieving the detailed HTML report for an evaluation."""
         cand_id, job_id = setup_candidate_and_job
@@ -393,6 +444,29 @@ class TestEvaluations:
         assert response.status_code == 200
         assert "text/html" in response.headers["content-type"]
         assert "Candidate Evaluation Report" in response.text
+
+    def test_get_evaluation_html_report_shows_interview_notes(self, setup_candidate_and_job):
+        """Test the HTML report includes the notes section and score-before-notes after recalculation."""
+        cand_id, job_id = setup_candidate_and_job
+
+        eval_data = {
+            "candidate_id": cand_id,
+            "job_id": job_id,
+            "playbook": "quick-screen",
+        }
+        create_response = client.post("/api/evaluations/run", json=eval_data)
+        eval_id = create_response.json()["id"]
+
+        client.post(
+            f"/api/evaluations/{eval_id}/notes",
+            json={"notes": "Reference check confirmed strong leadership skills."},
+        )
+
+        response = client.get(f"/api/evaluations/{eval_id}/report")
+        assert response.status_code == 200
+        assert "Post-Interview Notes" in response.text
+        assert "Reference check confirmed strong leadership skills." in response.text
+        assert "Score before interview notes" in response.text
 
     def test_get_evaluation_html_report_pt_br(self, setup_candidate_and_job):
         """Test the HTML report renders in Portuguese when the evaluation was run with language=pt-BR."""

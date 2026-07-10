@@ -112,6 +112,14 @@ class EvaluationRecord(Base):
     use_people_analytics = Column(Integer, default=0)  # Boolean as int
     language = Column(String(10), default="en-US")  # Locale of the generated text (en-US/pt-BR)
 
+    # Post-interview enrichment: recruiter notes fed back into the agents to
+    # recalculate scores. pre_interview_score/pre_interview_status snapshot the
+    # very first evaluation result so the report can show the before/after delta.
+    interview_notes = Column(Text, nullable=True)
+    pre_interview_score = Column(Float, nullable=True)
+    pre_interview_status = Column(String(50), nullable=True)
+    notes_updated_at = Column(DateTime, nullable=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

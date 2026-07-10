@@ -59,6 +59,7 @@ export interface Evaluation {
   strategic_bonus: number
   final_score: number
   confidence: number
+  language: string
   recommendation_status: 'GO' | 'HOLD' | 'NO_GO'
   rationale: string
   strengths: string[]
@@ -67,6 +68,10 @@ export interface Evaluation {
   next_steps: string[]
   onboarding_plan?: Record<string, unknown>
   playbook: string
+  interview_notes?: string | null
+  pre_interview_score?: number | null
+  pre_interview_status?: 'GO' | 'HOLD' | 'NO_GO' | null
+  notes_updated_at?: string | null
   created_at?: string
   updated_at?: string
 }

@@ -109,6 +109,11 @@ class ApiClient {
     return response.data
   }
 
+  async addInterviewNotes(id: string, notes: string) {
+    const response = await this.client.post<Evaluation>(`/evaluations/${id}/notes`, { notes })
+    return response.data
+  }
+
   async getEvaluations(candidateId?: string, jobId?: string, skip: number = 0, limit: number = 20) {
     const response = await this.client.get<Evaluation[]>('/evaluations', {
       params: { candidate_id: candidateId, job_id: jobId, skip, limit },

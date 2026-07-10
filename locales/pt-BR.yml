@@ -59,3 +59,6 @@ pt-BR:
     status_go: "CONTRATAR"
     status_hold: "EM ESPERA"
     status_no_go: "NÃO CONTRATAR"
+    interview_notes: "Notas Pós-Entrevista"
+    interview_notes_tip: "Notas do recrutador adicionadas após a entrevista, realimentadas nos agentes para recalcular as notas acima."
+    score_before_notes: "Nota antes das notas da entrevista"

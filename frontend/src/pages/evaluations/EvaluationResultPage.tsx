@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { FileText } from 'lucide-react'
+import { FileText, RefreshCw } from 'lucide-react'
+import { toast } from 'react-toastify'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
-import { fetchEvaluation } from '@/store/slices/evaluationsSlice'
+import { fetchEvaluation, addInterviewNotes } from '@/store/slices/evaluationsSlice'
 import { Page, StaggerItem, AnimatedNumber, ScoreBar, scoreColor } from '@/components/motion'
 
 const API_URL =
@@ -14,12 +15,31 @@ export default function EvaluationResultPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const evaluation = useAppSelector((state) => state.evaluations.currentEvaluation)
+  const [notes, setNotes] = useState('')
+  const [isRecalculating, setIsRecalculating] = useState(false)
 
   useEffect(() => {
     if (id) {
       dispatch(fetchEvaluation(id))
     }
   }, [dispatch, id])
+
+  const handleRecalculate = async () => {
+    if (!id || notes.trim().length < 3) {
+      toast.error('Add a few words about the interview first')
+      return
+    }
+    setIsRecalculating(true)
+    try {
+      const updated = await dispatch(addInterviewNotes({ id, notes: notes.trim() })).unwrap()
+      toast.success(`Scores recalculated: ${updated.final_score}/100 — ${updated.recommendation_status}`)
+      setNotes('')
+    } catch {
+      toast.error('Failed to recalculate scores')
+    } finally {
+      setIsRecalculating(false)
+    }
+  }
 
   if (!evaluation) {
     return (
@@ -85,6 +105,12 @@ export default function EvaluationResultPage() {
           <div>
             <AnimatedNumber value={evaluation.final_score} decimals={1} className="text-5xl font-bold" />
             <p className="text-sm mt-1">Overall Score</p>
+            {evaluation.pre_interview_score != null && (
+              <p className="text-xs text-gray-500 mt-1">
+                Before interview notes: <span className="font-semibold">{evaluation.pre_interview_score}/100</span>
+                {' '}({evaluation.pre_interview_status})
+              </p>
+            )}
           </div>
           <div className="text-right">
             <motion.p
@@ -187,6 +213,49 @@ export default function EvaluationResultPage() {
           </ul>
         </StaggerItem>
       )}
+
+      <StaggerItem className="card space-y-4">
+        <div>
+          <h3 className="mb-1">Post-Interview Notes</h3>
+          <p className="text-sm text-gray-500">
+            Add what came up in the interview — skills demonstrated, culture fit signals, reference
+            feedback — and the agents will recalculate every score against it.
+          </p>
+        </div>
+
+        {evaluation.interview_notes && (
+          <div className="bg-purple-50 border-l-4 border-purple-400 rounded-lg p-4">
+            <p className="text-sm text-gray-800 whitespace-pre-line">{evaluation.interview_notes}</p>
+            {evaluation.notes_updated_at && (
+              <p className="text-xs text-gray-500 mt-2">Updated: {evaluation.notes_updated_at}</p>
+            )}
+          </div>
+        )}
+
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          className="input-field min-h-[100px] text-sm"
+          placeholder="E.g. Candidate demonstrated strong AWS and system design skills in the technical interview; references confirmed leadership experience…"
+          disabled={isRecalculating}
+        />
+        <motion.button
+          onClick={handleRecalculate}
+          disabled={isRecalculating}
+          whileHover={{ scale: isRecalculating ? 1 : 1.02 }}
+          whileTap={{ scale: isRecalculating ? 1 : 0.98 }}
+          className="btn-primary flex items-center gap-2"
+        >
+          <motion.span
+            animate={isRecalculating ? { rotate: 360 } : {}}
+            transition={{ duration: 1, repeat: isRecalculating ? Infinity : 0, ease: 'linear' }}
+            className="inline-block"
+          >
+            <RefreshCw size={16} />
+          </motion.span>
+          {isRecalculating ? 'Recalculating…' : 'Add Notes & Recalculate'}
+        </motion.button>
+      </StaggerItem>
     </Page>
   )
 }

@@ -163,6 +163,10 @@ class HTMLReportGenerator:
             "next_steps": [],
             "onboarding": [],
             "agent_analysis": {},
+            "interview_notes": None,
+            "pre_interview_score": None,
+            "pre_interview_status": None,
+            "notes_updated_at": None,
         }
         return template.render(**{**defaults, **context})
 

@@ -74,6 +74,13 @@
     <div>
       <div class="score-value">{{ final_score }}<span class="muted" style="font-size:1.2rem">/100</span></div>
       <span class="badge {{ recommendation }}">{{ status_keys[recommendation] | t(language) }}</span>
+      {% if pre_interview_score is not none %}
+      <div class="muted" style="margin-top:.4rem">
+        {{ 'report.score_before_notes' | t(language) }}:
+        <strong>{{ pre_interview_score }}/100</strong>
+        {% if pre_interview_status %}(<span class="badge {{ pre_interview_status }}" style="padding:.1rem .5rem; font-size:.75rem">{{ status_keys[pre_interview_status] | t(language) }}</span>){% endif %}
+      </div>
+      {% endif %}
     </div>
     <div>
       <h1>{{ 'report.title' | t(language) }}</h1>
@@ -226,6 +233,17 @@
       <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.onboarding_plan_tip' | t(language) }}</span></span>
     </h2>
     <ul>{% for item in onboarding %}<li>{{ item }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  {% if interview_notes %}
+  <div class="card" style="border-left: 3px solid #8b5cf6;">
+    <h2>
+      {{ 'report.interview_notes' | t(language) }}
+      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.interview_notes_tip' | t(language) }}</span></span>
+    </h2>
+    {{ interview_notes | analysis_html }}
+    {% if notes_updated_at %}<div class="muted" style="margin-top:.5rem">{{ 'report.generated' | t(language) }}: {{ notes_updated_at }}</div>{% endif %}
   </div>
   {% endif %}
 </div>
