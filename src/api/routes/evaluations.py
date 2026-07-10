@@ -410,6 +410,7 @@ def get_evaluation_report(evaluation_id: str, db: Session = Depends(get_db)):
         "final_score": evaluation.final_score,
         "recommendation": evaluation.recommendation_status,
         "confidence": evaluation.confidence,
+        "rationale": evaluation.rationale,
         "profile_score": evaluation.profile_score,
         "technical_score": evaluation.technical_score,
         "culture_score": evaluation.culture_score,

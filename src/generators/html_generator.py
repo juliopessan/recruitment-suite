@@ -124,6 +124,7 @@ class HTMLReportGenerator:
             "final_score": evaluation_result.evaluation.final_score,
             "recommendation": evaluation_result.recommendation.status.value,
             "confidence": evaluation_result.recommendation.confidence_level,
+            "rationale": evaluation_result.recommendation.rationale,
             "profile_score": evaluation_result.evaluation.profile_score,
             "technical_score": evaluation_result.evaluation.technical_score,
             "culture_score": evaluation_result.evaluation.culture_score,
@@ -156,6 +157,7 @@ class HTMLReportGenerator:
         defaults = {
             "job_company": None,
             "language": DEFAULT_LOCALE,
+            "rationale": "",
             "people_analytics_score": None,
             "strengths": [],
             "gaps": [],

@@ -1,92 +1,141 @@
 <!DOCTYPE html>
 <html lang="{{ language[:2] }}">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{{ 'report.title' | t(language) }} — {{ candidate_name }}</title>
 <style>
-  :root { color-scheme: light; }
-  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; background: #f4f6f8; color: #1f2937; }
-  .container { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
-  .card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 1.5rem 2rem; margin-bottom: 1.25rem; }
-  h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
-  h2 { font-size: 1.05rem; border-bottom: 1px solid #e5e7eb; padding-bottom: .4rem; margin-top: 0; display: flex; align-items: center; }
-  .muted { color: #6b7280; font-size: .9rem; }
-  .score-hero { display: flex; align-items: center; gap: 1.5rem; }
-  .score-value { font-size: 3rem; font-weight: 700; }
-  .badge { display: inline-block; padding: .3rem .9rem; border-radius: 999px; font-weight: 600; font-size: .95rem; }
-  .badge.GO { background: #dcfce7; color: #166534; }
-  .badge.HOLD { background: #fef9c3; color: #854d0e; }
-  .badge.NO_GO { background: #fee2e2; color: #991b1b; }
-  table { width: 100%; border-collapse: collapse; }
-  td, th { text-align: left; padding: .5rem .25rem; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-  .bar { background: #e5e7eb; border-radius: 4px; height: 8px; width: 100%; }
-  .bar > div { background: #3b82f6; border-radius: 4px; height: 8px; }
-  ul { margin: .25rem 0; padding-left: 1.25rem; }
-  li { margin: .2rem 0; }
+  :root{
+    --ava-orange:#FF5800; --ava-dark-orange:#DC4600; --ava-black:#000; --ava-white:#fff;
+    --g80:#333; --g70:#4c4c4c; --g60:#666; --g50:#7f7f7f; --g40:#999; --g30:#b3b3b3; --g20:#ccc; --g10:#e5e5e5;
+    --solar:#FFD700; --luminous:#FFB414; --glow:#FF5800; --flame:#B43C14; --thermal:#C80000; --aurora:#890078;
+    --success:#00A650; --warn:#C77700; --danger:#C80000; --info:#0078D4;
+    --master:linear-gradient(135deg,#FF5800 0%,#890078 100%);
+    --warm:linear-gradient(135deg,#FFD700 0%,#FF5800 100%);
+    --font:'Segoe UI','Segoe UI Variable',system-ui,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+    --shadow-md:0 4px 12px rgba(0,0,0,.10);
+    --shadow-lg:0 8px 24px rgba(0,0,0,.12);
+    --shadow-brand:0 4px 20px rgba(255,88,0,.28);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font);color:var(--g80);background:#fafafa;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px}
+  ul{list-style:none}
 
-  /* Info tooltip (CSS-only, keyboard accessible via tabindex) */
-  .info-icon {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 15px; height: 15px; border-radius: 50%;
-    background: #e5e7eb; color: #4b5563; font-size: 10px; font-weight: 700;
-    cursor: help; position: relative; margin-left: 6px; flex-shrink: 0;
-  }
-  .info-icon .tip {
-    visibility: hidden; opacity: 0; transition: opacity .15s ease;
-    position: absolute; z-index: 30; bottom: 135%; left: 50%; transform: translateX(-50%);
-    background: #111827; color: #f9fafb; padding: .55rem .75rem; border-radius: 6px;
-    font-size: .78rem; font-weight: 400; line-height: 1.4; width: 240px;
-    box-shadow: 0 6px 16px rgba(0,0,0,.25); text-align: left;
-  }
-  .info-icon .tip::after {
-    content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-    border: 6px solid transparent; border-top-color: #111827;
-  }
-  .info-icon:hover .tip, .info-icon:focus .tip { visibility: visible; opacity: 1; }
+  /* ---------- HERO ---------- */
+  .hero{background:var(--master);color:#fff;padding:56px 0 48px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-120px;top:-120px;width:420px;height:420px;
+    background:radial-gradient(circle,rgba(255,215,0,.4) 0%,rgba(255,215,0,0) 70%);pointer-events:none}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:.9;margin-bottom:16px;position:relative;z-index:1}
+  .hero h1{font-weight:300;font-size:clamp(26px,4.4vw,40px);line-height:1.1;margin-bottom:10px;position:relative;z-index:1}
+  .hero h1 strong{font-weight:700}
+  .hero .lede{font-size:14.5px;font-weight:400;opacity:.95;position:relative;z-index:1}
+  .hero-meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;position:relative;z-index:1}
+  .pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(4px);
+    border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600}
 
-  /* Why-this-score disclosure */
-  details.why { margin: .35rem 0 .9rem; }
-  details.why > summary {
-    cursor: pointer; font-size: .82rem; color: #2563eb; font-weight: 600;
-    list-style: none; user-select: none;
-  }
-  details.why > summary::-webkit-details-marker { display: none; }
-  details.why > summary::before { content: "▸ "; }
-  details.why[open] > summary::before { content: "▾ "; }
-  .why-body {
-    margin-top: .5rem; padding: .75rem 1rem; background: #f9fafb;
-    border-left: 3px solid #3b82f6; border-radius: 4px; font-size: .85rem; color: #374151;
-  }
-  .why-body p { margin: 0 0 .5rem; }
-  .why-body p:last-child { margin-bottom: 0; }
-  .dim-table { width: 100%; font-size: .8rem; margin-top: .4rem; }
-  .dim-table td, .dim-table th { padding: .3rem .4rem; border-bottom: 1px solid #e5e7eb; }
-  .tag-gap { color: #b45309; }
-  .tag-strength { color: #15803d; }
-  .score-row-label { display: flex; align-items: center; }
+  /* ---------- ARC / SCORE STRIP ---------- */
+  .arc{background:#fff;border-top:4px solid var(--ava-orange);box-shadow:var(--shadow-md);position:relative;z-index:2}
+  .arc .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0}
+  .arc .cell{padding:24px 24px}
+  .arc .cell + .cell{border-left:1px solid var(--g10)}
+  .arc .big{font-weight:700;font-size:36px;line-height:1;letter-spacing:-.02em}
+  .arc .lbl{font-weight:600;font-size:13px;color:var(--g80);margin-top:6px}
+  .arc .sub{font-size:12px;color:var(--g60);margin-top:3px}
 
-  /* Export toolbar (screen-only) */
-  .export-toolbar {
-    position: fixed; top: 1rem; right: 1rem; z-index: 40; display: flex; gap: .5rem;
-  }
-  .export-btn {
-    display: inline-flex; align-items: center; gap: .4rem;
-    background: #111827; color: #fff; border: none; border-radius: 8px;
-    padding: .55rem 1rem; font-size: .85rem; font-weight: 600; cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,.15);
-  }
-  .export-btn:hover { background: #1f2937; }
+  section{padding:44px 0}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ava-dark-orange);margin-bottom:10px}
+  h2.h{font-weight:300;font-size:clamp(20px,3vw,26px);line-height:1.2;color:var(--g80);margin-bottom:8px}
+  h2.h b{font-weight:600}
+  .section-intro{font-size:14px;color:var(--g60);max-width:64ch;margin-bottom:24px}
+  .bar-rule{width:44px;height:4px;background:var(--ava-orange);border-radius:2px;margin-bottom:18px}
 
-  @media print {
-    body { background: #fff; }
-    .container { max-width: none; margin: 0; }
-    .card { box-shadow: none; border: 1px solid #e5e7eb; break-inside: avoid; }
-    .export-toolbar { display: none; }
-    .info-icon .tip { display: none; }
-    /* Print every "why this score" detail expanded, regardless of on-screen state */
-    details.why summary { display: none; }
-    .why-body { display: block !important; margin-top: 0; }
+  /* ---------- LAYERS (score dimensions accordion) ---------- */
+  .stack{display:flex;flex-direction:column;gap:12px}
+  .layer{background:#fff;border:1px solid var(--g10);border-radius:8px;box-shadow:var(--shadow-md);
+    overflow:hidden;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+  .layer:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+  .layer-head{display:grid;grid-template-columns:6px 1fr auto auto;align-items:center;gap:16px;padding:18px 20px}
+  .layer .spine{width:6px;align-self:stretch;border-radius:3px}
+  .layer .title h3{font-weight:600;font-size:16.5px;color:var(--g80)}
+  .layer .title .desc{font-size:13px;color:var(--g60);margin-top:3px}
+  .layer .save{font-weight:700;font-size:22px;white-space:nowrap}
+  .layer .chev{width:24px;height:24px;border-radius:50%;background:var(--g10);display:grid;place-items:center;
+    color:var(--g60);font-size:13px;transition:transform .2s ease;flex-shrink:0}
+  .layer.open .chev{transform:rotate(180deg)}
+  .layer-body{max-height:0;overflow:hidden;transition:max-height .32s ease;background:#fcfcfc}
+  .layer.open .layer-body{max-height:2000px;border-top:1px solid var(--g10)}
+  .layer-body .inner{padding:18px 20px 20px}
+  .layer-body p{font-size:13.5px;color:var(--g70);margin:0 0 .6rem}
+  .layer-body p:last-child{margin-bottom:0}
+  .dim-table{width:100%;font-size:12.5px;margin-top:.6rem;border-collapse:collapse}
+  .dim-table td,.dim-table th{padding:.4rem .5rem;border-bottom:1px solid var(--g10);text-align:left;vertical-align:top}
+  .tag-gap{color:var(--warn)}
+  .tag-strength{color:var(--success)}
+
+  /* ---------- SURFACES (lists: strengths / gaps / flags) ---------- */
+  .surfaces{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .surf{background:#fff;border:1px solid var(--g10);border-radius:8px;padding:20px;box-shadow:var(--shadow-md);
+    border-top:3px solid var(--ava-orange)}
+  .surf.gaps{border-top-color:var(--warn)}
+  .surf.flags{border-top-color:var(--danger)}
+  .surf h3{font-weight:600;font-size:15px;margin-bottom:10px;color:var(--g80)}
+  .surf li{font-size:13.5px;color:var(--g70);padding-left:16px;position:relative;margin:6px 0}
+  .surf li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--ava-orange)}
+  .surf.gaps li::before{background:var(--warn)}
+  .surf.flags li::before{background:var(--danger)}
+  .surf .empty{color:var(--g40);font-style:italic}
+
+  /* ---------- PULL QUOTE (rationale) ---------- */
+  .pq{background:var(--ava-orange);color:#fff;border-radius:12px;padding:36px 36px;text-align:center;box-shadow:var(--shadow-brand)}
+  .pq .q{font-weight:300;font-size:clamp(18px,2.6vw,26px);line-height:1.3;max-width:44ch;margin:0 auto}
+  .pq .attr{margin-top:14px;font-size:13px;font-weight:600;opacity:.9;letter-spacing:.03em}
+
+  /* ---------- ROADMAP (next steps + onboarding) ---------- */
+  .road{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .step{background:#fff;border:1px solid var(--g10);border-radius:8px;padding:16px 18px;display:flex;gap:14px;
+    box-shadow:var(--shadow-md);transition:border-color .18s;align-items:flex-start}
+  .step:hover{border-color:var(--ava-orange)}
+  .step .sn{flex:0 0 32px;height:32px;border-radius:50%;background:var(--warm);color:#fff;font-weight:700;
+    display:grid;place-items:center;font-size:14px}
+  .step p{font-size:13.5px;color:var(--g70);line-height:1.4}
+
+  /* ---------- Interview notes ---------- */
+  .notes-card{background:#fff;border:1px solid var(--g10);border-left:4px solid var(--aurora);border-radius:8px;
+    padding:22px 24px;box-shadow:var(--shadow-md)}
+  .notes-card p{font-size:13.5px;color:var(--g70);margin:0 0 .6rem}
+  .notes-card p:last-child{margin-bottom:0}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--g80);color:var(--g30);padding:36px 0}
+  footer .ftop{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px}
+  .wordmark{color:#fff;font-weight:700;font-size:18px;letter-spacing:-.01em}
+  .wordmark span{color:var(--ava-orange)}
+  .wm-sub{font-size:11.5px;color:var(--g40);font-weight:400;margin-top:3px}
+  footer .fnotes{font-size:11px;color:var(--g40);margin-top:18px;line-height:1.6}
+
+  /* ---------- Export toolbar (screen-only) ---------- */
+  .export-toolbar{position:fixed;top:1rem;right:1rem;z-index:40;display:flex;gap:.5rem}
+  .export-btn{display:inline-flex;align-items:center;gap:.4rem;background:#111827;color:#fff;border:none;
+    border-radius:8px;padding:.55rem 1rem;font-size:.82rem;font-weight:600;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+  .export-btn:hover{background:#1f2937}
+
+  @media (max-width:640px){
+    .arc .wrap{grid-template-columns:1fr}
+    .arc .cell + .cell{border-left:none;border-top:1px solid var(--g10)}
+    .surfaces,.road{grid-template-columns:1fr}
+    .layer-head{grid-template-columns:6px 1fr auto}
+    .layer .chev{display:none}
+  }
+  @media print{
+    body{background:#fff}
+    .layer-body{max-height:none!important}
+    .layer .chev{display:none}
+    .hero::after{display:none}
+    .export-toolbar{display:none}
+    .layer-head{cursor:default}
+    section{padding:24px 0}
   }
 </style>
 </head>
@@ -94,46 +143,68 @@
 <div class="export-toolbar">
   <button class="export-btn" onclick="window.print()">🖨️ {{ 'report.export_pdf' | t(language) }}</button>
 </div>
-<div class="container">
-  {% set status_keys = {"GO": "report.status_go", "HOLD": "report.status_hold", "NO_GO": "report.status_no_go"} %}
-  <div class="card score-hero">
-    <div>
-      <div class="score-value">{{ final_score }}<span class="muted" style="font-size:1.2rem">/100</span></div>
-      <span class="badge {{ recommendation }}">{{ status_keys[recommendation] | t(language) }}</span>
-      {% if pre_interview_score is not none %}
-      <div class="muted" style="margin-top:.4rem">
-        {{ 'report.score_before_notes' | t(language) }}:
-        <strong>{{ pre_interview_score }}/100</strong>
-        {% if pre_interview_status %}(<span class="badge {{ pre_interview_status }}" style="padding:.1rem .5rem; font-size:.75rem">{{ status_keys[pre_interview_status] | t(language) }}</span>){% endif %}
-      </div>
-      {% endif %}
-    </div>
-    <div>
-      <h1>{{ 'report.title' | t(language) }}</h1>
-      <div class="muted">{{ 'report.candidate' | t(language) }}: {{ candidate_name }} &nbsp;·&nbsp; {{ 'report.job' | t(language) }}: {{ job_title }}{% if job_company %} {{ 'report.at' | t(language) }} {{ job_company }}{% endif %}</div>
-      <div class="muted">{{ 'report.confidence' | t(language) }}: {{ confidence }}% &nbsp;·&nbsp; {{ 'report.generated' | t(language) }}: {{ generated_at }}</div>
+
+{% set status_keys = {"GO": "report.status_go", "HOLD": "report.status_hold", "NO_GO": "report.status_no_go"} %}
+{% set status_colors = {"GO": "#00A650", "HOLD": "#FFB414", "NO_GO": "#C80000"} %}
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">{{ 'report.title' | t(language) }}</div>
+    <h1>{{ candidate_name }}</h1>
+    <p class="lede">{{ 'report.job' | t(language) }}: {{ job_title }}{% if job_company %} {{ 'report.at' | t(language) }} {{ job_company }}{% endif %}</p>
+    <div class="hero-meta">
+      <span class="pill">{{ 'report.confidence' | t(language) }}: {{ confidence }}%</span>
+      <span class="pill">{{ 'report.generated' | t(language) }}: {{ generated_at }}</span>
     </div>
   </div>
+</header>
 
-  {% set dim_keys = {
-    "Profile": "dimension.profile",
-    "Technical": "dimension.technical",
-    "Culture Fit": "dimension.culture_fit",
-    "References": "dimension.references",
-  } %}
-  {% set dim_tips = {
-    "Profile": "report.profile_tip",
-    "Technical": "report.technical_tip",
-    "Culture Fit": "report.culture_fit_tip",
-    "References": "report.references_tip",
-  } %}
+<!-- ARC -->
+<div class="arc">
+  <div class="wrap">
+    <div class="cell">
+      <div class="big" style="color:{{ status_colors[recommendation] }}">{{ final_score }}<span style="font-size:18px;color:var(--g40)">/100</span></div>
+      <div class="lbl">{{ status_keys[recommendation] | t(language) }}</div>
+      {% if pre_interview_score is not none %}
+      <div class="sub">{{ 'report.score_before_notes' | t(language) }}: {{ pre_interview_score }}/100{% if pre_interview_status %} ({{ status_keys[pre_interview_status] | t(language) }}){% endif %}</div>
+      {% endif %}
+    </div>
+    <div class="cell">
+      <div class="big" style="color:var(--aurora)">{{ confidence }}%</div>
+      <div class="lbl">{{ 'report.confidence' | t(language) }}</div>
+    </div>
+    <div class="cell">
+      <div class="big" style="color:var(--ava-dark-orange)">+{{ strategic_bonus }}</div>
+      <div class="lbl">{{ 'report.strategic_bonus' | t(language) }}</div>
+      <div class="sub">{{ 'report.strategic_bonus_tip' | t(language) }}</div>
+    </div>
+  </div>
+</div>
 
-  <div class="card">
-    <h2>
-      {{ 'report.score_breakdown' | t(language) }}
-      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.score_breakdown_tip' | t(language) }}</span></span>
-    </h2>
-    <table>
+{% set dim_keys = {
+  "Profile": "dimension.profile",
+  "Technical": "dimension.technical",
+  "Culture Fit": "dimension.culture_fit",
+  "References": "dimension.references",
+} %}
+{% set dim_tips = {
+  "Profile": "report.profile_tip",
+  "Technical": "report.technical_tip",
+  "Culture Fit": "report.culture_fit_tip",
+  "References": "report.references_tip",
+} %}
+{% set spine_colors = ["#FFD700", "#FF5800", "#B43C14", "#890078", "#0078D4"] %}
+
+<!-- SCORE BREAKDOWN (accordion layers) -->
+<section>
+  <div class="wrap">
+    <div class="bar-rule"></div>
+    <div class="eyebrow">{{ 'report.score_breakdown' | t(language) }}</div>
+    <h2 class="h">{{ 'report.score_breakdown_tip' | t(language) }}</h2>
+
+    <div class="stack">
+      {% set ns = namespace(i=0) %}
       {% for label, value in [
         ("Profile", profile_score),
         ("Technical", technical_score),
@@ -141,139 +212,170 @@
         ("References", reference_score),
       ] %}
       {% if label != "Technical" or people_analytics_score is none %}
-      <tr>
-        <td style="width:180px">
-          <span class="score-row-label">{{ dim_keys[label] | t(language) }}<span class="info-icon" tabindex="0">i<span class="tip">{{ dim_tips[label] | t(language) }}</span></span></span>
-        </td>
-        <td style="width:60px"><strong>{{ value }}</strong></td>
-        <td><div class="bar"><div style="width: {{ value }}%"></div></div></td>
-      </tr>
-      {% if agent_analysis.get(label) %}
-      <tr><td colspan="3" style="border-bottom:none; padding-top:0;">
-        <details class="why">
-          <summary>{{ 'report.why_score' | t(language, score=value) }}</summary>
-          <div class="why-body">
-            {{ agent_analysis[label].analysis | analysis_html }}
-            {% if agent_analysis[label].dimensions %}
-            <table class="dim-table">
-              <tr><th>{{ 'report.dimension_col' | t(language) }}</th><th>{{ 'report.score_col' | t(language) }}</th><th>{{ 'report.weight_col' | t(language) }}</th><th>{{ 'report.notes_col' | t(language) }}</th></tr>
-              {% for d in agent_analysis[label].dimensions %}
-              <tr>
-                <td>{{ d.dimension }}</td>
-                <td>{{ d.score }}</td>
-                <td>{{ (d.weight * 100) | round | int }}%</td>
-                <td>
-                  {% for s in d.strengths %}<span class="tag-strength">✓ {{ s }}</span><br>{% endfor %}
-                  {% for g in d.gaps %}<span class="tag-gap">△ {{ g }}</span><br>{% endfor %}
-                </td>
-              </tr>
-              {% endfor %}
-            </table>
-            {% endif %}
+      {% set ns.i = ns.i + 1 %}
+      <article class="layer">
+        <div class="layer-head" onclick="this.closest('.layer').classList.toggle('open')">
+          <div class="spine" style="background:{{ spine_colors[(ns.i - 1) % spine_colors|length] }}"></div>
+          <div class="title">
+            <h3>{{ dim_keys[label] | t(language) }}</h3>
+            <div class="desc">{{ dim_tips[label] | t(language) }}</div>
           </div>
-        </details>
-      </td></tr>
-      {% endif %}
+          <div class="save" style="color:{{ '#00A650' if value >= 80 else ('#FFB414' if value >= 60 else '#C80000') }}">{{ value }}</div>
+          <div class="chev">▾</div>
+        </div>
+        {% if agent_analysis.get(label) %}
+        <div class="layer-body"><div class="inner">
+          {{ agent_analysis[label].analysis | analysis_html }}
+          {% if agent_analysis[label].dimensions %}
+          <table class="dim-table">
+            <tr><th>{{ 'report.dimension_col' | t(language) }}</th><th>{{ 'report.score_col' | t(language) }}</th><th>{{ 'report.weight_col' | t(language) }}</th><th>{{ 'report.notes_col' | t(language) }}</th></tr>
+            {% for d in agent_analysis[label].dimensions %}
+            <tr>
+              <td>{{ d.dimension }}</td>
+              <td>{{ d.score }}</td>
+              <td>{{ (d.weight * 100) | round | int }}%</td>
+              <td>
+                {% for s in d.strengths %}<span class="tag-strength">✓ {{ s }}</span><br>{% endfor %}
+                {% for g in d.gaps %}<span class="tag-gap">△ {{ g }}</span><br>{% endfor %}
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+          {% endif %}
+        </div></div>
+        {% endif %}
+      </article>
       {% endif %}
       {% endfor %}
+
       {% if people_analytics_score is not none %}
-      <tr>
-        <td style="width:180px">
-          <span class="score-row-label">{{ 'dimension.people_analytics' | t(language) }}<span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.people_analytics_tip' | t(language) }}</span></span></span>
-        </td>
-        <td style="width:60px"><strong>{{ people_analytics_score }}</strong></td>
-        <td><div class="bar"><div style="width: {{ people_analytics_score }}%"></div></div></td>
-      </tr>
-      {% if agent_analysis.get("People Analytics") %}
-      <tr><td colspan="3" style="border-bottom:none; padding-top:0;">
-        <details class="why">
-          <summary>{{ 'report.why_score' | t(language, score=people_analytics_score) }}</summary>
-          <div class="why-body">
-            {{ agent_analysis["People Analytics"].analysis | analysis_html }}
-            {% if agent_analysis["People Analytics"].dimensions %}
-            <table class="dim-table">
-              <tr><th>{{ 'report.dimension_col' | t(language) }}</th><th>{{ 'report.score_col' | t(language) }}</th><th>{{ 'report.weight_col' | t(language) }}</th><th>{{ 'report.notes_col' | t(language) }}</th></tr>
-              {% for d in agent_analysis["People Analytics"].dimensions %}
-              <tr>
-                <td>{{ d.dimension }}</td>
-                <td>{{ d.score }}</td>
-                <td>{{ (d.weight * 100) | round | int }}%</td>
-                <td>
-                  {% for s in d.strengths %}<span class="tag-strength">✓ {{ s }}</span><br>{% endfor %}
-                  {% for g in d.gaps %}<span class="tag-gap">△ {{ g }}</span><br>{% endfor %}
-                </td>
-              </tr>
-              {% endfor %}
-            </table>
-            {% endif %}
+      {% set ns.i = ns.i + 1 %}
+      <article class="layer">
+        <div class="layer-head" onclick="this.closest('.layer').classList.toggle('open')">
+          <div class="spine" style="background:{{ spine_colors[(ns.i - 1) % spine_colors|length] }}"></div>
+          <div class="title">
+            <h3>{{ 'dimension.people_analytics' | t(language) }}</h3>
+            <div class="desc">{{ 'report.people_analytics_tip' | t(language) }}</div>
           </div>
-        </details>
-      </td></tr>
+          <div class="save" style="color:{{ '#00A650' if people_analytics_score >= 80 else ('#FFB414' if people_analytics_score >= 60 else '#C80000') }}">{{ people_analytics_score }}</div>
+          <div class="chev">▾</div>
+        </div>
+        {% if agent_analysis.get("People Analytics") %}
+        <div class="layer-body"><div class="inner">
+          {{ agent_analysis["People Analytics"].analysis | analysis_html }}
+          {% if agent_analysis["People Analytics"].dimensions %}
+          <table class="dim-table">
+            <tr><th>{{ 'report.dimension_col' | t(language) }}</th><th>{{ 'report.score_col' | t(language) }}</th><th>{{ 'report.weight_col' | t(language) }}</th><th>{{ 'report.notes_col' | t(language) }}</th></tr>
+            {% for d in agent_analysis["People Analytics"].dimensions %}
+            <tr>
+              <td>{{ d.dimension }}</td>
+              <td>{{ d.score }}</td>
+              <td>{{ (d.weight * 100) | round | int }}%</td>
+              <td>
+                {% for s in d.strengths %}<span class="tag-strength">✓ {{ s }}</span><br>{% endfor %}
+                {% for g in d.gaps %}<span class="tag-gap">△ {{ g }}</span><br>{% endfor %}
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+          {% endif %}
+        </div></div>
+        {% endif %}
+      </article>
       {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- STRENGTHS / GAPS / FLAGS -->
+<section style="background:#fff;border-top:1px solid var(--g10);border-bottom:1px solid var(--g10)">
+  <div class="wrap">
+    <div class="bar-rule"></div>
+    <div class="eyebrow">{{ 'report.key_strengths' | t(language) }} · {{ 'report.addressable_gaps' | t(language) }}</div>
+    <h2 class="h">{{ 'report.key_strengths_tip' | t(language) }}</h2>
+
+    <div class="surfaces">
+      <div class="surf">
+        <h3>{{ 'report.key_strengths' | t(language) }}</h3>
+        <ul>
+          {% for s in strengths %}<li>{{ s }}</li>{% else %}<li class="empty">{{ 'report.none_identified' | t(language) }}</li>{% endfor %}
+        </ul>
+      </div>
+      <div class="surf gaps">
+        <h3>{{ 'report.addressable_gaps' | t(language) }}</h3>
+        <ul>
+          {% for g in gaps %}<li>{{ g }}</li>{% else %}<li class="empty">{{ 'report.none_identified' | t(language) }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% if flags %}
+      <div class="surf flags">
+        <h3>{{ 'report.critical_flags' | t(language) }}</h3>
+        <ul>
+          {% for f in flags %}<li>⚠️ {{ f }}</li>{% endfor %}
+        </ul>
+      </div>
       {% endif %}
-      <tr>
-        <td>
-          <span class="score-row-label">{{ 'report.strategic_bonus' | t(language) }}<span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.strategic_bonus_tip' | t(language) }}</span></span></span>
-        </td>
-        <td colspan="2"><strong>+{{ strategic_bonus }}</strong></td>
-      </tr>
-    </table>
+    </div>
   </div>
+</section>
 
-  <div class="card">
-    <h2>
-      {{ 'report.key_strengths' | t(language) }}
-      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.key_strengths_tip' | t(language) }}</span></span>
-    </h2>
-    <ul>{% for s in strengths %}<li>{{ s }}</li>{% else %}<li class="muted">{{ 'report.none_identified' | t(language) }}</li>{% endfor %}</ul>
+<!-- RATIONALE PULL QUOTE -->
+<section style="padding-top:36px">
+  <div class="wrap">
+    <div class="pq">
+      <div class="q">{{ rationale }}</div>
+      <div class="attr">{{ status_keys[recommendation] | t(language) }} · {{ 'report.confidence' | t(language) }} {{ confidence }}%</div>
+    </div>
   </div>
+</section>
 
-  <div class="card">
-    <h2>
-      {{ 'report.addressable_gaps' | t(language) }}
-      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.addressable_gaps_tip' | t(language) }}</span></span>
-    </h2>
-    <ul>{% for g in gaps %}<li>{{ g }}</li>{% else %}<li class="muted">{{ 'report.none_identified' | t(language) }}</li>{% endfor %}</ul>
+<!-- ROADMAP (next steps + onboarding) -->
+<section style="background:#fff;border-top:1px solid var(--g10)">
+  <div class="wrap">
+    <div class="bar-rule"></div>
+    <div class="eyebrow">{{ 'report.next_steps' | t(language) }}</div>
+    <h2 class="h">{{ 'report.next_steps_tip' | t(language) }}</h2>
+    <div class="road">
+      {% for step in next_steps %}
+      <div class="step"><div class="sn">{{ loop.index }}</div><p>{{ step }}</p></div>
+      {% endfor %}
+      {% if onboarding %}
+        {% for item in onboarding %}
+        <div class="step"><div class="sn">{{ next_steps|length + loop.index }}</div><p>{{ item }}</p></div>
+        {% endfor %}
+      {% endif %}
+    </div>
   </div>
+</section>
 
-  {% if flags %}
-  <div class="card">
-    <h2>
-      {{ 'report.critical_flags' | t(language) }}
-      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.critical_flags_tip' | t(language) }}</span></span>
-    </h2>
-    <ul>{% for f in flags %}<li>⚠️ {{ f }}</li>{% endfor %}</ul>
+{% if interview_notes %}
+<section>
+  <div class="wrap">
+    <div class="bar-rule"></div>
+    <div class="eyebrow">{{ 'report.interview_notes' | t(language) }}</div>
+    <h2 class="h">{{ 'report.interview_notes_tip' | t(language) }}</h2>
+    <div class="notes-card">
+      {{ interview_notes | analysis_html }}
+      {% if notes_updated_at %}<p style="color:var(--g40); font-size:12px; margin-top:.8rem">{{ 'report.generated' | t(language) }}: {{ notes_updated_at }}</p>{% endif %}
+    </div>
   </div>
-  {% endif %}
+</section>
+{% endif %}
 
-  <div class="card">
-    <h2>
-      {{ 'report.next_steps' | t(language) }}
-      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.next_steps_tip' | t(language) }}</span></span>
-    </h2>
-    <ul>{% for step in next_steps %}<li>{{ step }}</li>{% endfor %}</ul>
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="ftop">
+      <div>
+        <div class="wordmark">Recruitment Suite<span>.</span></div>
+        <div class="wm-sub">{{ 'report.title' | t(language) }}</div>
+      </div>
+    </div>
+    <div class="fnotes">
+      {{ 'report.candidate' | t(language) }}: {{ candidate_name }} · {{ 'report.job' | t(language) }}: {{ job_title }}{% if job_company %} {{ 'report.at' | t(language) }} {{ job_company }}{% endif %} · {{ 'report.generated' | t(language) }}: {{ generated_at }}
+    </div>
   </div>
+</footer>
 
-  {% if onboarding %}
-  <div class="card">
-    <h2>
-      {{ 'report.onboarding_plan' | t(language) }}
-      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.onboarding_plan_tip' | t(language) }}</span></span>
-    </h2>
-    <ul>{% for item in onboarding %}<li>{{ item }}</li>{% endfor %}</ul>
-  </div>
-  {% endif %}
-
-  {% if interview_notes %}
-  <div class="card" style="border-left: 3px solid #8b5cf6;">
-    <h2>
-      {{ 'report.interview_notes' | t(language) }}
-      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.interview_notes_tip' | t(language) }}</span></span>
-    </h2>
-    {{ interview_notes | analysis_html }}
-    {% if notes_updated_at %}<div class="muted" style="margin-top:.5rem">{{ 'report.generated' | t(language) }}: {{ notes_updated_at }}</div>{% endif %}
-  </div>
-  {% endif %}
-</div>
 </body>
 </html>

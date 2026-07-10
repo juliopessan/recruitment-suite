@@ -3,13 +3,33 @@
 from src.models import Candidate, JobDescription, AgentScore, AgentType
 from .base_agent import BaseAgent
 
-# Domain-specific expertise signals for People Analytics roles
+# Domain-specific expertise signals for People Analytics roles.
+# People Analytics / Employee Experience consultant roles are a genuine
+# hybrid of HR and technical competencies (e.g. a Viva Glint / Employee
+# Experience Consultant JD requires both quantitative/statistical rigor
+# AND executive stakeholder storytelling AND change management) — these
+# dimensions cover both sides so neither is underweighted.
 PA_SIGNALS = {
-    "Employee Listening Platforms": ["viva glint", "glint", "qualtrics", "culture amp", "peakon"],
-    "Analytics & Statistics": ["people analytics", "statistic", "quantitative", "data analysis", "power bi", "python", "r "],
+    "Employee Listening Platforms": [
+        "viva glint", "glint", "viva insights", "qualtrics", "culture amp", "peakon",
+    ],
+    "Analytics & Statistics": [
+        "people analytics", "statistic", "quantitative", "inferential",
+        "data analysis", "power bi", "python", "r ",
+    ],
     "Organizational Psychology": ["psychology", "organizational", "behavioral", "engagement"],
-    "Survey & Listening Programs": ["survey", "listening", "feedback", "pulse"],
-    "HR Domain Experience": ["hr ", "human resources", "people management", "talent", "leadership development"],
+    "Survey & Listening Programs": ["survey", "listening", "feedback", "pulse", "employee lifecycle"],
+    "HR Domain Experience": [
+        "hr ", "human resources", "people management", "talent",
+        "leadership development", "hr metrics",
+    ],
+    "Executive Stakeholder Engagement": [
+        "executive", "storytelling", "stakeholder", "chro", "c-level", "presentation",
+    ],
+    "Change Management & Transformation": [
+        "change management", "transformation", "enablement", "adoption",
+    ],
+    "Microsoft Ecosystem": ["microsoft viva", "viva suite", "m365", "copilot", "teams"],
 }
 
 
