@@ -9,6 +9,7 @@ from src.database import EvaluationRecord, CandidateRecord, JobRecord, get_db
 from src.models import Candidate, JobDescription, Evaluation, EvaluationResult
 from src.agents.orchestrator import RecruitmentOrchestrator
 from src.generators import HTMLReportGenerator, build_agent_analysis
+from src.services.i18n_service import DEFAULT_LOCALE, normalize_locale
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -19,6 +20,7 @@ class EvaluationRequest(BaseModel):
     job_id: str
     playbook: str = "full-evaluation"
     use_people_analytics: bool = False
+    language: str = DEFAULT_LOCALE  # "en-US" or "pt-BR"
 
 
 class EvaluationResponse(BaseModel):
@@ -28,6 +30,7 @@ class EvaluationResponse(BaseModel):
     final_score: float
     recommendation_status: str
     confidence: int
+    language: str
     created_at: datetime | None
     updated_at: datetime | None
 
@@ -105,12 +108,14 @@ def run_evaluation(
         team_context=job_record.team_context
     )
 
+    language = normalize_locale(request.language)
     orchestrator = RecruitmentOrchestrator()
     result: EvaluationResult = orchestrator.evaluate(
         candidate=candidate,
         job=job,
         playbook=request.playbook,
-        use_people_analytics=request.use_people_analytics
+        use_people_analytics=request.use_people_analytics,
+        language=language,
     )
 
     db_evaluation = EvaluationRecord(
@@ -134,7 +139,8 @@ def run_evaluation(
         onboarding_plan=result.recommendation.onboarding_plan or [],
         agent_analysis=build_agent_analysis(result.evaluation),
         playbook=request.playbook,
-        use_people_analytics=1 if request.use_people_analytics else 0
+        use_people_analytics=1 if request.use_people_analytics else 0,
+        language=language,
     )
 
     db.add(db_evaluation)
@@ -220,6 +226,7 @@ def get_evaluation_report(evaluation_id: str, db: Session = Depends(get_db)):
         "next_steps": evaluation.next_steps or [],
         "onboarding": evaluation.onboarding_plan or [],
         "agent_analysis": evaluation.agent_analysis or {},
+        "language": normalize_locale(evaluation.language),
     })
 
     return HTMLResponse(content=html)

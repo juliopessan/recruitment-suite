@@ -8,6 +8,7 @@ from src.models import (
     EvaluationResult,
     AgentScore,
 )
+from src.services.i18n_service import t, t_list, DEFAULT_LOCALE
 from .agent_01_profile import Agent01Profile
 from .agent_02_technical import Agent02Technical
 from .agent_03_culture import Agent03Culture
@@ -34,6 +35,7 @@ class RecruitmentOrchestrator:
         job: JobDescription,
         use_people_analytics: bool = False,
         playbook: str = "full-evaluation",
+        language: str = DEFAULT_LOCALE,
     ) -> EvaluationResult:
         """
         Run complete evaluation pipeline.
@@ -43,6 +45,8 @@ class RecruitmentOrchestrator:
             job: Job description
             use_people_analytics: Include Agent 06 (people analytics)
             playbook: Type of evaluation ('quick-screen', 'full-evaluation', etc.)
+            language: Locale for the generated recommendation text
+                ('en-US' or 'pt-BR'; unsupported values fall back to en-US)
 
         Returns:
             Complete evaluation result with recommendation
@@ -108,6 +112,7 @@ class RecruitmentOrchestrator:
             candidate,
             job,
             use_people_analytics,
+            language,
         )
 
         return EvaluationResult(
@@ -174,6 +179,7 @@ class RecruitmentOrchestrator:
         candidate: Candidate,
         job: JobDescription,
         use_people_analytics: bool = False,
+        language: str = DEFAULT_LOCALE,
     ) -> object:
         """Create final recommendation from evaluation."""
         from src.models import Recommendation, RecommendationStatus
@@ -183,23 +189,23 @@ class RecruitmentOrchestrator:
         # Determine status
         if final_score >= 75:
             status = RecommendationStatus.GO
-            action = "Proceed to offer stage"
+            action = t("recommendation.action_go", language)
         elif final_score >= 30:
             status = RecommendationStatus.HOLD
-            action = "Manager discussion or additional data needed"
+            action = t("recommendation.action_hold", language)
         else:
             status = RecommendationStatus.NO_GO
-            action = "Pass, archive candidate"
+            action = t("recommendation.action_no_go", language)
 
         recommendation = Recommendation(
             final_score=final_score,
             status=status,
-            rationale=f"Final score {final_score}/100: {action}",
-            key_strengths=self._extract_strengths(evaluation, use_people_analytics),
-            addressable_gaps=self._extract_gaps(evaluation, use_people_analytics),
-            critical_flags=self._extract_flags(evaluation, use_people_analytics),
-            next_steps=self._generate_next_steps(status, final_score),
-            onboarding_plan=self._generate_onboarding(status),
+            rationale=t("recommendation.rationale", language, score=final_score, action=action),
+            key_strengths=self._extract_strengths(evaluation, use_people_analytics, language),
+            addressable_gaps=self._extract_gaps(evaluation, use_people_analytics, language),
+            critical_flags=self._extract_flags(evaluation, use_people_analytics, language),
+            next_steps=self._generate_next_steps(status, language),
+            onboarding_plan=self._generate_onboarding(status, language),
             confidence_level=evaluation.confidence,
         )
 
@@ -209,38 +215,40 @@ class RecruitmentOrchestrator:
         self,
         evaluation: Evaluation,
         use_people_analytics: bool = False,
+        language: str = DEFAULT_LOCALE,
     ) -> List[str]:
         """Extract key strengths from evaluation."""
         strengths = []
         scores = {
-            "Profile": evaluation.profile_score,
-            "Technical": self._effective_technical(evaluation, use_people_analytics),
-            "Culture": evaluation.culture_score,
-            "References": evaluation.reference_score,
+            t("dimension.profile", language): evaluation.profile_score,
+            t("dimension.technical", language): self._effective_technical(evaluation, use_people_analytics),
+            t("dimension.culture_fit", language): evaluation.culture_score,
+            t("dimension.references", language): evaluation.reference_score,
         }
 
         for dimension, score in scores.items():
             if score >= 80:
-                strengths.append(f"Strong {dimension} ({score}/100)")
+                strengths.append(t("recommendation.strong", language, dimension=dimension, score=score))
 
-        return strengths or ["Meets job requirements"]
+        return strengths or [t("recommendation.meets_requirements", language)]
 
     def _extract_gaps(
         self,
         evaluation: Evaluation,
         use_people_analytics: bool = False,
+        language: str = DEFAULT_LOCALE,
     ) -> List[str]:
         """Extract addressable gaps."""
         gaps = []
         scores = {
-            "Profile": evaluation.profile_score,
-            "Technical": self._effective_technical(evaluation, use_people_analytics),
-            "Culture": evaluation.culture_score,
+            t("dimension.profile", language): evaluation.profile_score,
+            t("dimension.technical", language): self._effective_technical(evaluation, use_people_analytics),
+            t("dimension.culture_fit", language): evaluation.culture_score,
         }
 
         for dimension, score in scores.items():
             if 60 <= score < 75:
-                gaps.append(f"{dimension} gap (learnable): {score}/100")
+                gaps.append(t("recommendation.gap_learnable", language, dimension=dimension, score=score))
 
         return gaps
 
@@ -248,66 +256,52 @@ class RecruitmentOrchestrator:
         self,
         evaluation: Evaluation,
         use_people_analytics: bool = False,
+        language: str = DEFAULT_LOCALE,
     ) -> List[str]:
         """Extract critical flags."""
         flags = []
         technical = self._effective_technical(evaluation, use_people_analytics)
 
         if evaluation.profile_score < 50:
-            flags.append(f"Critical Profile gap: {evaluation.profile_score}/100")
+            flags.append(t(
+                "recommendation.critical_gap", language,
+                dimension=t("dimension.profile", language), score=evaluation.profile_score,
+            ))
         if technical < 50:
-            flags.append(f"Critical Technical gap: {technical}/100")
+            flags.append(t(
+                "recommendation.critical_gap", language,
+                dimension=t("dimension.technical", language), score=technical,
+            ))
 
         # Check culture-tech gap
         gap = abs(technical - evaluation.culture_score)
         if gap > 30:
-            flags.append(f"Large Culture-Tech gap ({gap} points)")
+            flags.append(t("recommendation.culture_tech_gap", language, gap=gap))
 
         return flags
 
     def _generate_next_steps(
         self,
         status: object,
-        final_score: int,
+        language: str = DEFAULT_LOCALE,
     ) -> List[str]:
         """Generate recommended next steps."""
         from src.models import RecommendationStatus
 
-        steps = []
-
         if status == RecommendationStatus.GO:
-            steps = [
-                "✅ Extend offer",
-                "✅ Complete reference verification",
-                "✅ Background check",
-                "✅ Schedule onboarding",
-            ]
+            key = "next_steps.go"
         elif status == RecommendationStatus.HOLD:
-            steps = [
-                "🟡 Schedule manager discussion",
-                "🟡 Get additional data (skills assessment, etc.)",
-                "🟡 Technical interview (if score 60-74)",
-                "🟡 Revisit decision in 1 week",
-            ]
-        else:  # NO_GO
-            steps = [
-                "❌ Send respectful rejection",
-                "❌ Archive candidate",
-                "❌ Internal debrief (why we passed?)",
-            ]
+            key = "next_steps.hold"
+        else:
+            key = "next_steps.no_go"
 
-        return steps
+        return t_list(key, language)
 
-    def _generate_onboarding(self, status: object) -> List[str]:
+    def _generate_onboarding(self, status: object, language: str = DEFAULT_LOCALE) -> List[str]:
         """Generate onboarding plan if hired."""
         from src.models import RecommendationStatus
 
         if status != RecommendationStatus.GO:
             return []
 
-        return [
-            "Week 1-2: Orientation & company culture",
-            "Week 2-4: Technical deep-dive & skill assessment",
-            "Week 4-6: First project (paired with mentor)",
-            "Week 6+: Full autonomy & ramp-up",
-        ]
+        return t_list("onboarding", language)

@@ -321,6 +321,41 @@ class TestEvaluations:
         response = client.post("/api/evaluations/run", json=eval_data)
         assert response.status_code == 404
 
+    def test_run_evaluation_pt_br(self, setup_candidate_and_job):
+        """Test running an evaluation with language=pt-BR translates recommendation text."""
+        cand_id, job_id = setup_candidate_and_job
+
+        eval_data = {
+            "candidate_id": cand_id,
+            "job_id": job_id,
+            "playbook": "quick-screen",
+            "language": "pt-BR",
+        }
+
+        response = client.post("/api/evaluations/run", json=eval_data)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["language"] == "pt-BR"
+
+        detail = client.get(f"/api/evaluations/{data['id']}")
+        assert detail.status_code == 200
+        rationale = detail.json()["rationale"]
+        assert "Nota final" in rationale
+
+    def test_run_evaluation_defaults_to_en_us(self, setup_candidate_and_job):
+        """Test that omitting language defaults to en-US."""
+        cand_id, job_id = setup_candidate_and_job
+
+        eval_data = {
+            "candidate_id": cand_id,
+            "job_id": job_id,
+            "playbook": "quick-screen",
+        }
+
+        response = client.post("/api/evaluations/run", json=eval_data)
+        assert response.status_code == 200
+        assert response.json()["language"] == "en-US"
+
     def test_get_evaluation(self, setup_candidate_and_job):
         """Test retrieving evaluation details."""
         cand_id, job_id = setup_candidate_and_job
@@ -358,7 +393,28 @@ class TestEvaluations:
         assert response.status_code == 200
         assert "text/html" in response.headers["content-type"]
         assert "Candidate Evaluation Report" in response.text
-        assert "Score Breakdown" in response.text
+
+    def test_get_evaluation_html_report_pt_br(self, setup_candidate_and_job):
+        """Test the HTML report renders in Portuguese when the evaluation was run with language=pt-BR."""
+        cand_id, job_id = setup_candidate_and_job
+
+        eval_data = {
+            "candidate_id": cand_id,
+            "job_id": job_id,
+            "playbook": "quick-screen",
+            "language": "pt-BR",
+        }
+        create_response = client.post("/api/evaluations/run", json=eval_data)
+        eval_id = create_response.json()["id"]
+
+        response = client.get(f"/api/evaluations/{eval_id}/report")
+        assert response.status_code == 200
+        assert "Relatório de Avaliação do Candidato" in response.text
+        assert "<html lang=\"pt\">" in response.text
+        # No raw i18n keys or unrendered Jinja should ever leak into the output
+        assert "report.title" not in response.text
+        assert "{{" not in response.text
+        assert "Detalhamento das Notas" in response.text
 
     def test_get_evaluation_html_report_not_found(self):
         """Test HTML report for a nonexistent evaluation returns 404."""

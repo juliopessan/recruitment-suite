@@ -6,6 +6,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup, escape
 from src.models import EvaluationResult, Evaluation
+from src.services.i18n_service import DEFAULT_LOCALE, t as translate
 
 _BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 
@@ -88,6 +89,7 @@ class HTMLReportGenerator:
             autoescape=True,
         )
         self.env.filters["analysis_html"] = render_analysis_html
+        self.env.filters["t"] = lambda key, language=DEFAULT_LOCALE, **kw: translate(key, language, **kw)
 
     def generate(
         self,
@@ -95,6 +97,7 @@ class HTMLReportGenerator:
         candidate_name: str = None,
         job_title: str = None,
         job_company: str = None,
+        language: str = DEFAULT_LOCALE,
     ) -> str:
         """
         Generate HTML report.
@@ -104,6 +107,7 @@ class HTMLReportGenerator:
             candidate_name: Display name for the candidate (falls back to candidate_id)
             job_title: Display title for the job (falls back to job_id)
             job_company: Optional company name shown next to the job title
+            language: Locale for the report chrome ('en-US' or 'pt-BR')
 
         Returns:
             HTML string
@@ -115,6 +119,7 @@ class HTMLReportGenerator:
             "candidate_name": candidate_name or evaluation_result.evaluation.candidate_id,
             "job_title": job_title or evaluation_result.evaluation.job_id,
             "job_company": job_company,
+            "language": language,
             "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
             "final_score": evaluation_result.evaluation.final_score,
             "recommendation": evaluation_result.recommendation.status.value,
@@ -150,6 +155,7 @@ class HTMLReportGenerator:
         template = self.env.get_template("report.html.jinja")
         defaults = {
             "job_company": None,
+            "language": DEFAULT_LOCALE,
             "people_analytics_score": None,
             "strengths": [],
             "gaps": [],

@@ -11,6 +11,7 @@ from src.agents.orchestrator import RecruitmentOrchestrator
 from src.services.cv_parser import CVParseError, extract_cv_text, guess_candidate_fields
 from src.services.linkedin_enricher import EnrichmentError, enrich_linkedin
 from src.services.jd_parser import is_people_analytics_role, parse_job_description
+from src.services.i18n_service import DEFAULT_LOCALE, normalize_locale
 from src.generators import build_agent_analysis
 
 router = APIRouter()
@@ -26,6 +27,7 @@ async def run_analysis(
     candidate_name: str = Form(""),
     candidate_email: str = Form(""),
     linkedin_url: str = Form(""),
+    language: str = Form(DEFAULT_LOCALE),
     cv_file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
@@ -149,8 +151,11 @@ async def run_analysis(
     db.commit()
 
     # 6. Run the multi-agent evaluation
+    resolved_language = normalize_locale(language)
     orchestrator = RecruitmentOrchestrator()
-    result = orchestrator.evaluate(candidate=candidate, job=job, use_people_analytics=use_pa)
+    result = orchestrator.evaluate(
+        candidate=candidate, job=job, use_people_analytics=use_pa, language=resolved_language
+    )
 
     db_evaluation = EvaluationRecord(
         id=result.evaluation.id,
@@ -174,6 +179,7 @@ async def run_analysis(
         agent_analysis=build_agent_analysis(result.evaluation),
         playbook="agentic-analysis",
         use_people_analytics=1 if use_pa else 0,
+        language=resolved_language,
     )
     db.add(db_evaluation)
     db.commit()
@@ -188,6 +194,7 @@ async def run_analysis(
         "recommendation_status": result.recommendation.status.value,
         "confidence": result.recommendation.confidence_level,
         "use_people_analytics": use_pa,
+        "language": resolved_language,
         "detected_skills": job.required_skills,
         "pipeline_notes": notes,
     }

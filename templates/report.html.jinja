@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ language[:2] }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Evaluation Report — {{ candidate_name }}</title>
+<title>{{ 'report.title' | t(language) }} — {{ candidate_name }}</title>
 <style>
   :root { color-scheme: light; }
   body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; background: #f4f6f8; color: #1f2937; }
@@ -69,30 +69,36 @@
 </head>
 <body>
 <div class="container">
+  {% set status_keys = {"GO": "report.status_go", "HOLD": "report.status_hold", "NO_GO": "report.status_no_go"} %}
   <div class="card score-hero">
     <div>
       <div class="score-value">{{ final_score }}<span class="muted" style="font-size:1.2rem">/100</span></div>
-      <span class="badge {{ recommendation }}">{{ recommendation }}</span>
+      <span class="badge {{ recommendation }}">{{ status_keys[recommendation] | t(language) }}</span>
     </div>
     <div>
-      <h1>Candidate Evaluation Report</h1>
-      <div class="muted">Candidate: {{ candidate_name }} &nbsp;·&nbsp; Job: {{ job_title }}{% if job_company %} at {{ job_company }}{% endif %}</div>
-      <div class="muted">Confidence: {{ confidence }}% &nbsp;·&nbsp; Generated: {{ generated_at }}</div>
+      <h1>{{ 'report.title' | t(language) }}</h1>
+      <div class="muted">{{ 'report.candidate' | t(language) }}: {{ candidate_name }} &nbsp;·&nbsp; {{ 'report.job' | t(language) }}: {{ job_title }}{% if job_company %} {{ 'report.at' | t(language) }} {{ job_company }}{% endif %}</div>
+      <div class="muted">{{ 'report.confidence' | t(language) }}: {{ confidence }}% &nbsp;·&nbsp; {{ 'report.generated' | t(language) }}: {{ generated_at }}</div>
     </div>
   </div>
 
-  {% set score_defs = {
-    "Profile": "Experience level, education/domain background, career trajectory and language fit against the role's stated requirements.",
-    "Technical": "Match between the candidate's hard skills / technology stack and the job's required and nice-to-have skills.",
-    "Culture Fit": "Alignment with team dynamics, communication style, and company values inferred from the candidate's profile and CV.",
-    "References": "Strength and verification status of professional references and past-performance signals.",
-    "People Analytics": "Specialized expertise in HR analytics, people data and organizational-insight tooling. Replaces Technical for HR/People roles.",
+  {% set dim_keys = {
+    "Profile": "dimension.profile",
+    "Technical": "dimension.technical",
+    "Culture Fit": "dimension.culture_fit",
+    "References": "dimension.references",
+  } %}
+  {% set dim_tips = {
+    "Profile": "report.profile_tip",
+    "Technical": "report.technical_tip",
+    "Culture Fit": "report.culture_fit_tip",
+    "References": "report.references_tip",
   } %}
 
   <div class="card">
     <h2>
-      Score Breakdown
-      <span class="info-icon" tabindex="0">i<span class="tip">Each score (0-100) is produced by a dedicated agent, then combined with fixed weights into the Final Score. Click a row below to see exactly why it scored the way it did.</span></span>
+      {{ 'report.score_breakdown' | t(language) }}
+      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.score_breakdown_tip' | t(language) }}</span></span>
     </h2>
     <table>
       {% for label, value in [
@@ -103,7 +109,7 @@
       ] %}
       <tr>
         <td style="width:180px">
-          <span class="score-row-label">{{ label }}<span class="info-icon" tabindex="0">i<span class="tip">{{ score_defs[label] }}</span></span></span>
+          <span class="score-row-label">{{ dim_keys[label] | t(language) }}<span class="info-icon" tabindex="0">i<span class="tip">{{ dim_tips[label] | t(language) }}</span></span></span>
         </td>
         <td style="width:60px"><strong>{{ value }}</strong></td>
         <td><div class="bar"><div style="width: {{ value }}%"></div></div></td>
@@ -111,12 +117,12 @@
       {% if agent_analysis.get(label) %}
       <tr><td colspan="3" style="border-bottom:none; padding-top:0;">
         <details class="why">
-          <summary>Why {{ value }}/100?</summary>
+          <summary>{{ 'report.why_score' | t(language, score=value) }}</summary>
           <div class="why-body">
             {{ agent_analysis[label].analysis | analysis_html }}
             {% if agent_analysis[label].dimensions %}
             <table class="dim-table">
-              <tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Notes</th></tr>
+              <tr><th>{{ 'report.dimension_col' | t(language) }}</th><th>{{ 'report.score_col' | t(language) }}</th><th>{{ 'report.weight_col' | t(language) }}</th><th>{{ 'report.notes_col' | t(language) }}</th></tr>
               {% for d in agent_analysis[label].dimensions %}
               <tr>
                 <td>{{ d.dimension }}</td>
@@ -138,7 +144,7 @@
       {% if people_analytics_score is not none %}
       <tr>
         <td style="width:180px">
-          <span class="score-row-label">People Analytics<span class="info-icon" tabindex="0">i<span class="tip">{{ score_defs["People Analytics"] }}</span></span></span>
+          <span class="score-row-label">{{ 'dimension.people_analytics' | t(language) }}<span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.people_analytics_tip' | t(language) }}</span></span></span>
         </td>
         <td style="width:60px"><strong>{{ people_analytics_score }}</strong></td>
         <td><div class="bar"><div style="width: {{ people_analytics_score }}%"></div></div></td>
@@ -146,12 +152,12 @@
       {% if agent_analysis.get("People Analytics") %}
       <tr><td colspan="3" style="border-bottom:none; padding-top:0;">
         <details class="why">
-          <summary>Why {{ people_analytics_score }}/100?</summary>
+          <summary>{{ 'report.why_score' | t(language, score=people_analytics_score) }}</summary>
           <div class="why-body">
             {{ agent_analysis["People Analytics"].analysis | analysis_html }}
             {% if agent_analysis["People Analytics"].dimensions %}
             <table class="dim-table">
-              <tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Notes</th></tr>
+              <tr><th>{{ 'report.dimension_col' | t(language) }}</th><th>{{ 'report.score_col' | t(language) }}</th><th>{{ 'report.weight_col' | t(language) }}</th><th>{{ 'report.notes_col' | t(language) }}</th></tr>
               {% for d in agent_analysis["People Analytics"].dimensions %}
               <tr>
                 <td>{{ d.dimension }}</td>
@@ -172,7 +178,7 @@
       {% endif %}
       <tr>
         <td>
-          <span class="score-row-label">Strategic Bonus<span class="info-icon" tabindex="0">i<span class="tip">Extra points (up to +5) awarded for hiring urgency and market scarcity of this skill set. Added on top of the weighted score.</span></span></span>
+          <span class="score-row-label">{{ 'report.strategic_bonus' | t(language) }}<span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.strategic_bonus_tip' | t(language) }}</span></span></span>
         </td>
         <td colspan="2"><strong>+{{ strategic_bonus }}</strong></td>
       </tr>
@@ -181,25 +187,25 @@
 
   <div class="card">
     <h2>
-      Key Strengths
-      <span class="info-icon" tabindex="0">i<span class="tip">Dimensions where the candidate scored 80/100 or higher — clear competitive advantages for this role.</span></span>
+      {{ 'report.key_strengths' | t(language) }}
+      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.key_strengths_tip' | t(language) }}</span></span>
     </h2>
-    <ul>{% for s in strengths %}<li>{{ s }}</li>{% else %}<li class="muted">None identified</li>{% endfor %}</ul>
+    <ul>{% for s in strengths %}<li>{{ s }}</li>{% else %}<li class="muted">{{ 'report.none_identified' | t(language) }}</li>{% endfor %}</ul>
   </div>
 
   <div class="card">
     <h2>
-      Addressable Gaps
-      <span class="info-icon" tabindex="0">i<span class="tip">Dimensions scoring 60-74/100 — learnable gaps, not blockers, worth covering in an onboarding or development plan.</span></span>
+      {{ 'report.addressable_gaps' | t(language) }}
+      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.addressable_gaps_tip' | t(language) }}</span></span>
     </h2>
-    <ul>{% for g in gaps %}<li>{{ g }}</li>{% else %}<li class="muted">None identified</li>{% endfor %}</ul>
+    <ul>{% for g in gaps %}<li>{{ g }}</li>{% else %}<li class="muted">{{ 'report.none_identified' | t(language) }}</li>{% endfor %}</ul>
   </div>
 
   {% if flags %}
   <div class="card">
     <h2>
-      Critical Flags
-      <span class="info-icon" tabindex="0">i<span class="tip">A dimension scored below 50/100, or there's a &gt;30-point gap between Technical and Culture Fit — review before proceeding.</span></span>
+      {{ 'report.critical_flags' | t(language) }}
+      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.critical_flags_tip' | t(language) }}</span></span>
     </h2>
     <ul>{% for f in flags %}<li>⚠️ {{ f }}</li>{% endfor %}</ul>
   </div>
@@ -207,8 +213,8 @@
 
   <div class="card">
     <h2>
-      Next Steps
-      <span class="info-icon" tabindex="0">i<span class="tip">Actions are chosen automatically from the final recommendation: GO → offer & onboarding, HOLD → gather more data, NO_GO → respectful rejection.</span></span>
+      {{ 'report.next_steps' | t(language) }}
+      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.next_steps_tip' | t(language) }}</span></span>
     </h2>
     <ul>{% for step in next_steps %}<li>{{ step }}</li>{% endfor %}</ul>
   </div>
@@ -216,8 +222,8 @@
   {% if onboarding %}
   <div class="card">
     <h2>
-      Onboarding Plan
-      <span class="info-icon" tabindex="0">i<span class="tip">A suggested 6+ week ramp-up plan, generated only when the recommendation is GO.</span></span>
+      {{ 'report.onboarding_plan' | t(language) }}
+      <span class="info-icon" tabindex="0">i<span class="tip">{{ 'report.onboarding_plan_tip' | t(language) }}</span></span>
     </h2>
     <ul>{% for item in onboarding %}<li>{{ item }}</li>{% endfor %}</ul>
   </div>

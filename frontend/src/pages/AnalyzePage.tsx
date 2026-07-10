@@ -26,6 +26,7 @@ export default function AnalyzePage() {
   const [jobTitle, setJobTitle] = useState('')
   const [company, setCompany] = useState('')
   const [jobDescription, setJobDescription] = useState('')
+  const [language, setLanguage] = useState<'en-US' | 'pt-BR'>('en-US')
   const [isRunning, setIsRunning] = useState(false)
   const [notes, setNotes] = useState<string[]>([])
   const [dragOver, setDragOver] = useState(false)
@@ -56,6 +57,7 @@ export default function AnalyzePage() {
       form.append('job_title', jobTitle)
       form.append('company', company)
       form.append('linkedin_url', linkedinUrl)
+      form.append('language', language)
       if (cvFile) form.append('cv_file', cvFile)
 
       const res = await fetch(`${API_URL}/api/analyze/run`, { method: 'POST', body: form })
@@ -181,6 +183,28 @@ export default function AnalyzePage() {
               placeholder="Paste the full job description here — skills, years of experience, seniority and languages are extracted automatically…"
               disabled={isRunning}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Analysis Language <span className="text-gray-400 font-normal">(report & recommendation text)</span>
+            </label>
+            <div className="flex gap-2">
+              {(['en-US', 'pt-BR'] as const).map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => setLanguage(lang)}
+                  disabled={isRunning}
+                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                    language === lang
+                      ? 'border-primary-600 bg-primary-50 text-primary-700'
+                      : 'border-gray-300 text-gray-600 hover:border-primary-400'
+                  }`}
+                >
+                  {lang === 'en-US' ? '🇺🇸 EN-US' : '🇧🇷 PT-BR'}
+                </button>
+              ))}
+            </div>
           </div>
         </StaggerItem>
 

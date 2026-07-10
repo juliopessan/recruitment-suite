@@ -110,6 +110,7 @@ class EvaluationRecord(Base):
     # Metadata
     playbook = Column(String(50), default="full-evaluation")
     use_people_analytics = Column(Integer, default=0)  # Boolean as int
+    language = Column(String(10), default="en-US")  # Locale of the generated text (en-US/pt-BR)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
