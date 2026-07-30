@@ -18,7 +18,7 @@ export default function JobDetailPage() {
   if (!job) {
     return (
       <div className="card text-center">
-        <p className="text-gray-500">Job not found</p>
+        <p className="text-ink-400">Job not found</p>
         <button onClick={() => navigate('/jobs')} className="btn-primary mt-4">
           Back to Jobs
         </button>
@@ -31,7 +31,7 @@ export default function JobDetailPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1>{job.title}</h1>
-          <p className="text-gray-600">{job.company}</p>
+          <p className="text-ink-500">{job.company}</p>
         </div>
         <div className="space-x-2">
           <button onClick={() => navigate(`/jobs/${id}/edit`)} className="btn-primary">
@@ -48,19 +48,19 @@ export default function JobDetailPage() {
           <h3 className="mb-4">Job Details</h3>
           <div className="space-y-3">
             <div>
-              <p className="text-sm text-gray-600">Company</p>
+              <p className="text-sm text-ink-500">Company</p>
               <p className="font-medium">{job.company}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Location</p>
+              <p className="text-sm text-ink-500">Location</p>
               <p className="font-medium">{job.location || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Seniority Level</p>
+              <p className="text-sm text-ink-500">Seniority Level</p>
               <p className="font-medium">{job.seniority_level}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Required Experience</p>
+              <p className="text-sm text-ink-500">Required Experience</p>
               <p className="font-medium">{job.years_experience_required} years</p>
             </div>
           </div>

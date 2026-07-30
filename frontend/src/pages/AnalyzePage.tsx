@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-toastify'
 import { FileText, Linkedin, Sparkles, UploadCloud, X } from 'lucide-react'
 import { Page, StaggerItem } from '@/components/motion'
+import { PageHeader } from '@/components/studio/PageHeader'
 
 const API_URL =
   import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:8000')
@@ -80,20 +81,16 @@ export default function AnalyzePage() {
   }
 
   return (
-    <Page className="space-y-6 max-w-3xl">
-      <StaggerItem>
-        <h1 className="flex items-center gap-2">
-          <Sparkles className="text-primary-500" /> Agentic Analysis
-        </h1>
-        <p className="text-gray-600">
-          Upload a CV, add a LinkedIn profile and paste the job description — six agents
-          evaluate profile, skills, culture fit and references.
-        </p>
-      </StaggerItem>
+    <Page className="max-w-3xl">
+      <PageHeader
+        eyebrow="00 / RUN THE PIPELINE"
+        title={['Agentic', 'Analysis']}
+        subtitle="Upload a CV, add a LinkedIn profile and paste the job description — five agents evaluate profile, skills, culture fit and references."
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <StaggerItem className="card space-y-4">
-          <h3>Candidate</h3>
+        <StaggerItem className="studio-card p-6 space-y-4">
+          <h3 className="font-bold">Candidate</h3>
 
           {/* CV dropzone */}
           <div
@@ -102,7 +99,9 @@ export default function AnalyzePage() {
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
             className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${
-              dragOver ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+              dragOver
+                ? 'border-primary-500 bg-primary-50'
+                : 'border-ink/20 hover:border-primary-400 hover:bg-ink/[0.02]'
             }`}
           >
             <input
@@ -113,23 +112,23 @@ export default function AnalyzePage() {
               onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
             />
             {cvFile ? (
-              <div className="flex items-center gap-3 text-gray-800">
+              <div className="flex items-center gap-3 text-ink">
                 <FileText className="text-primary-500" />
                 <span className="font-medium">{cvFile.name}</span>
-                <span className="text-sm text-gray-500">({(cvFile.size / 1024).toFixed(0)} KB)</span>
+                <span className="text-sm text-ink-400">({(cvFile.size / 1024).toFixed(0)} KB)</span>
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setCvFile(null) }}
-                  className="p-1 rounded-full hover:bg-gray-200"
+                  className="p-1 rounded-full hover:bg-ink/10"
                 >
                   <X size={16} />
                 </button>
               </div>
             ) : (
               <>
-                <UploadCloud size={32} className="text-gray-400" />
-                <p className="font-medium text-gray-700">Drop the CV here or click to upload</p>
-                <p className="text-sm text-gray-500">PDF, DOCX, TXT — max 10 MB</p>
+                <UploadCloud size={32} className="text-ink-400" />
+                <p className="font-medium text-ink-700">Drop the CV here or click to upload</p>
+                <p className="text-sm text-ink-400">PDF, DOCX, TXT — max 10 MB</p>
               </>
             )}
           </div>
@@ -137,7 +136,7 @@ export default function AnalyzePage() {
           <div>
             <label className="block text-sm font-medium mb-1 flex items-center gap-1.5">
               <Linkedin size={16} className="text-[#0a66c2]" /> LinkedIn URL
-              <span className="text-gray-400 font-normal">(enriched via Exa)</span>
+              <span className="text-ink-400 font-normal">(enriched via Exa)</span>
             </label>
             <input
               type="url"
@@ -150,11 +149,11 @@ export default function AnalyzePage() {
           </div>
         </StaggerItem>
 
-        <StaggerItem className="card space-y-4">
-          <h3>Job Description</h3>
+        <StaggerItem className="studio-card p-6 space-y-4">
+          <h3 className="font-bold">Job Description</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Title <span className="text-gray-400 font-normal">(optional)</span></label>
+              <label className="block text-sm font-medium mb-1">Title <span className="text-ink-400 font-normal">(optional)</span></label>
               <input
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
@@ -164,7 +163,7 @@ export default function AnalyzePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Company <span className="text-gray-400 font-normal">(optional)</span></label>
+              <label className="block text-sm font-medium mb-1">Company <span className="text-ink-400 font-normal">(optional)</span></label>
               <input
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
@@ -186,7 +185,7 @@ export default function AnalyzePage() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">
-              Analysis Language <span className="text-gray-400 font-normal">(report & recommendation text)</span>
+              Analysis Language <span className="text-ink-400 font-normal">(report & recommendation text)</span>
             </label>
             <div className="flex gap-2">
               {(['en-US', 'pt-BR'] as const).map((lang) => (
@@ -198,7 +197,7 @@ export default function AnalyzePage() {
                   className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                     language === lang
                       ? 'border-primary-600 bg-primary-50 text-primary-700'
-                      : 'border-gray-300 text-gray-600 hover:border-primary-400'
+                      : 'border-ink/20 text-ink-500 hover:border-primary-400'
                   }`}
                 >
                   {lang === 'en-US' ? '🇺🇸 EN-US' : '🇧🇷 PT-BR'}
@@ -214,7 +213,7 @@ export default function AnalyzePage() {
             disabled={isRunning}
             whileHover={{ scale: isRunning ? 1 : 1.02 }}
             whileTap={{ scale: isRunning ? 1 : 0.98 }}
-            className="btn-primary w-full py-3 text-base flex items-center justify-center gap-2"
+            className="btn-studio-primary w-full py-3 text-base flex items-center justify-center gap-2"
           >
             {isRunning ? (
               <>
@@ -242,7 +241,7 @@ export default function AnalyzePage() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="card bg-gray-900 text-gray-100 font-mono text-sm overflow-hidden"
+            className="rounded-lg p-6 bg-ink text-cream-100 font-mono text-sm overflow-hidden"
           >
             {notes.map((note, i) => (
               <motion.p

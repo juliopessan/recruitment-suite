@@ -72,7 +72,7 @@ export default function EvaluationResultPage() {
   if (!evaluation) {
     return (
       <div className="card text-center">
-        <p className="text-gray-500">Evaluation not found</p>
+        <p className="text-ink-400">Evaluation not found</p>
         <button onClick={() => navigate('/evaluations')} className="btn-primary mt-4">
           Back to Evaluations
         </button>
@@ -89,7 +89,7 @@ export default function EvaluationResultPage() {
       case 'NO_GO':
         return 'bg-red-50 text-red-900 border-red-500'
       default:
-        return 'bg-gray-50 text-gray-900 border-gray-300'
+        return 'bg-ink/[0.02] text-ink border-ink/20'
     }
   }
 
@@ -143,7 +143,7 @@ export default function EvaluationResultPage() {
             <AnimatedNumber value={evaluation.final_score} decimals={1} className="text-5xl font-bold" />
             <p className="text-sm mt-1">Overall Score</p>
             {evaluation.pre_interview_score != null && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-ink-400 mt-1">
                 Before interview notes: <span className="font-semibold">{evaluation.pre_interview_score}/100</span>
                 {' '}({evaluation.pre_interview_status})
               </p>
@@ -168,27 +168,27 @@ export default function EvaluationResultPage() {
         <div className="space-y-4">
           {scoreRows.map((row) => (
             <div key={row.label} className="grid grid-cols-[140px_56px_1fr] items-center gap-3">
-              <span className="text-sm text-gray-600">{row.label}</span>
-              <AnimatedNumber value={row.value} decimals={1} className="font-semibold text-gray-900" />
+              <span className="text-sm text-ink-500">{row.label}</span>
+              <AnimatedNumber value={row.value} decimals={1} className="font-semibold text-ink" />
               <ScoreBar value={row.value} colorClass={scoreColor(row.value)} />
             </div>
           ))}
         </div>
-        <div className="flex gap-8 mt-6 pt-4 border-t border-gray-100 text-sm text-gray-600">
+        <div className="flex gap-8 mt-6 pt-4 border-t border-ink/10 text-sm text-ink-500">
           <span>
             Confidence:{' '}
-            <AnimatedNumber value={evaluation.confidence} suffix="%" className="font-semibold text-gray-900" />
+            <AnimatedNumber value={evaluation.confidence} suffix="%" className="font-semibold text-ink" />
           </span>
           <span>
             Strategic Bonus:{' '}
-            <span className="font-semibold text-gray-900">+{evaluation.strategic_bonus.toFixed(1)}</span>
+            <span className="font-semibold text-ink">+{evaluation.strategic_bonus.toFixed(1)}</span>
           </span>
         </div>
       </StaggerItem>
 
       <StaggerItem className="card">
         <h3 className="mb-4">Rationale</h3>
-        <p className="text-gray-700">{evaluation.rationale}</p>
+        <p className="text-ink-700">{evaluation.rationale}</p>
       </StaggerItem>
 
       {evaluation.strengths.length > 0 && (
@@ -254,7 +254,7 @@ export default function EvaluationResultPage() {
       <StaggerItem className="card space-y-4">
         <div>
           <h3 className="mb-1">Post-Interview Notes</h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-ink-400">
             Add what came up in the interview — skills demonstrated, culture fit signals, reference
             feedback — and the agents will recalculate every score against it.
           </p>
@@ -262,9 +262,9 @@ export default function EvaluationResultPage() {
 
         {evaluation.interview_notes && (
           <div className="bg-purple-50 border-l-4 border-purple-400 rounded-lg p-4">
-            <p className="text-sm text-gray-800 whitespace-pre-line">{evaluation.interview_notes}</p>
+            <p className="text-sm text-ink whitespace-pre-line">{evaluation.interview_notes}</p>
             {evaluation.notes_updated_at && (
-              <p className="text-xs text-gray-500 mt-2">Updated: {evaluation.notes_updated_at}</p>
+              <p className="text-xs text-ink-400 mt-2">Updated: {evaluation.notes_updated_at}</p>
             )}
           </div>
         )}

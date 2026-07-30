@@ -6,6 +6,7 @@ import { fetchCandidates } from '@/store/slices/candidatesSlice'
 import { fetchJobs } from '@/store/slices/jobsSlice'
 import { fetchEvaluations } from '@/store/slices/evaluationsSlice'
 import { Page, StaggerItem, LiftCard, AnimatedNumber } from '@/components/motion'
+import { PageHeader } from '@/components/studio/PageHeader'
 
 const statCards = [
   {
@@ -53,11 +54,11 @@ export default function DashboardPage() {
 
   return (
     <Page className="space-y-8">
-      <StaggerItem>
-        <p className="eyebrow mb-2">OVERVIEW</p>
-        <h1 className="text-3xl font-extrabold tracking-tight">Dashboard</h1>
-        <p className="text-ink-500">Welcome to the Recruitment Suite</p>
-      </StaggerItem>
+      <PageHeader
+        eyebrow="OVERVIEW"
+        title={['Dashboard']}
+        subtitle="Where your hiring pipeline stands right now."
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {statCards.map((card, i) => {
@@ -90,15 +91,15 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.15 + i * 0.06 }}
-                  whileHover={{ x: 4, backgroundColor: 'rgba(249, 250, 251, 1)' }}
+                  whileHover={{ x: 4, backgroundColor: 'rgba(22, 20, 15, 0.04)' }}
                   className="flex justify-between items-center p-2.5 rounded-lg"
                 >
                   <span className="font-medium">{candidate.name}</span>
-                  <span className="text-sm text-gray-500">{candidate.email}</span>
+                  <span className="text-sm text-ink-400">{candidate.email}</span>
                 </motion.div>
               ))
             ) : (
-              <p className="text-gray-500">No candidates yet</p>
+              <p className="text-ink-400">No candidates yet</p>
             )}
           </div>
         </StaggerItem>
@@ -113,15 +114,15 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.15 + i * 0.06 }}
-                  whileHover={{ x: 4, backgroundColor: 'rgba(249, 250, 251, 1)' }}
+                  whileHover={{ x: 4, backgroundColor: 'rgba(22, 20, 15, 0.04)' }}
                   className="flex justify-between items-center p-2.5 rounded-lg"
                 >
                   <span className="font-medium">{job.title}</span>
-                  <span className="text-sm text-gray-500">{job.company}</span>
+                  <span className="text-sm text-ink-400">{job.company}</span>
                 </motion.div>
               ))
             ) : (
-              <p className="text-gray-500">No jobs yet</p>
+              <p className="text-ink-400">No jobs yet</p>
             )}
           </div>
         </StaggerItem>

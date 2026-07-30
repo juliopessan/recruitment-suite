@@ -1,8 +1,12 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { CheckCircle } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchEvaluations } from '@/store/slices/evaluationsSlice'
+import { Page, scoreColor } from '@/components/motion'
+import { PageHeader } from '@/components/studio/PageHeader'
+import { EmptyState } from '@/components/studio/EmptyState'
 
 export default function EvaluationsPage() {
   const navigate = useNavigate()
@@ -14,27 +18,24 @@ export default function EvaluationsPage() {
   }, [dispatch])
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1>Evaluations</h1>
-          <p className="text-gray-600">View all candidate evaluations</p>
-        </div>
-      </div>
+    <Page>
+      <PageHeader
+        eyebrow="03 / VERIFIED RUNS"
+        title={['Evaluations']}
+        subtitle="Every scored candidate, with the recommendation that came out of it."
+      />
 
       {isLoading ? (
-        <div className="card">
-          <p className="text-center text-gray-500">Loading...</p>
-        </div>
+        <div className="studio-card p-8 text-center text-ink-400">Loading…</div>
       ) : evaluations.length > 0 ? (
-        <div className="card overflow-x-auto">
-          <table className="w-full">
+        <div className="studio-card overflow-x-auto">
+          <table className="studio-table">
             <thead>
-              <tr className="border-b">
-                <th className="text-left table-cell font-semibold">ID</th>
-                <th className="text-left table-cell font-semibold">Final Score</th>
-                <th className="text-left table-cell font-semibold">Recommendation</th>
-                <th className="text-left table-cell font-semibold">Actions</th>
+              <tr>
+                <th>ID</th>
+                <th>Final Score</th>
+                <th>Recommendation</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -43,24 +44,26 @@ export default function EvaluationsPage() {
                   key={evaluation.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.35, ease: 'easeOut' }}
-                  className="border-b hover:bg-gray-50"
+                  transition={{ delay: i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="hover:bg-ink/[0.03] transition-colors"
                 >
-                  <td className="table-cell font-medium">{evaluation.id}</td>
-                  <td className="table-cell">
-                    <div className="flex items-center">
-                      <div className="text-lg font-bold text-gray-900">
+                  <td className="font-mono text-xs text-ink-400">{evaluation.id}</td>
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg font-extrabold tabular-nums">
                         {evaluation.final_score.toFixed(1)}
-                      </div>
-                      <div className="ml-2 w-16 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-primary-500 h-2 rounded-full"
-                          style={{ width: `${evaluation.final_score}%` }}
-                        ></div>
+                      </span>
+                      <div className="w-20 h-1.5 bg-ink/10 rounded-full overflow-hidden">
+                        <motion.div
+                          className={`h-full rounded-full ${scoreColor(evaluation.final_score)}`}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${evaluation.final_score}%` }}
+                          transition={{ duration: 0.8, delay: 0.1 + i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                        />
                       </div>
                     </div>
                   </td>
-                  <td className="table-cell">
+                  <td>
                     <span
                       className={`badge ${
                         evaluation.recommendation_status === 'GO'
@@ -73,10 +76,10 @@ export default function EvaluationsPage() {
                       {evaluation.recommendation_status}
                     </span>
                   </td>
-                  <td className="table-cell">
+                  <td>
                     <button
                       onClick={() => navigate(`/evaluations/${evaluation.id}`)}
-                      className="text-primary-500 hover:text-primary-700 font-medium"
+                      className="link-action"
                     >
                       View
                     </button>
@@ -87,10 +90,8 @@ export default function EvaluationsPage() {
           </table>
         </div>
       ) : (
-        <div className="card text-center">
-          <p className="text-gray-500">No evaluations yet</p>
-        </div>
+        <EmptyState icon={<CheckCircle size={22} />} message="No evaluations yet" />
       )}
-    </div>
+    </Page>
   )
 }

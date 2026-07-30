@@ -18,7 +18,7 @@ export default function CandidateDetailPage() {
   if (!candidate) {
     return (
       <div className="card text-center">
-        <p className="text-gray-500">Candidate not found</p>
+        <p className="text-ink-400">Candidate not found</p>
         <button onClick={() => navigate('/candidates')} className="btn-primary mt-4">
           Back to Candidates
         </button>
@@ -31,7 +31,7 @@ export default function CandidateDetailPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1>{candidate.name}</h1>
-          <p className="text-gray-600">{candidate.email}</p>
+          <p className="text-ink-500">{candidate.email}</p>
         </div>
         <div className="space-x-2">
           <button onClick={() => navigate(`/candidates/${id}/edit`)} className="btn-primary">
@@ -48,19 +48,19 @@ export default function CandidateDetailPage() {
           <h3 className="mb-4">Profile Information</h3>
           <div className="space-y-3">
             <div>
-              <p className="text-sm text-gray-600">Email</p>
+              <p className="text-sm text-ink-500">Email</p>
               <p className="font-medium">{candidate.email}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Phone</p>
+              <p className="text-sm text-ink-500">Phone</p>
               <p className="font-medium">{candidate.phone || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Location</p>
+              <p className="text-sm text-ink-500">Location</p>
               <p className="font-medium">{candidate.location || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Years of Experience</p>
+              <p className="text-sm text-ink-500">Years of Experience</p>
               <p className="font-medium">{candidate.total_years_experience} years</p>
             </div>
           </div>

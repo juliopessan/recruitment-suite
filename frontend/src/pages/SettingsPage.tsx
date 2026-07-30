@@ -46,8 +46,8 @@ export default function SettingsPage() {
     <Page className="space-y-8">
       <StaggerItem>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-          <p className="text-gray-600">Manage your account and preferences</p>
+          <h1 className="text-3xl font-bold text-ink mb-2">Settings</h1>
+          <p className="text-ink-500">Manage your account and preferences</p>
         </div>
       </StaggerItem>
 
@@ -60,17 +60,17 @@ export default function SettingsPage() {
                 <div className="p-2 bg-primary-100 rounded-lg">
                   <IconComponent size={24} className="text-primary-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">{section.title}</h2>
+                <h2 className="text-xl font-bold text-ink">{section.title}</h2>
               </div>
               <div className="space-y-3">
                 {section.items.map((item, i) => (
                   <motion.div
                     key={i}
                     whileHover={{ x: 4 }}
-                    className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary-300 hover:shadow-sm transition-all"
+                    className="bg-white border border-ink/10 rounded-lg p-4 cursor-pointer hover:border-primary-300 hover:shadow-sm transition-all"
                   >
-                    <h3 className="font-medium text-gray-900">{item.label}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                    <h3 className="font-medium text-ink">{item.label}</h3>
+                    <p className="text-sm text-ink-500 mt-1">{item.description}</p>
                   </motion.div>
                 ))}
               </div>
@@ -80,12 +80,12 @@ export default function SettingsPage() {
       })}
 
       <StaggerItem>
-        <div className="border-t border-gray-200 pt-8 space-y-4">
+        <div className="border-t border-ink/10 pt-8 space-y-4">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-red-100 rounded-lg">
               <Trash2 size={24} className="text-red-600" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">Danger Zone</h2>
+            <h2 className="text-xl font-bold text-ink">Danger Zone</h2>
           </div>
           <motion.button
             onClick={handleLogout}

@@ -30,11 +30,11 @@
 
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply px-5 py-2.5 bg-ink text-cream font-semibold rounded-md hover:bg-ink-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply px-5 py-2.5 border border-ink/20 text-ink font-semibold rounded-md hover:border-ink hover:bg-ink/[0.03] transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-danger {
@@ -42,11 +42,11 @@
   }
 
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500;
+    @apply w-full px-3 py-2 bg-white border border-ink/20 rounded-md focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 transition-colors;
   }
 
   .card {
-    @apply bg-white rounded-xl border border-gray-100 shadow-sm p-6;
+    @apply bg-cream-50 rounded-lg border border-ink/10 p-6;
   }
 
   .card-hover {
@@ -93,6 +93,26 @@
 
   .studio-card {
     @apply bg-cream-50 border border-ink/10 rounded-lg;
+  }
+
+  .studio-table {
+    @apply w-full text-sm;
+  }
+
+  .studio-table thead th {
+    @apply text-left px-6 py-3 text-xs font-bold tracking-[0.14em] uppercase text-ink-400 border-b border-ink/10;
+  }
+
+  .studio-table tbody td {
+    @apply px-6 py-4 border-b border-ink/[0.07];
+  }
+
+  .studio-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .link-action {
+    @apply font-semibold text-primary-600 hover:text-primary-700 border-b border-transparent hover:border-primary-600 transition-colors;
   }
 }
 

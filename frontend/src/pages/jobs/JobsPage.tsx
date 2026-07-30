@@ -1,8 +1,12 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Briefcase } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchJobs } from '@/store/slices/jobsSlice'
+import { Page } from '@/components/motion'
+import { PageHeader } from '@/components/studio/PageHeader'
+import { EmptyState } from '@/components/studio/EmptyState'
 
 export default function JobsPage() {
   const navigate = useNavigate()
@@ -14,31 +18,35 @@ export default function JobsPage() {
   }, [dispatch])
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1>Jobs</h1>
-          <p className="text-gray-600">Manage and view all job openings</p>
-        </div>
-        <button onClick={() => navigate('/jobs/new')} className="btn-primary">
-          Add Job
-        </button>
-      </div>
+    <Page>
+      <PageHeader
+        eyebrow="02 / OPEN ROLES"
+        title={['Jobs']}
+        subtitle="Every role you are hiring for, and what it requires."
+        action={
+          <motion.button
+            onClick={() => navigate('/jobs/new')}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            className="btn-studio-primary"
+          >
+            Add Job
+          </motion.button>
+        }
+      />
 
       {isLoading ? (
-        <div className="card">
-          <p className="text-center text-gray-500">Loading...</p>
-        </div>
+        <div className="studio-card p-8 text-center text-ink-400">Loading…</div>
       ) : jobs.length > 0 ? (
-        <div className="card overflow-x-auto">
-          <table className="w-full">
+        <div className="studio-card overflow-x-auto">
+          <table className="studio-table">
             <thead>
-              <tr className="border-b">
-                <th className="text-left table-cell font-semibold">Title</th>
-                <th className="text-left table-cell font-semibold">Company</th>
-                <th className="text-left table-cell font-semibold">Required Exp</th>
-                <th className="text-left table-cell font-semibold">Level</th>
-                <th className="text-left table-cell font-semibold">Actions</th>
+              <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Required Exp</th>
+                <th>Level</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -47,18 +55,15 @@ export default function JobsPage() {
                   key={job.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.35, ease: 'easeOut' }}
-                  className="border-b hover:bg-gray-50"
+                  transition={{ delay: i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="hover:bg-ink/[0.03] transition-colors"
                 >
-                  <td className="table-cell">{job.title}</td>
-                  <td className="table-cell">{job.company}</td>
-                  <td className="table-cell">{job.years_experience_required} years</td>
-                  <td className="table-cell">{job.seniority_level}</td>
-                  <td className="table-cell">
-                    <button
-                      onClick={() => navigate(`/jobs/${job.id}`)}
-                      className="text-primary-500 hover:text-primary-700 font-medium"
-                    >
+                  <td className="font-semibold">{job.title}</td>
+                  <td className="text-ink-500">{job.company}</td>
+                  <td className="text-ink-500">{job.years_experience_required} years</td>
+                  <td className="text-ink-500 capitalize">{job.seniority_level}</td>
+                  <td>
+                    <button onClick={() => navigate(`/jobs/${job.id}`)} className="link-action">
                       View
                     </button>
                   </td>
@@ -68,13 +73,21 @@ export default function JobsPage() {
           </table>
         </div>
       ) : (
-        <div className="card text-center">
-          <p className="text-gray-500 mb-4">No jobs yet</p>
-          <button onClick={() => navigate('/jobs/new')} className="btn-primary">
-            Create First Job
-          </button>
-        </div>
+        <EmptyState
+          icon={<Briefcase size={22} />}
+          message="No jobs yet"
+          action={
+            <motion.button
+              onClick={() => navigate('/jobs/new')}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn-studio-primary"
+            >
+              Create First Job
+            </motion.button>
+          }
+        />
       )}
-    </div>
+    </Page>
   )
 }
