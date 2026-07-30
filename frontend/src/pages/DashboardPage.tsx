@@ -11,22 +11,22 @@ const statCards = [
   {
     label: 'Total Candidates',
     icon: <Users size={22} />,
-    accent: 'from-blue-50 to-blue-100 border-blue-500 text-blue-600',
+    accent: 'border-ink text-ink',
   },
   {
     label: 'Total Jobs',
     icon: <Briefcase size={22} />,
-    accent: 'from-green-50 to-green-100 border-green-500 text-green-600',
+    accent: 'border-ink text-ink',
   },
   {
     label: 'Evaluations',
     icon: <CheckCircle size={22} />,
-    accent: 'from-purple-50 to-purple-100 border-purple-500 text-purple-600',
+    accent: 'border-ink text-ink',
   },
   {
     label: 'GO Rate',
     icon: <TrendingUp size={22} />,
-    accent: 'from-orange-50 to-orange-100 border-orange-500 text-orange-600',
+    accent: 'border-primary-500 text-primary-600',
   },
 ]
 
@@ -54,32 +54,34 @@ export default function DashboardPage() {
   return (
     <Page className="space-y-8">
       <StaggerItem>
-        <h1>Dashboard</h1>
-        <p className="text-gray-600">Welcome to the Recruitment Suite</p>
+        <p className="eyebrow mb-2">OVERVIEW</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Dashboard</h1>
+        <p className="text-ink-500">Welcome to the Recruitment Suite</p>
       </StaggerItem>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {statCards.map((card, i) => (
-          <LiftCard
-            key={card.label}
-            className={`card bg-gradient-to-br border-l-4 ${card.accent.replace(/text-\S+/, '')}`}
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">{card.label}</p>
-              <span className={card.accent.split(' ').find((c) => c.startsWith('text-'))}>{card.icon}</span>
-            </div>
-            <AnimatedNumber
-              value={statValues[i].value}
-              suffix={statValues[i].suffix}
-              className="text-3xl font-bold text-gray-900"
-            />
-          </LiftCard>
-        ))}
+        {statCards.map((card, i) => {
+          const borderClass = card.accent.split(' ').find((c) => c.startsWith('border-'))
+          const textClass = card.accent.split(' ').find((c) => c.startsWith('text-'))
+          return (
+            <LiftCard key={card.label} className={`studio-card border-l-4 p-6 ${borderClass}`}>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-ink-500">{card.label}</p>
+                <span className={textClass}>{card.icon}</span>
+              </div>
+              <AnimatedNumber
+                value={statValues[i].value}
+                suffix={statValues[i].suffix}
+                className="text-3xl font-extrabold text-ink"
+              />
+            </LiftCard>
+          )
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <StaggerItem className="card">
-          <h3 className="mb-4">Recent Candidates</h3>
+        <StaggerItem className="studio-card p-6">
+          <h3 className="mb-4 font-bold">Recent Candidates</h3>
           <div className="space-y-1">
             {candidates.length > 0 ? (
               candidates.map((candidate, i) => (
@@ -101,8 +103,8 @@ export default function DashboardPage() {
           </div>
         </StaggerItem>
 
-        <StaggerItem className="card">
-          <h3 className="mb-4">Recent Jobs</h3>
+        <StaggerItem className="studio-card p-6">
+          <h3 className="mb-4 font-bold">Recent Jobs</h3>
           <div className="space-y-1">
             {jobs.length > 0 ? (
               jobs.map((job, i) => (

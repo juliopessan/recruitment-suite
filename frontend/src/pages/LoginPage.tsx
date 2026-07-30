@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useAppDispatch } from '@/hooks/useRedux'
 import { setToken, setUser } from '@/store/slices/authSlice'
 import { toast } from 'react-toastify'
+import { StudioMark } from '@/components/studio/StudioMark'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -43,22 +44,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-gray-50 to-white text-gray-900 flex flex-col">
+    <div className="relative min-h-screen overflow-hidden surface-studio flex flex-col">
       {/* Header */}
-      <header className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <motion.h1
+      <header className="border-b border-ink/10 px-6 py-4 flex items-center justify-between">
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-700"
+          className="flex items-center gap-2.5 font-extrabold text-lg tracking-tight"
         >
-          Recruitment Suite
-        </motion.h1>
+          <StudioMark />
+          RECRUITMENT SUITE
+        </motion.div>
         <motion.button
           onClick={() => navigate('/')}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+          className="text-sm text-ink-500 hover:text-ink font-medium"
         >
           ← Back
         </motion.button>
@@ -70,16 +72,18 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 24, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 24 }}
-          className="w-full max-w-md bg-white rounded-xl shadow-lg border border-gray-200 p-8"
+          className="w-full max-w-md bg-white rounded-xl shadow-lg border border-ink/10 p-8"
         >
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
           className="text-center mb-8"
         >
-          Recruitment Suite
-        </motion.h1>
+          <p className="eyebrow mb-2">WELCOME BACK</p>
+          <h2 className="text-2xl font-extrabold tracking-tight">Log in to continue</h2>
+          <p className="text-sm text-ink-500 mt-1">Access Recruitment Suite Studio</p>
+        </motion.div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <label htmlFor="email" className="block text-sm font-medium mb-1">
@@ -114,7 +118,7 @@ export default function LoginPage() {
           <motion.button
             type="submit"
             disabled={isLoading}
-            className="btn-primary w-full"
+            className="btn-studio-primary w-full justify-center"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
@@ -125,12 +129,12 @@ export default function LoginPage() {
           </motion.button>
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-6">
+        <p className="text-center text-sm text-ink-500 mt-6">
           Demo: Use any email and password
         </p>
 
-        <div className="text-center mt-8 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-600 mb-3">New to Recruitment Suite?</p>
+        <div className="text-center mt-8 pt-6 border-t border-ink/10">
+          <p className="text-sm text-ink-500 mb-3">New to Recruitment Suite?</p>
           <motion.button
             onClick={() => navigate('/')}
             whileHover={{ scale: 1.05 }}

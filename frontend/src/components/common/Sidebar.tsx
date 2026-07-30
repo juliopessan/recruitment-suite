@@ -32,7 +32,7 @@ export default function Sidebar() {
   const { pathname } = useLocation()
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen">
+    <aside className="w-64 bg-cream border-r border-ink/10 flex flex-col h-screen">
       <nav className="flex-1 px-4 py-6 space-y-1">
         {navItems.map((item) => {
           const active = isActive(pathname, item.to)
@@ -41,7 +41,7 @@ export default function Sidebar() {
               key={item.to}
               to={item.to}
               className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                active ? 'text-primary-600' : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
+                active ? 'text-primary-600' : 'text-ink-500 hover:bg-ink/5 hover:text-primary-600'
               }`}
             >
               {active && (
@@ -58,13 +58,13 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="px-4 py-4 border-t border-gray-200 space-y-1">
+      <div className="px-4 py-4 border-t border-ink/10 space-y-1">
         <NavLink
           to="/settings"
           className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
             pathname === '/settings'
               ? 'text-primary-600'
-              : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
+              : 'text-ink-500 hover:bg-ink/5 hover:text-primary-600'
           }`}
         >
           {pathname === '/settings' && (
@@ -81,7 +81,7 @@ export default function Sidebar() {
           href="https://github.com/juliopessan/recruitment-suite"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 hover:text-primary-600 rounded-lg transition-colors"
+          className="flex items-center gap-3 px-4 py-2.5 text-ink-500 hover:bg-ink/5 hover:text-primary-600 rounded-lg transition-colors"
         >
           <HelpCircle size={20} />
           <span className="font-medium">Help</span>

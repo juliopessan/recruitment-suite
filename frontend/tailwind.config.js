@@ -8,16 +8,16 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#ff5800', // Avanade orange
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a360a',
-          900: '#7c2d12',
+          50: '#fff5f0',
+          100: '#ffe6da',
+          200: '#ffc9ab',
+          300: '#ffa471',
+          400: '#ff7a3d',
+          500: '#ff5b22', // DABBA orange
+          600: '#ea470f',
+          700: '#c2350a',
+          800: '#9a2c0c',
+          900: '#7c260f',
         },
         secondary: {
           50: '#faf5ff',
@@ -31,9 +31,32 @@ export default {
           800: '#6b21a8',
           900: '#581c87',
         },
+        cream: {
+          DEFAULT: '#f2efe7',
+          50: '#faf8f3',
+          100: '#f2efe7',
+          200: '#e8e3d5',
+          300: '#dad3bf',
+          400: '#c7bda3',
+        },
+        ink: {
+          DEFAULT: '#16140f',
+          700: '#2b2820',
+          500: '#57523f',
+          400: '#7a7560',
+        },
       },
       fontFamily: {
         sans: ['system-ui', 'sans-serif'],
+      },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
+      animation: {
+        marquee: 'marquee 22s linear infinite',
       },
     },
   },

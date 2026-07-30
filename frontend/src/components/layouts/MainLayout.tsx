@@ -9,7 +9,7 @@ export default function MainLayout() {
   const location = useLocation()
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-cream-50">
       <AnimatePresence initial={false}>
         {sidebarOpen && (
           <motion.div

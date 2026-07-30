@@ -1,6 +1,7 @@
-import { useEffect, ReactNode } from 'react'
+import { useEffect, useRef, ReactNode } from 'react'
 import {
   motion,
+  useInView,
   useMotionValue,
   useSpring,
   useTransform,
@@ -42,6 +43,32 @@ export function StaggerItem({ children, className }: { children: ReactNode; clas
   )
 }
 
+/* Reveal: like Page, but triggers when scrolled into view instead of on
+   mount — use for any section below the fold so it doesn't burn its
+   entrance animation off-screen before the user ever sees it. -------- */
+
+export function Reveal({
+  children,
+  className,
+  amount = 0.2,
+}: {
+  children: ReactNode
+  className?: string
+  amount?: number
+}) {
+  return (
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      whileInView="enter"
+      viewport={{ once: true, amount }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 /* Card with hover lift ------------------------------------------------ */
 
 export function LiftCard({
@@ -74,21 +101,30 @@ export function AnimatedNumber({
   decimals = 0,
   suffix = '',
   className,
+  countOnView = false,
 }: {
   value: number
   decimals?: number
   suffix?: string
   className?: string
+  /** Start counting when scrolled into view rather than on mount. */
+  countOnView?: boolean
 }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const inView = useInView(ref, { once: true, amount: 0.5 })
   const raw = useMotionValue(0)
   const spring = useSpring(raw, { stiffness: 80, damping: 20 })
   const display = useTransform(spring, (v) => `${v.toFixed(decimals)}${suffix}`)
 
   useEffect(() => {
-    raw.set(value)
-  }, [value, raw])
+    if (!countOnView || inView) raw.set(value)
+  }, [value, raw, countOnView, inView])
 
-  return <motion.span className={className}>{display}</motion.span>
+  return (
+    <motion.span ref={ref} className={className}>
+      {display}
+    </motion.span>
+  )
 }
 
 /* Animated score bar --------------------------------------------------- */
