@@ -83,8 +83,8 @@ export function LiftCard({
   return (
     <motion.div
       variants={itemVariants}
-      whileHover={{ y: -4, boxShadow: '0 12px 24px -8px rgba(15, 23, 42, 0.15)' }}
-      whileTap={onClick ? { scale: 0.98 } : undefined}
+      whileHover={{ y: -3 }}
+      whileTap={onClick ? { scale: 0.99 } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       className={className}
       onClick={onClick}
@@ -129,11 +129,11 @@ export function AnimatedNumber({
 
 /* Animated score bar --------------------------------------------------- */
 
-export function ScoreBar({ value, colorClass = 'bg-primary-500' }: { value: number; colorClass?: string }) {
+export function ScoreBar({ value, colorClass }: { value: number; colorClass?: string }) {
   return (
-    <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+    <div className="meter-track">
       <motion.div
-        className={`h-full rounded-full ${colorClass}`}
+        className={`h-full ${colorClass ?? scoreColor(value)}`}
         initial={{ width: 0 }}
         animate={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
@@ -142,8 +142,9 @@ export function ScoreBar({ value, colorClass = 'bg-primary-500' }: { value: numb
   )
 }
 
+/** Bar colour for a 0–100 score: mint passes, ochre holds, rust fails. */
 export function scoreColor(value: number): string {
-  if (value >= 75) return 'bg-green-500'
-  if (value >= 50) return 'bg-yellow-500'
-  return 'bg-red-500'
+  if (value >= 75) return 'bg-mint-600'
+  if (value >= 50) return 'bg-ochre-500'
+  return 'bg-rust-500'
 }

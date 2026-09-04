@@ -1,4 +1,17 @@
 /** @type {import('tailwindcss').Config} */
+
+/**
+ * Design language: editorial paper + terminal ledger.
+ *
+ * A warm paper ground carries near-black editorial type (heavy grotesk for
+ * statements, high-contrast serif italic for the emphasised half of a
+ * headline). Data lives in monospace: eyebrows, labels, figures, and the
+ * dark "ledger" panels that quote measured numbers back at you.
+ *
+ * Two signal colours only — rust for cost/risk, mint for saving/pass —
+ * so a number's colour always means the same thing anywhere in the app.
+ * Corners are square; separation comes from hairline rules, never shadow.
+ */
 export default {
   content: [
     "./index.html",
@@ -7,56 +20,114 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#fff5f0',
-          100: '#ffe6da',
-          200: '#ffc9ab',
-          300: '#ffa471',
-          400: '#ff7a3d',
-          500: '#ff5b22', // DABBA orange
-          600: '#ea470f',
-          700: '#c2350a',
-          800: '#9a2c0c',
-          900: '#7c260f',
+        /* Paper ground -------------------------------------------------- */
+        paper: {
+          DEFAULT: '#f3f0e7',
+          50: '#f8f6f0',
+          100: '#f3f0e7',
+          200: '#ebe7da',
+          300: '#ded9c8',
+          400: '#c9c3ad',
         },
-        secondary: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-          700: '#7e22ce',
-          800: '#6b21a8',
-          900: '#581c87',
+        /* Editorial ink ------------------------------------------------- */
+        ink: {
+          DEFAULT: '#14140f',
+          900: '#0c0c09',
+          700: '#2b2a22',
+          500: '#57544a',
+          400: '#7c786c',
+          300: '#a3a094',
+        },
+        /* Terminal panel ------------------------------------------------ */
+        panel: {
+          DEFAULT: '#161615',
+          700: '#1f1f1d',
+          600: '#2a2a27',
+          500: '#3a3a35',
+        },
+        /* Signal: cost / risk / fail ------------------------------------ */
+        rust: {
+          DEFAULT: '#d2542a',
+          50: '#fdf3ef',
+          100: '#fae2d8',
+          400: '#e07443',
+          500: '#d2542a',
+          600: '#b44320',
+          700: '#8f3417',
+        },
+        /* Signal: saving / pass ----------------------------------------- */
+        mint: {
+          DEFAULT: '#8ed4a4',
+          50: '#f0f9f3',
+          100: '#d9f0e1',
+          400: '#a3ddb4',
+          500: '#8ed4a4',
+          600: '#57ab74',
+          700: '#3d8154',
+        },
+        /* Signal: hold / partial ---------------------------------------- */
+        ochre: {
+          DEFAULT: '#c08a2e',
+          50: '#fbf5e8',
+          100: '#f4e6c6',
+          500: '#c08a2e',
+          600: '#a06f22',
+        },
+
+        /* Legacy aliases — keep older utility names rendering on-brand --- */
+        primary: {
+          50: '#fdf3ef',
+          100: '#fae2d8',
+          200: '#f4c6b2',
+          300: '#eca387',
+          400: '#e07443',
+          500: '#d2542a',
+          600: '#b44320',
+          700: '#8f3417',
+          800: '#722a13',
+          900: '#5c2311',
         },
         cream: {
-          DEFAULT: '#f2efe7',
-          50: '#faf8f3',
-          100: '#f2efe7',
-          200: '#e8e3d5',
-          300: '#dad3bf',
-          400: '#c7bda3',
-        },
-        ink: {
-          DEFAULT: '#16140f',
-          700: '#2b2820',
-          500: '#57523f',
-          400: '#7a7560',
+          DEFAULT: '#f3f0e7',
+          50: '#f8f6f0',
+          100: '#f3f0e7',
+          200: '#ebe7da',
+          300: '#ded9c8',
+          400: '#c9c3ad',
         },
       },
       fontFamily: {
-        sans: ['system-ui', 'sans-serif'],
+        sans: ['Archivo', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        display: ['Archivo', 'system-ui', 'sans-serif'],
+        serif: ['"Instrument Serif"', 'Georgia', 'Times New Roman', 'serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+      },
+      borderRadius: {
+        /* Square by default; `sm` is the only softening we allow. */
+        DEFAULT: '0px',
+        sm: '2px',
+        md: '2px',
+        lg: '2px',
+        xl: '3px',
+        '2xl': '3px',
+      },
+      letterSpacing: {
+        label: '0.16em',
+        wide2: '0.22em',
       },
       keyframes: {
         marquee: {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
         },
+        blink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.25' },
+        },
       },
       animation: {
-        marquee: 'marquee 22s linear infinite',
+        marquee: 'marquee 28s linear infinite',
+        blink: 'blink 1.6s ease-in-out infinite',
       },
     },
   },

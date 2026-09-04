@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Briefcase } from 'lucide-react'
+import { Briefcase, Plus } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchJobs } from '@/store/slices/jobsSlice'
 import { Page } from '@/components/motion'
@@ -20,23 +20,19 @@ export default function JobsPage() {
   return (
     <Page>
       <PageHeader
-        eyebrow="02 / OPEN ROLES"
+        eyebrow="03 / Open roles"
         title={['Jobs']}
-        subtitle="Every role you are hiring for, and what it requires."
+        subtitle="Every role you are hiring for, and what it asks of a candidate."
         action={
-          <motion.button
-            onClick={() => navigate('/jobs/new')}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="btn-studio-primary"
-          >
-            Add Job
-          </motion.button>
+          <button onClick={() => navigate('/jobs/new')} className="btn-primary">
+            <Plus size={16} />
+            Add job
+          </button>
         }
       />
 
       {isLoading ? (
-        <div className="studio-card p-8 text-center text-ink-400">Loading…</div>
+        <div className="studio-card p-10 text-center eyebrow">Loading…</div>
       ) : jobs.length > 0 ? (
         <div className="studio-card overflow-x-auto">
           <table className="studio-table">
@@ -44,25 +40,29 @@ export default function JobsPage() {
               <tr>
                 <th>Title</th>
                 <th>Company</th>
-                <th>Required Exp</th>
+                <th>Required</th>
                 <th>Level</th>
-                <th>Actions</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {jobs.map((job, i) => (
                 <motion.tr
                   key={job.id}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                   className="hover:bg-ink/[0.03] transition-colors"
                 >
                   <td className="font-semibold">{job.title}</td>
                   <td className="text-ink-500">{job.company}</td>
-                  <td className="text-ink-500">{job.years_experience_required} years</td>
-                  <td className="text-ink-500 capitalize">{job.seniority_level}</td>
+                  <td className="font-mono text-[13px] text-ink-500">
+                    {job.years_experience_required} yrs
+                  </td>
                   <td>
+                    <span className="badge-info capitalize">{job.seniority_level}</span>
+                  </td>
+                  <td className="text-right">
                     <button onClick={() => navigate(`/jobs/${job.id}`)} className="link-action">
                       View
                     </button>
@@ -74,17 +74,14 @@ export default function JobsPage() {
         </div>
       ) : (
         <EmptyState
-          icon={<Briefcase size={22} />}
+          icon={<Briefcase size={20} />}
           message="No jobs yet"
+          hint="Jobs are created automatically from the description you paste into an analysis."
           action={
-            <motion.button
-              onClick={() => navigate('/jobs/new')}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn-studio-primary"
-            >
-              Create First Job
-            </motion.button>
+            <button onClick={() => navigate('/jobs/new')} className="btn-primary">
+              <Plus size={16} />
+              Add the first job
+            </button>
           }
         />
       )}

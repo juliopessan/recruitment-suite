@@ -1,8 +1,8 @@
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { LogOut, User, Bell, Lock, Trash2 } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { Page, StaggerItem } from '@/components/motion'
+import { PageHeader } from '@/components/studio/PageHeader'
 import { logout } from '@/store/slices/authSlice'
 
 export default function SettingsPage() {
@@ -18,86 +18,75 @@ export default function SettingsPage() {
   const sections = [
     {
       title: 'Account',
-      icon: User,
       items: [
-        { label: 'Profile', description: 'Manage your profile information' },
-        { label: 'Email', description: `Current: ${user?.email || 'Not set'}` },
+        { label: 'Name', value: user?.name || '—' },
+        { label: 'Email', value: user?.email || '—' },
+        { label: 'Role', value: user?.role || '—' },
       ],
     },
     {
-      title: 'Preferences',
-      icon: Bell,
+      title: 'Output',
       items: [
-        { label: 'Notifications', description: 'Control notification settings' },
-        { label: 'Theme', description: 'Choose between light and dark mode' },
+        { label: 'Report languages', value: 'EN-US · PT-BR' },
+        { label: 'Report format', value: 'HTML — print to PDF' },
+        { label: 'CV formats', value: 'PDF · DOCX · TXT' },
       ],
     },
     {
-      title: 'Security',
-      icon: Lock,
+      title: 'Pipeline',
       items: [
-        { label: 'Change Password', description: 'Update your password' },
-        { label: 'Active Sessions', description: 'Manage your active sessions' },
+        { label: 'Agents in the chain', value: '05' },
+        { label: 'People Analytics variant', value: 'Auto-detected from the role' },
+        { label: 'Profile enrichment', value: 'Exa — LinkedIn' },
       ],
     },
   ]
 
   return (
-    <Page className="space-y-8">
-      <StaggerItem>
-        <div>
-          <h1 className="text-3xl font-bold text-ink mb-2">Settings</h1>
-          <p className="text-ink-500">Manage your account and preferences</p>
-        </div>
-      </StaggerItem>
+    <Page className="max-w-3xl">
+      <PageHeader
+        eyebrow="— / Settings"
+        title={['Workspace', { text: 'settings.', italic: true }]}
+        subtitle="How this workspace is configured, and how to sign out of it."
+      />
 
-      {sections.map((section, idx) => {
-        const IconComponent = section.icon
-        return (
-          <StaggerItem key={idx}>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-primary-100 rounded-lg">
-                  <IconComponent size={24} className="text-primary-600" />
+      <div className="space-y-8">
+        {sections.map((section) => (
+          <StaggerItem key={section.title} className="studio-card">
+            <div className="px-6 py-4 border-b border-ink/15">
+              <p className="eyebrow">{section.title}</p>
+            </div>
+            <dl>
+              {section.items.map((item) => (
+                <div
+                  key={item.label}
+                  className="px-6 py-4 border-b border-ink/10 last:border-b-0 flex items-baseline justify-between gap-6"
+                >
+                  <dt className="font-mono text-[11px] uppercase tracking-label text-ink-400 shrink-0">
+                    {item.label}
+                  </dt>
+                  <dd className="font-medium text-right truncate">{item.value}</dd>
                 </div>
-                <h2 className="text-xl font-bold text-ink">{section.title}</h2>
-              </div>
-              <div className="space-y-3">
-                {section.items.map((item, i) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ x: 4 }}
-                    className="bg-white border border-ink/10 rounded-lg p-4 cursor-pointer hover:border-primary-300 hover:shadow-sm transition-all"
-                  >
-                    <h3 className="font-medium text-ink">{item.label}</h3>
-                    <p className="text-sm text-ink-500 mt-1">{item.description}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+              ))}
+            </dl>
           </StaggerItem>
-        )
-      })}
+        ))}
 
-      <StaggerItem>
-        <div className="border-t border-ink/10 pt-8 space-y-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <Trash2 size={24} className="text-red-600" />
-            </div>
-            <h2 className="text-xl font-bold text-ink">Danger Zone</h2>
+        <StaggerItem className="border border-rust-500/40 bg-rust-50">
+          <div className="px-6 py-4 border-b border-rust-500/25">
+            <p className="eyebrow text-rust-600">Session</p>
           </div>
-          <motion.button
-            onClick={handleLogout}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full bg-red-50 border-2 border-red-200 hover:border-red-400 hover:bg-red-100 text-red-600 font-medium py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all"
-          >
-            <LogOut size={20} />
-            Sign Out
-          </motion.button>
-        </div>
-      </StaggerItem>
+          <div className="p-6 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-ink-700">
+              Signing out clears this browser session. Evaluations stay on the server.
+            </p>
+            <button onClick={handleLogout} className="btn-danger shrink-0">
+              <LogOut size={15} />
+              Sign out
+            </button>
+          </div>
+        </StaggerItem>
+      </div>
     </Page>
   )
 }

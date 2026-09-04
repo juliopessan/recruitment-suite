@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Users } from 'lucide-react'
+import { Plus, Users } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchCandidates } from '@/store/slices/candidatesSlice'
 import { Page } from '@/components/motion'
@@ -20,23 +20,19 @@ export default function CandidatesPage() {
   return (
     <Page>
       <PageHeader
-        eyebrow="01 / TALENT POOL"
+        eyebrow="02 / Talent pool"
         title={['Candidates']}
-        subtitle="Manage and view every candidate in the pipeline."
+        subtitle="Everyone in the pipeline, and how much experience they bring."
         action={
-          <motion.button
-            onClick={() => navigate('/candidates/new')}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="btn-studio-primary"
-          >
-            Add Candidate
-          </motion.button>
+          <button onClick={() => navigate('/candidates/new')} className="btn-primary">
+            <Plus size={16} />
+            Add candidate
+          </button>
         }
       />
 
       {isLoading ? (
-        <div className="studio-card p-8 text-center text-ink-400">Loading…</div>
+        <div className="studio-card p-10 text-center eyebrow">Loading…</div>
       ) : candidates.length > 0 ? (
         <div className="studio-card overflow-x-auto">
           <table className="studio-table">
@@ -45,22 +41,24 @@ export default function CandidatesPage() {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Experience</th>
-                <th>Actions</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {candidates.map((candidate, i) => (
                 <motion.tr
                   key={candidate.id}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                   className="hover:bg-ink/[0.03] transition-colors"
                 >
                   <td className="font-semibold">{candidate.name}</td>
-                  <td className="text-ink-500">{candidate.email}</td>
-                  <td className="text-ink-500">{candidate.total_years_experience} years</td>
-                  <td>
+                  <td className="font-mono text-[13px] text-ink-500">{candidate.email}</td>
+                  <td className="font-mono text-[13px] text-ink-500">
+                    {candidate.total_years_experience} yrs
+                  </td>
+                  <td className="text-right">
                     <button
                       onClick={() => navigate(`/candidates/${candidate.id}`)}
                       className="link-action"
@@ -75,17 +73,14 @@ export default function CandidatesPage() {
         </div>
       ) : (
         <EmptyState
-          icon={<Users size={22} />}
+          icon={<Users size={20} />}
           message="No candidates yet"
+          hint="Candidates are created automatically when you run an analysis, or add one by hand."
           action={
-            <motion.button
-              onClick={() => navigate('/candidates/new')}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn-studio-primary"
-            >
-              Create First Candidate
-            </motion.button>
+            <button onClick={() => navigate('/candidates/new')} className="btn-primary">
+              <Plus size={16} />
+              Add the first candidate
+            </button>
           }
         />
       )}

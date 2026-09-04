@@ -4,183 +4,277 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{{ 'report.title' | t(language) }} — {{ candidate_name }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+  /* ==================================================================
+     Editorial paper + terminal ledger.
+     Paper ground, editorial ink, monospace for anything that is data.
+     Square corners, hairline rules, two signal colours:
+     rust = cost/risk, mint = pass. No shadows.
+     ================================================================== */
   :root{
-    --ava-orange:#FF5800; --ava-dark-orange:#DC4600; --ava-black:#000; --ava-white:#fff;
-    --g80:#333; --g70:#4c4c4c; --g60:#666; --g50:#7f7f7f; --g40:#999; --g30:#b3b3b3; --g20:#ccc; --g10:#e5e5e5;
-    --solar:#FFD700; --luminous:#FFB414; --glow:#FF5800; --flame:#B43C14; --thermal:#C80000; --aurora:#890078;
-    --success:#00A650; --warn:#C77700; --danger:#C80000; --info:#0078D4;
-    --master:linear-gradient(135deg,#FF5800 0%,#890078 100%);
-    --warm:linear-gradient(135deg,#FFD700 0%,#FF5800 100%);
-    --font:'Segoe UI','Segoe UI Variable',system-ui,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
-    --shadow-md:0 4px 12px rgba(0,0,0,.10);
-    --shadow-lg:0 8px 24px rgba(0,0,0,.12);
-    --shadow-brand:0 4px 20px rgba(255,88,0,.28);
+    --paper:#f3f0e7; --paper-50:#f8f6f0; --paper-200:#ebe7da;
+    --ink:#14140f; --ink-700:#2b2a22; --ink-500:#57544a; --ink-400:#7c786c; --ink-300:#a3a094;
+    --panel:#161615; --panel-600:#2a2a27;
+    --rust:#d2542a; --rust-600:#b44320; --rust-50:#fdf3ef;
+    --mint:#8ed4a4; --mint-600:#57ab74; --mint-700:#3d8154; --mint-50:#f0f9f3;
+    --ochre:#c08a2e; --ochre-600:#a06f22; --ochre-50:#fbf5e8;
+    --line:rgba(20,20,15,.15); --line-soft:rgba(20,20,15,.10);
+    --line-dark:rgba(255,255,255,.10);
+    --sans:'Archivo',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+    --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{font-family:var(--font);color:var(--g80);background:#fafafa;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:900px;margin:0 auto;padding:0 24px}
+  body{font-family:var(--sans);color:var(--ink);background:var(--paper);line-height:1.6;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 32px}
   ul{list-style:none}
+  b,strong{font-weight:700}
 
-  /* ---------- HERO ---------- */
-  .hero{background:var(--master);color:#fff;padding:56px 0 48px;position:relative;overflow:hidden}
-  .hero::after{content:"";position:absolute;right:-120px;top:-120px;width:420px;height:420px;
-    background:radial-gradient(circle,rgba(255,215,0,.4) 0%,rgba(255,215,0,0) 70%);pointer-events:none}
-  .kicker{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:.9;margin-bottom:16px;position:relative;z-index:1}
-  .hero h1{font-weight:300;font-size:clamp(26px,4.4vw,40px);line-height:1.1;margin-bottom:10px;position:relative;z-index:1}
-  .hero h1 strong{font-weight:700}
-  .hero .lede{font-size:14.5px;font-weight:400;opacity:.95;position:relative;z-index:1}
-  .hero-meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;position:relative;z-index:1}
-  .pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(4px);
-    border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600}
+  /* ---------- Shared type ---------- */
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-400)}
+  .rule-eyebrow{display:inline-flex;align-items:center;gap:12px}
+  .rule-eyebrow::before{content:"";display:block;width:40px;height:1px;background:currentColor;opacity:.4}
+  .serif-em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);
+    padding:6px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-500)}
 
-  /* ---------- ARC / SCORE STRIP ---------- */
-  .arc{background:#fff;border-top:4px solid var(--ava-orange);box-shadow:var(--shadow-md);position:relative;z-index:2}
-  .arc .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0}
-  .arc .cell{padding:24px 24px}
-  .arc .cell + .cell{border-left:1px solid var(--g10)}
-  .arc .big{font-weight:700;font-size:36px;line-height:1;letter-spacing:-.02em}
-  .arc .lbl{font-weight:600;font-size:13px;color:var(--g80);margin-top:6px}
-  .arc .sub{font-size:12px;color:var(--g60);margin-top:3px}
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  h2.h{font-size:clamp(24px,3vw,32px);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:16px 0 12px}
+  h2.h .serif-em{display:block;font-weight:400}
+  .section-intro{font-size:15px;color:var(--ink-500);max-width:62ch;margin-bottom:32px}
 
-  section{padding:44px 0}
-  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ava-dark-orange);margin-bottom:10px}
-  h2.h{font-weight:300;font-size:clamp(20px,3vw,26px);line-height:1.2;color:var(--g80);margin-bottom:8px}
-  h2.h b{font-weight:600}
-  .section-intro{font-size:14px;color:var(--g60);max-width:64ch;margin-bottom:24px}
-  .bar-rule{width:44px;height:4px;background:var(--ava-orange);border-radius:2px;margin-bottom:18px}
+  /* ---------- Masthead ---------- */
+  .masthead{border-bottom:1px solid var(--line);padding:28px 0}
+  .masthead .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .wordmark{display:inline-flex;align-items:center;gap:10px}
+  .wordmark .mark{width:26px;height:26px;background:var(--ink);color:var(--paper);
+    display:grid;place-items:center;font-weight:800;font-size:16px;line-height:1}
+  .wordmark .name{font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:14px}
 
-  /* ---------- LAYERS (score dimensions accordion) ---------- */
-  .stack{display:flex;flex-direction:column;gap:12px}
-  .layer{background:#fff;border:1px solid var(--g10);border-radius:8px;box-shadow:var(--shadow-md);
-    overflow:hidden;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
-  .layer:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
-  .layer-head{display:grid;grid-template-columns:6px 1fr auto auto;align-items:center;gap:16px;padding:18px 20px}
-  .layer .spine{width:6px;align-self:stretch;border-radius:3px}
-  .layer .title h3{font-weight:600;font-size:16.5px;color:var(--g80)}
-  .layer .title .desc{font-size:13px;color:var(--g60);margin-top:3px}
-  .layer .save{font-weight:700;font-size:22px;white-space:nowrap}
-  .layer .chev{width:24px;height:24px;border-radius:50%;background:var(--g10);display:grid;place-items:center;
-    color:var(--g60);font-size:13px;transition:transform .2s ease;flex-shrink:0}
+  /* ---------- Hero ---------- */
+  .hero{padding:64px 0 56px;border-bottom:1px solid var(--line)}
+  .hero h1{font-size:clamp(38px,6vw,64px);font-weight:800;letter-spacing:-.03em;line-height:1.0;margin:24px 0 12px}
+  .hero .role{font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.6vw,28px);color:var(--ink-500)}
+  .hero-meta{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px}
+
+  /* ---------- Verdict ledger ---------- */
+  .ledger{background:var(--panel);color:var(--paper);border:1px solid var(--panel-600);padding:32px}
+  .ledger-head{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    flex-wrap:wrap;margin-bottom:28px}
+  .panel-label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:rgba(255,255,255,.45)}
+  .verdict{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+  .verdict .fig{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;
+    font-size:64px;line-height:.9;letter-spacing:-.03em;color:#fff}
+  .verdict .fig .of{font-size:20px;color:rgba(255,255,255,.4)}
+  .verdict .status{font-family:var(--mono);font-weight:700;font-size:30px;letter-spacing:-.01em;text-align:right}
+  .lrow{margin-bottom:20px}
+  .lrow:last-child{margin-bottom:0}
+  .lrow .top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:10px}
+  .lrow .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;font-size:22px}
+  .track{height:3px;width:100%;background:rgba(255,255,255,.10);overflow:hidden}
+  .track > i{display:block;height:100%}
+  .lstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;
+    padding:26px 0;margin:8px 0;border-top:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark)}
+  .lstats .st{display:flex;align-items:baseline;gap:10px}
+  .lstats .st b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;
+    font-size:26px;line-height:1;color:#fff}
+  .lfoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    gap:8px 16px;margin-top:24px}
+
+  /* ---------- Score breakdown (accordion) ---------- */
+  .stack{border-top:1px solid var(--line)}
+  .layer{border-bottom:1px solid var(--line);background:var(--paper-50)}
+  .layer-head{display:grid;grid-template-columns:3px 1fr auto auto;align-items:center;gap:20px;
+    padding:22px 20px;cursor:pointer;transition:background .15s}
+  .layer-head:hover{background:rgba(20,20,15,.03)}
+  .layer .spine{width:3px;align-self:stretch}
+  .layer .title h3{font-weight:700;font-size:17px;letter-spacing:-.01em}
+  .layer .title .desc{font-size:13.5px;color:var(--ink-500);margin-top:4px}
+  .layer .save{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;
+    font-size:24px;white-space:nowrap}
+  .layer .chev{width:22px;height:22px;border:1px solid var(--line);display:grid;place-items:center;
+    color:var(--ink-400);font-size:11px;transition:transform .2s ease;flex-shrink:0}
   .layer.open .chev{transform:rotate(180deg)}
-  .layer-body{max-height:0;overflow:hidden;transition:max-height .32s ease;background:#fcfcfc}
-  .layer.open .layer-body{max-height:2000px;border-top:1px solid var(--g10)}
-  .layer-body .inner{padding:18px 20px 20px}
-  .layer-body p{font-size:13.5px;color:var(--g70);margin:0 0 .6rem}
+  .layer-body{max-height:0;overflow:hidden;transition:max-height .32s ease}
+  .layer.open .layer-body{max-height:3000px;border-top:1px solid var(--line-soft)}
+  .layer-body .inner{padding:22px 20px 24px 43px}
+  .layer-body p{font-size:14px;color:var(--ink-700);margin:0 0 .7rem}
   .layer-body p:last-child{margin-bottom:0}
-  .dim-table{width:100%;font-size:12.5px;margin-top:.6rem;border-collapse:collapse}
-  .dim-table td,.dim-table th{padding:.4rem .5rem;border-bottom:1px solid var(--g10);text-align:left;vertical-align:top}
-  .tag-gap{color:var(--warn)}
-  .tag-strength{color:var(--success)}
+  .dim-table{width:100%;font-size:13px;margin-top:1rem;border-collapse:collapse}
+  .dim-table th{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-400);text-align:left;padding:.5rem .6rem;
+    border-bottom:1px solid var(--line)}
+  .dim-table td{padding:.6rem;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;
+    color:var(--ink-700)}
+  .dim-table td:nth-child(2),.dim-table td:nth-child(3){font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .tag-gap{color:var(--ochre-600)}
+  .tag-strength{color:var(--mint-700)}
 
-  /* ---------- SURFACES (lists: strengths / gaps / flags) ---------- */
-  .surfaces{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
-  .surf{background:#fff;border:1px solid var(--g10);border-radius:8px;padding:20px;box-shadow:var(--shadow-md);
-    border-top:3px solid var(--ava-orange)}
-  .surf.gaps{border-top-color:var(--warn)}
-  .surf.flags{border-top-color:var(--danger)}
-  .surf h3{font-weight:600;font-size:15px;margin-bottom:10px;color:var(--g80)}
-  .surf li{font-size:13.5px;color:var(--g70);padding-left:16px;position:relative;margin:6px 0}
-  .surf li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--ava-orange)}
-  .surf.gaps li::before{background:var(--warn)}
-  .surf.flags li::before{background:var(--danger)}
-  .surf .empty{color:var(--g40);font-style:italic}
+  /* ---------- Strengths / gaps / flags ---------- */
+  .surfaces{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;
+    border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  .surf{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 24px;
+    background:var(--paper-50)}
+  .surf h3{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--mint-700);margin-bottom:16px}
+  .surf.gaps h3{color:var(--ochre-600)}
+  .surf.flags h3{color:var(--rust-600)}
+  .surf li{font-size:14.5px;color:var(--ink-700);padding-left:22px;position:relative;margin:10px 0;line-height:1.5}
+  .surf li::before{content:"+";position:absolute;left:0;top:0;font-family:var(--mono);color:var(--mint-600)}
+  .surf.gaps li::before{content:"\2192";color:var(--ochre)}
+  .surf.flags li::before{content:"!";color:var(--rust)}
+  .surf .empty{color:var(--ink-300);font-style:italic}
+  .surf .empty::before{content:"\2014";color:var(--ink-300)}
 
-  /* ---------- PULL QUOTE (rationale) ---------- */
-  .pq{background:var(--ava-orange);color:#fff;border-radius:12px;padding:36px 36px;text-align:center;box-shadow:var(--shadow-brand)}
-  .pq .q{font-weight:300;font-size:clamp(18px,2.6vw,26px);line-height:1.3;max-width:44ch;margin:0 auto}
-  .pq .attr{margin-top:14px;font-size:13px;font-weight:600;opacity:.9;letter-spacing:.03em}
+  /* ---------- Rationale pull quote ---------- */
+  .pq{border-top:1px solid var(--line);padding-top:32px}
+  .pq .q{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3.2vw,34px);
+    line-height:1.35;letter-spacing:-.01em;max-width:34ch;color:var(--ink)}
+  .pq .attr{margin-top:24px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-400)}
 
-  /* ---------- ROADMAP (next steps + onboarding) ---------- */
-  .road{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .step{background:#fff;border:1px solid var(--g10);border-radius:8px;padding:16px 18px;display:flex;gap:14px;
-    box-shadow:var(--shadow-md);transition:border-color .18s;align-items:flex-start}
-  .step:hover{border-color:var(--ava-orange)}
-  .step .sn{flex:0 0 32px;height:32px;border-radius:50%;background:var(--warm);color:#fff;font-weight:700;
-    display:grid;place-items:center;font-size:14px}
-  .step p{font-size:13.5px;color:var(--g70);line-height:1.4}
+  /* ---------- Roadmap ---------- */
+  .road{border-top:1px solid var(--line)}
+  .step{display:flex;gap:22px;padding:20px 4px;border-bottom:1px solid var(--line-soft);align-items:flex-start}
+  .step .sn{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-300);
+    padding-top:3px;flex:0 0 24px}
+  .step p{font-size:15px;color:var(--ink-700);line-height:1.55}
 
   /* ---------- Interview notes ---------- */
-  .notes-card{background:#fff;border:1px solid var(--g10);border-left:4px solid var(--aurora);border-radius:8px;
-    padding:22px 24px;box-shadow:var(--shadow-md)}
-  .notes-card p{font-size:13.5px;color:var(--g70);margin:0 0 .6rem}
+  .notes-card{border-left:2px solid var(--ink);padding:4px 0 4px 24px}
+  .notes-card p{font-size:15px;color:var(--ink-700);margin:0 0 .7rem}
   .notes-card p:last-child{margin-bottom:0}
 
-  /* ---------- FOOTER ---------- */
-  footer{background:var(--g80);color:var(--g30);padding:36px 0}
-  footer .ftop{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px}
-  .wordmark{color:#fff;font-weight:700;font-size:18px;letter-spacing:-.01em}
-  .wordmark span{color:var(--ava-orange)}
-  .wm-sub{font-size:11.5px;color:var(--g40);font-weight:400;margin-top:3px}
-  footer .fnotes{font-size:11px;color:var(--g40);margin-top:18px;line-height:1.6}
+  /* ---------- Footer ---------- */
+  footer{background:var(--panel);color:rgba(255,255,255,.45);padding:48px 0}
+  footer .ftop{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+  footer .wordmark .mark{background:var(--paper);color:var(--ink)}
+  footer .wordmark .name{color:var(--paper)}
+  footer .fnotes{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    color:rgba(255,255,255,.4);margin-top:28px;padding-top:24px;
+    border-top:1px solid var(--line-dark);line-height:1.9}
 
-  /* ---------- Export toolbar (screen-only) ---------- */
-  .export-toolbar{position:fixed;top:1rem;right:1rem;z-index:40;display:flex;gap:.5rem}
-  .export-btn{display:inline-flex;align-items:center;gap:.4rem;background:#111827;color:#fff;border:none;
-    border-radius:8px;padding:.55rem 1rem;font-size:.82rem;font-weight:600;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.2)}
-  .export-btn:hover{background:#1f2937}
+  /* ---------- Export toolbar (screen only) ---------- */
+  .export-toolbar{position:fixed;bottom:24px;right:24px;z-index:40;display:flex;gap:8px}
+  .export-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);
+    border:none;padding:12px 20px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer}
+  .export-btn:hover{background:var(--ink-700)}
 
-  @media (max-width:640px){
-    .arc .wrap{grid-template-columns:1fr}
-    .arc .cell + .cell{border-left:none;border-top:1px solid var(--g10)}
-    .surfaces,.road{grid-template-columns:1fr}
-    .layer-head{grid-template-columns:6px 1fr auto}
+  @media (max-width:680px){
+    .wrap{padding:0 20px}
+    .surfaces{grid-template-columns:1fr}
+    .layer-head{grid-template-columns:3px 1fr auto;gap:14px}
     .layer .chev{display:none}
+    .layer-body .inner{padding-left:20px}
+    .verdict .status{text-align:left}
   }
   @media print{
     body{background:#fff}
+    .ledger,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .layer-body{max-height:none!important}
-    .layer .chev{display:none}
-    .hero::after{display:none}
-    .export-toolbar{display:none}
+    .layer.open .layer-body,.layer-body{border-top:1px solid var(--line-soft)}
+    .layer .chev,.export-toolbar{display:none}
     .layer-head{cursor:default}
-    section{padding:24px 0}
+    section{padding:28px 0;break-inside:avoid}
+    .layer{break-inside:avoid}
   }
 </style>
 </head>
 <body>
 <div class="export-toolbar">
-  <button class="export-btn" onclick="window.print()">🖨️ {{ 'report.export_pdf' | t(language) }}</button>
+  <button class="export-btn" onclick="window.print()">{{ 'report.export_pdf' | t(language) }}</button>
 </div>
 
 {% set status_keys = {"GO": "report.status_go", "HOLD": "report.status_hold", "NO_GO": "report.status_no_go"} %}
-{% set status_colors = {"GO": "#00A650", "HOLD": "#FFB414", "NO_GO": "#C80000"} %}
+{% set status_colors = {"GO": "#8ed4a4", "HOLD": "#c08a2e", "NO_GO": "#d2542a"} %}
+{% macro tone(v) %}{{ '#57ab74' if v >= 75 else ('#c08a2e' if v >= 50 else '#d2542a') }}{% endmacro %}
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="wrap">
+    <span class="wordmark"><span class="mark">R</span><span class="name">Recruitment&nbsp;Suite</span></span>
+    <span class="eyebrow">{{ 'report.generated' | t(language) }}: {{ generated_at }}</span>
+  </div>
+</div>
 
 <!-- HERO -->
 <header class="hero">
   <div class="wrap">
-    <div class="kicker">{{ 'report.title' | t(language) }}</div>
+    <span class="eyebrow rule-eyebrow">{{ 'report.title' | t(language) }}</span>
     <h1>{{ candidate_name }}</h1>
-    <p class="lede">{{ 'report.job' | t(language) }}: {{ job_title }}{% if job_company %} {{ 'report.at' | t(language) }} {{ job_company }}{% endif %}</p>
+    <p class="role">{{ job_title }}{% if job_company %} — {{ job_company }}{% endif %}</p>
     <div class="hero-meta">
-      <span class="pill">{{ 'report.confidence' | t(language) }}: {{ confidence }}%</span>
-      <span class="pill">{{ 'report.generated' | t(language) }}: {{ generated_at }}</span>
+      <span class="chip">{{ 'report.confidence' | t(language) }} · {{ confidence }}%</span>
+      <span class="chip">{{ status_keys[recommendation] | t(language) }}</span>
     </div>
   </div>
 </header>
 
-<!-- ARC -->
-<div class="arc">
+<!-- VERDICT LEDGER -->
+<section style="border-bottom:none">
   <div class="wrap">
-    <div class="cell">
-      <div class="big" style="color:{{ status_colors[recommendation] }}">{{ final_score }}<span style="font-size:18px;color:var(--g40)">/100</span></div>
-      <div class="lbl">{{ status_keys[recommendation] | t(language) }}</div>
+    <div class="ledger">
+      <div class="ledger-head">
+        <span class="panel-label">{{ 'report.title' | t(language) }}</span>
+        <span class="panel-label">{{ candidate_name }}</span>
+      </div>
+
+      <div class="verdict">
+        <div>
+          <div class="panel-label" style="margin-bottom:10px">{{ 'report.final_score' | t(language) }}</div>
+          <div class="fig">{{ final_score }}<span class="of">/100</span></div>
+        </div>
+        <div>
+          <div class="panel-label" style="margin-bottom:10px">{{ 'report.recommendation' | t(language) }}</div>
+          <div class="status" style="color:{{ status_colors[recommendation] }}">{{ status_keys[recommendation] | t(language) }}</div>
+        </div>
+      </div>
+
       {% if pre_interview_score is not none %}
-      <div class="sub">{{ 'report.score_before_notes' | t(language) }}: {{ pre_interview_score }}/100{% if pre_interview_status %} ({{ status_keys[pre_interview_status] | t(language) }}){% endif %}</div>
+      <div class="lrow">
+        <div class="top">
+          <span class="panel-label">{{ 'report.score_before_notes' | t(language) }}{% if pre_interview_status %} · {{ status_keys[pre_interview_status] | t(language) }}{% endif %}</span>
+          <span class="val" style="color:#c08a2e">{{ pre_interview_score }}</span>
+        </div>
+        <div class="track"><i style="width:{{ pre_interview_score }}%;background:#c08a2e"></i></div>
+      </div>
+      <div class="lrow">
+        <div class="top">
+          <span class="panel-label">{{ 'report.score_after_notes' | t(language) }}</span>
+          <span class="val" style="color:#8ed4a4">{{ final_score }}</span>
+        </div>
+        <div class="track"><i style="width:{{ final_score }}%;background:#8ed4a4"></i></div>
+      </div>
+      {% else %}
+      <div class="lrow">
+        <div class="top">
+          <span class="panel-label">{{ 'report.final_score' | t(language) }}</span>
+          <span class="val" style="color:{{ status_colors[recommendation] }}">{{ final_score }}</span>
+        </div>
+        <div class="track"><i style="width:{{ final_score }}%;background:{{ status_colors[recommendation] }}"></i></div>
+      </div>
       {% endif %}
-    </div>
-    <div class="cell">
-      <div class="big" style="color:var(--aurora)">{{ confidence }}%</div>
-      <div class="lbl">{{ 'report.confidence' | t(language) }}</div>
-    </div>
-    <div class="cell">
-      <div class="big" style="color:var(--ava-dark-orange)">+{{ strategic_bonus }}</div>
-      <div class="lbl">{{ 'report.strategic_bonus' | t(language) }}</div>
-      <div class="sub">{{ 'report.strategic_bonus_tip' | t(language) }}</div>
+
+      <div class="lstats">
+        <div class="st"><b>{{ confidence }}%</b><span class="panel-label">{{ 'report.confidence' | t(language) }}</span></div>
+        <div class="st"><b>+{{ strategic_bonus }}</b><span class="panel-label">{{ 'report.strategic_bonus' | t(language) }}</span></div>
+      </div>
+
+      <div class="lfoot">
+        <span class="panel-label">{{ 'report.strategic_bonus_tip' | t(language) }}</span>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
 {% set dim_keys = {
   "Profile": "dimension.profile",
@@ -194,17 +288,15 @@
   "Culture Fit": "report.culture_fit_tip",
   "References": "report.references_tip",
 } %}
-{% set spine_colors = ["#FFD700", "#FF5800", "#B43C14", "#890078", "#0078D4"] %}
 
 <!-- SCORE BREAKDOWN (accordion layers) -->
 <section>
   <div class="wrap">
-    <div class="bar-rule"></div>
-    <div class="eyebrow">{{ 'report.score_breakdown' | t(language) }}</div>
-    <h2 class="h">{{ 'report.score_breakdown_tip' | t(language) }}</h2>
+    <span class="eyebrow rule-eyebrow">01</span>
+    <h2 class="h">{{ 'report.score_breakdown' | t(language) }}</h2>
+    <div class="section-intro">{{ 'report.score_breakdown_tip' | t(language) }}</div>
 
     <div class="stack">
-      {% set ns = namespace(i=0) %}
       {% for label, value in [
         ("Profile", profile_score),
         ("Technical", technical_score),
@@ -212,15 +304,14 @@
         ("References", reference_score),
       ] %}
       {% if label != "Technical" or people_analytics_score is none %}
-      {% set ns.i = ns.i + 1 %}
       <article class="layer">
         <div class="layer-head" onclick="this.closest('.layer').classList.toggle('open')">
-          <div class="spine" style="background:{{ spine_colors[(ns.i - 1) % spine_colors|length] }}"></div>
+          <div class="spine" style="background:{{ tone(value) }}"></div>
           <div class="title">
             <h3>{{ dim_keys[label] | t(language) }}</h3>
             <div class="desc">{{ dim_tips[label] | t(language) }}</div>
           </div>
-          <div class="save" style="color:{{ '#00A650' if value >= 80 else ('#FFB414' if value >= 60 else '#C80000') }}">{{ value }}</div>
+          <div class="save" style="color:{{ tone(value) }}">{{ value }}</div>
           <div class="chev">▾</div>
         </div>
         {% if agent_analysis.get(label) %}
@@ -235,8 +326,8 @@
               <td>{{ d.score }}</td>
               <td>{{ (d.weight * 100) | round | int }}%</td>
               <td>
-                {% for s in d.strengths %}<span class="tag-strength">✓ {{ s }}</span><br>{% endfor %}
-                {% for g in d.gaps %}<span class="tag-gap">△ {{ g }}</span><br>{% endfor %}
+                {% for s in d.strengths %}<span class="tag-strength">+ {{ s }}</span><br>{% endfor %}
+                {% for g in d.gaps %}<span class="tag-gap">→ {{ g }}</span><br>{% endfor %}
               </td>
             </tr>
             {% endfor %}
@@ -249,15 +340,14 @@
       {% endfor %}
 
       {% if people_analytics_score is not none %}
-      {% set ns.i = ns.i + 1 %}
       <article class="layer">
         <div class="layer-head" onclick="this.closest('.layer').classList.toggle('open')">
-          <div class="spine" style="background:{{ spine_colors[(ns.i - 1) % spine_colors|length] }}"></div>
+          <div class="spine" style="background:{{ tone(people_analytics_score) }}"></div>
           <div class="title">
             <h3>{{ 'dimension.people_analytics' | t(language) }}</h3>
             <div class="desc">{{ 'report.people_analytics_tip' | t(language) }}</div>
           </div>
-          <div class="save" style="color:{{ '#00A650' if people_analytics_score >= 80 else ('#FFB414' if people_analytics_score >= 60 else '#C80000') }}">{{ people_analytics_score }}</div>
+          <div class="save" style="color:{{ tone(people_analytics_score) }}">{{ people_analytics_score }}</div>
           <div class="chev">▾</div>
         </div>
         {% if agent_analysis.get("People Analytics") %}
@@ -272,8 +362,8 @@
               <td>{{ d.score }}</td>
               <td>{{ (d.weight * 100) | round | int }}%</td>
               <td>
-                {% for s in d.strengths %}<span class="tag-strength">✓ {{ s }}</span><br>{% endfor %}
-                {% for g in d.gaps %}<span class="tag-gap">△ {{ g }}</span><br>{% endfor %}
+                {% for s in d.strengths %}<span class="tag-strength">+ {{ s }}</span><br>{% endfor %}
+                {% for g in d.gaps %}<span class="tag-gap">→ {{ g }}</span><br>{% endfor %}
               </td>
             </tr>
             {% endfor %}
@@ -288,11 +378,11 @@
 </section>
 
 <!-- STRENGTHS / GAPS / FLAGS -->
-<section style="background:#fff;border-top:1px solid var(--g10);border-bottom:1px solid var(--g10)">
+<section>
   <div class="wrap">
-    <div class="bar-rule"></div>
-    <div class="eyebrow">{{ 'report.key_strengths' | t(language) }} · {{ 'report.addressable_gaps' | t(language) }}</div>
-    <h2 class="h">{{ 'report.key_strengths_tip' | t(language) }}</h2>
+    <span class="eyebrow rule-eyebrow">02</span>
+    <h2 class="h">{{ 'report.key_strengths' | t(language) }} · {{ 'report.addressable_gaps' | t(language) }}</h2>
+    <div class="section-intro">{{ 'report.key_strengths_tip' | t(language) }}</div>
 
     <div class="surfaces">
       <div class="surf">
@@ -311,7 +401,7 @@
       <div class="surf flags">
         <h3>{{ 'report.critical_flags' | t(language) }}</h3>
         <ul>
-          {% for f in flags %}<li>⚠️ {{ f }}</li>{% endfor %}
+          {% for f in flags %}<li>{{ f }}</li>{% endfor %}
         </ul>
       </div>
       {% endif %}
@@ -320,7 +410,7 @@
 </section>
 
 <!-- RATIONALE PULL QUOTE -->
-<section style="padding-top:36px">
+<section>
   <div class="wrap">
     <div class="pq">
       <div class="q">{{ rationale }}</div>
@@ -330,17 +420,17 @@
 </section>
 
 <!-- ROADMAP (next steps + onboarding) -->
-<section style="background:#fff;border-top:1px solid var(--g10)">
+<section>
   <div class="wrap">
-    <div class="bar-rule"></div>
+    <span class="eyebrow rule-eyebrow">03</span>
     <h2 class="h">{{ 'report.next_steps' | t(language) }}</h2>
     <div class="road">
       {% for step in next_steps %}
-      <div class="step"><div class="sn">{{ loop.index }}</div><p>{{ step }}</p></div>
+      <div class="step"><div class="sn">{{ '%02d' % loop.index }}</div><p>{{ step }}</p></div>
       {% endfor %}
       {% if onboarding %}
         {% for item in onboarding %}
-        <div class="step"><div class="sn">{{ next_steps|length + loop.index }}</div><p>{{ item }}</p></div>
+        <div class="step"><div class="sn">{{ '%02d' % (next_steps|length + loop.index) }}</div><p>{{ item }}</p></div>
         {% endfor %}
       {% endif %}
     </div>
@@ -350,12 +440,12 @@
 {% if interview_notes %}
 <section>
   <div class="wrap">
-    <div class="bar-rule"></div>
-    <div class="eyebrow">{{ 'report.interview_notes' | t(language) }}</div>
-    <h2 class="h">{{ 'report.interview_notes_tip' | t(language) }}</h2>
+    <span class="eyebrow rule-eyebrow">04</span>
+    <h2 class="h">{{ 'report.interview_notes' | t(language) }}</h2>
+    <div class="section-intro">{{ 'report.interview_notes_tip' | t(language) }}</div>
     <div class="notes-card">
       {{ interview_notes | analysis_html }}
-      {% if notes_updated_at %}<p style="color:var(--g40); font-size:12px; margin-top:.8rem">{{ 'report.generated' | t(language) }}: {{ notes_updated_at }}</p>{% endif %}
+      {% if notes_updated_at %}<p class="eyebrow" style="margin-top:16px">{{ 'report.generated' | t(language) }}: {{ notes_updated_at }}</p>{% endif %}
     </div>
   </div>
 </section>
@@ -365,13 +455,13 @@
 <footer>
   <div class="wrap">
     <div class="ftop">
-      <div>
-        <div class="wordmark">Recruitment Suite<span>.</span></div>
-        <div class="wm-sub">{{ 'report.title' | t(language) }}</div>
-      </div>
+      <span class="wordmark"><span class="mark">R</span><span class="name">Recruitment&nbsp;Suite</span></span>
+      <span class="panel-label">{{ 'report.title' | t(language) }}</span>
     </div>
     <div class="fnotes">
-      {{ 'report.candidate' | t(language) }}: {{ candidate_name }} · {{ 'report.job' | t(language) }}: {{ job_title }}{% if job_company %} {{ 'report.at' | t(language) }} {{ job_company }}{% endif %} · {{ 'report.generated' | t(language) }}: {{ generated_at }}
+      {{ 'report.candidate' | t(language) }}: {{ candidate_name }}<br>
+      {{ 'report.job' | t(language) }}: {{ job_title }}{% if job_company %} {{ 'report.at' | t(language) }} {{ job_company }}{% endif %}<br>
+      {{ 'report.generated' | t(language) }}: {{ generated_at }}
     </div>
   </div>
 </footer>

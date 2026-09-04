@@ -2,130 +2,317 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ====================================================================
+   Editorial paper + terminal ledger
+   --------------------------------------------------------------------
+   Paper ground, editorial ink, monospace for anything that is data.
+   Square corners, hairline rules, two signal colours (rust = cost/risk,
+   mint = saving/pass). Shadows are used almost nowhere — separation
+   comes from rules and from the dark panels.
+   ==================================================================== */
+
 @layer base {
-  body {
-    @apply bg-gray-50 text-gray-900;
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
+  body {
+    @apply bg-paper text-ink font-sans;
+    font-feature-settings: 'kern' 1;
+  }
+
+  /* The app shell paints its own ground; this keeps legacy usages sane. */
   .surface-studio {
-    @apply bg-cream text-ink;
+    @apply bg-paper text-ink;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+    font-feature-settings: 'kern' 1;
   }
 
   h1 {
-    @apply text-3xl font-bold text-gray-900;
+    @apply text-4xl font-extrabold tracking-tight leading-[1.05];
   }
 
   h2 {
-    @apply text-2xl font-semibold text-gray-900;
+    @apply text-2xl font-extrabold tracking-tight leading-[1.1];
   }
 
   h3 {
-    @apply text-xl font-semibold text-gray-900;
+    @apply text-lg font-bold tracking-tight;
   }
 
   h4 {
-    @apply text-lg font-semibold text-gray-900;
+    @apply text-base font-bold tracking-tight;
+  }
+
+  ::selection {
+    @apply bg-ink text-paper;
+  }
+
+  /* Numbers should never jitter while they animate. */
+  .tabular, table td, table th {
+    font-variant-numeric: tabular-nums;
   }
 }
 
 @layer components {
+
+  /* --- Editorial type ------------------------------------------------ */
+
+  /** The emphasised half of a headline: high-contrast serif italic. */
+  .serif-em {
+    @apply font-serif italic font-normal;
+    letter-spacing: -0.01em;
+  }
+
+  /** Small uppercase monospace label — the workhorse of this system. */
+  .eyebrow {
+    @apply font-mono text-[11px] font-medium uppercase tracking-label text-ink-400;
+  }
+
+  /** Eyebrow preceded by a short rule: ——— CONTEXT LEDGER */
+  .rule-eyebrow {
+    @apply eyebrow inline-flex items-center gap-3;
+  }
+
+  .rule-eyebrow::before {
+    content: '';
+    @apply block w-10 h-px bg-current opacity-40;
+  }
+
+  /** Same label on a dark panel. */
+  .rule-eyebrow-dark {
+    @apply font-mono text-[11px] font-medium uppercase tracking-label text-white/45
+           inline-flex items-center gap-3;
+  }
+
+  .rule-eyebrow-dark::before {
+    content: '';
+    @apply block w-10 h-px bg-current opacity-60;
+  }
+
+  /** Bordered monospace chip: V0.1.0 / MIT */
+  .chip {
+    @apply inline-flex items-center gap-2 border border-ink/25 px-3 py-1.5
+           font-mono text-[11px] uppercase tracking-label text-ink-500;
+  }
+
+  .chip-dark {
+    @apply inline-flex items-center gap-2 border border-white/20 px-3 py-1.5
+           font-mono text-[11px] uppercase tracking-label text-white/60;
+  }
+
+  /* --- Buttons -------------------------------------------------------- */
+
   .btn-primary {
-    @apply px-5 py-2.5 bg-ink text-cream font-semibold rounded-md hover:bg-ink-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-ink text-paper
+           font-semibold text-sm hover:bg-ink-700 active:translate-y-px
+           transition-all disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply px-5 py-2.5 border border-ink/20 text-ink font-semibold rounded-md hover:border-ink hover:bg-ink/[0.03] transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-ink/25
+           text-ink font-semibold text-sm hover:border-ink hover:bg-ink/[0.04]
+           active:translate-y-px transition-all disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-danger {
-    @apply px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-rust-500
+           text-rust-600 font-semibold text-sm hover:bg-rust-500 hover:text-paper
+           transition-all disabled:opacity-40 disabled:cursor-not-allowed;
   }
+
+  /** Hero-scale solid button. */
+  .btn-studio-primary {
+    @apply inline-flex items-center justify-center gap-3 px-7 py-4 bg-ink text-paper
+           font-bold text-[15px] hover:bg-ink-700 active:translate-y-px
+           transition-all disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  /** Underlined text action with a trailing arrow. */
+  .btn-studio-secondary {
+    @apply inline-flex items-center gap-2 pb-1 font-semibold text-[15px] text-ink
+           border-b border-ink/30 hover:border-ink hover:gap-3 transition-all;
+  }
+
+  .link-action {
+    @apply font-mono text-xs uppercase tracking-label text-ink-500
+           border-b border-ink/25 pb-0.5 hover:text-rust-600 hover:border-rust-500 transition-colors;
+  }
+
+  /* --- Fields --------------------------------------------------------- */
 
   .input-field {
-    @apply w-full px-3 py-2 bg-white border border-ink/20 rounded-md focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 transition-colors;
+    @apply w-full px-3.5 py-2.5 bg-paper-50 border border-ink/20 text-ink text-sm
+           placeholder:text-ink-300 focus:outline-none focus:border-ink
+           focus:ring-1 focus:ring-ink transition-colors
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
+  .field-label {
+    @apply block font-mono text-[11px] uppercase tracking-label text-ink-500 mb-2;
+  }
+
+  /* --- Surfaces ------------------------------------------------------- */
+
+  .card,
+  .studio-card {
+    @apply bg-paper-50 border border-ink/15;
+  }
+
+  /* `.card` keeps its own padding for older call sites. */
   .card {
-    @apply bg-cream-50 rounded-lg border border-ink/10 p-6;
+    @apply p-6;
   }
 
   .card-hover {
-    @apply card hover:shadow-lg transition-shadow cursor-pointer;
+    @apply card hover:border-ink transition-colors cursor-pointer;
+  }
+
+  /** The signature dark ledger panel. */
+  .panel {
+    @apply bg-panel text-paper-100 border border-panel-600;
+  }
+
+  .panel-rule {
+    @apply border-t border-white/10;
+  }
+
+  .panel-label {
+    @apply font-mono text-[11px] uppercase tracking-label text-white/45;
+  }
+
+  .panel-value {
+    @apply font-mono tabular-nums text-white;
+  }
+
+  /* --- Data display --------------------------------------------------- */
+
+  /** Flat 3px meter — square ends, no gloss. */
+  .meter-track {
+    @apply h-[3px] w-full bg-ink/10 overflow-hidden;
+  }
+
+  .meter-track-dark {
+    @apply h-[3px] w-full bg-white/10 overflow-hidden;
+  }
+
+  .stat-num {
+    @apply font-mono tabular-nums font-bold tracking-tight;
   }
 
   .badge {
-    @apply inline-block px-3 py-1 rounded-full text-sm font-medium;
+    @apply inline-flex items-center px-2.5 py-1 font-mono text-[11px] font-medium
+           uppercase tracking-label border;
   }
 
   .badge-success {
-    @apply badge bg-green-100 text-green-800;
+    @apply badge border-mint-600 text-mint-700 bg-mint-50;
   }
 
   .badge-warning {
-    @apply badge bg-yellow-100 text-yellow-800;
+    @apply badge border-ochre-500 text-ochre-600 bg-ochre-50;
   }
 
   .badge-danger {
-    @apply badge bg-red-100 text-red-800;
+    @apply badge border-rust-500 text-rust-600 bg-rust-50;
   }
 
   .badge-info {
-    @apply badge bg-blue-100 text-blue-800;
+    @apply badge border-ink/25 text-ink-500 bg-ink/[0.03];
   }
 
-  .table-cell {
-    @apply px-6 py-4 text-sm;
-  }
-
-  /* DABBA-style design language ---------------------------------------- */
-
-  .eyebrow {
-    @apply text-xs font-bold tracking-[0.18em] uppercase text-ink-500;
-  }
-
-  .btn-studio-primary {
-    @apply inline-flex items-center gap-2 px-6 py-3.5 rounded-md bg-ink text-cream font-semibold hover:bg-ink-700 active:scale-[0.98] transition-all;
-  }
-
-  .btn-studio-secondary {
-    @apply inline-flex items-center gap-1.5 font-semibold text-ink border-b-2 border-ink/70 pb-0.5 hover:border-primary-500 hover:text-primary-600 transition-colors;
-  }
-
-  .studio-card {
-    @apply bg-cream-50 border border-ink/10 rounded-lg;
-  }
+  /* --- Tables --------------------------------------------------------- */
 
   .studio-table {
     @apply w-full text-sm;
   }
 
   .studio-table thead th {
-    @apply text-left px-6 py-3 text-xs font-bold tracking-[0.14em] uppercase text-ink-400 border-b border-ink/10;
+    @apply text-left px-6 py-3.5 font-mono text-[11px] font-medium uppercase
+           tracking-label text-ink-400 border-b border-ink/15;
   }
 
   .studio-table tbody td {
-    @apply px-6 py-4 border-b border-ink/[0.07];
+    @apply px-6 py-4 border-b border-ink/10 align-middle;
   }
 
   .studio-table tbody tr:last-child td {
     @apply border-b-0;
   }
 
-  .link-action {
-    @apply font-semibold text-primary-600 hover:text-primary-700 border-b border-transparent hover:border-primary-600 transition-colors;
+  .table-cell {
+    @apply px-6 py-4 text-sm;
   }
 }
 
-/* Animations */
+@layer utilities {
+  /* Hairline rules that read the same on paper and on panel. */
+  .rule {
+    @apply border-t border-ink/15;
+  }
+
+  .rule-dark {
+    @apply border-t border-white/10;
+  }
+}
+
+/* --- Toasts: square, monospace, on-palette ---------------------------- */
+
+.Toastify__toast {
+  border-radius: 0 !important;
+  font-family: 'Archivo', system-ui, sans-serif !important;
+  font-size: 14px !important;
+  border: 1px solid rgba(20, 20, 15, 0.15) !important;
+  box-shadow: 0 8px 24px -12px rgba(20, 20, 15, 0.35) !important;
+  background: #f8f6f0 !important;
+  color: #14140f !important;
+}
+
+.Toastify__toast-body {
+  font-family: 'Archivo', system-ui, sans-serif !important;
+}
+
+.Toastify__progress-bar {
+  height: 3px !important;
+}
+
+.Toastify__progress-bar--success {
+  background: #57ab74 !important;
+}
+
+.Toastify__progress-bar--error {
+  background: #d2542a !important;
+}
+
+.Toastify__progress-bar--warning {
+  background: #c08a2e !important;
+}
+
+.Toastify__toast-icon svg {
+  fill: #14140f;
+}
+
+/* --- Animations -------------------------------------------------------- */
+
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

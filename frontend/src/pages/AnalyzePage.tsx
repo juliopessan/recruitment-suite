@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-toastify'
-import { FileText, Linkedin, Sparkles, UploadCloud, X } from 'lucide-react'
+import { ArrowRight, FileText, Linkedin, UploadCloud, X } from 'lucide-react'
 import { Page, StaggerItem } from '@/components/motion'
 import { PageHeader } from '@/components/studio/PageHeader'
 
@@ -83,176 +83,221 @@ export default function AnalyzePage() {
   return (
     <Page className="max-w-3xl">
       <PageHeader
-        eyebrow="00 / RUN THE PIPELINE"
-        title={['Agentic', 'Analysis']}
-        subtitle="Upload a CV, add a LinkedIn profile and paste the job description — five agents evaluate profile, skills, culture fit and references."
+        eyebrow="01 / Run the pipeline"
+        title={['Agentic', { text: 'analysis.', italic: true }]}
+        subtitle="A CV, a LinkedIn profile and a job description. Five agents score profile fit, technical depth, culture signals and how verifiable the record is."
       />
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <StaggerItem className="studio-card p-6 space-y-4">
-          <h3 className="font-bold">Candidate</h3>
-
-          {/* CV dropzone */}
-          <div
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${
-              dragOver
-                ? 'border-primary-500 bg-primary-50'
-                : 'border-ink/20 hover:border-primary-400 hover:bg-ink/[0.02]'
-            }`}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.docx,.txt,.md"
-              className="hidden"
-              onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
-            />
-            {cvFile ? (
-              <div className="flex items-center gap-3 text-ink">
-                <FileText className="text-primary-500" />
-                <span className="font-medium">{cvFile.name}</span>
-                <span className="text-sm text-ink-400">({(cvFile.size / 1024).toFixed(0)} KB)</span>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); setCvFile(null) }}
-                  className="p-1 rounded-full hover:bg-ink/10"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            ) : (
-              <>
-                <UploadCloud size={32} className="text-ink-400" />
-                <p className="font-medium text-ink-700">Drop the CV here or click to upload</p>
-                <p className="text-sm text-ink-400">PDF, DOCX, TXT — max 10 MB</p>
-              </>
-            )}
+        {/* Candidate */}
+        <StaggerItem className="studio-card">
+          <div className="px-6 py-4 border-b border-ink/15 flex items-center justify-between">
+            <p className="eyebrow">Candidate</p>
+            <span className="font-mono text-[11px] uppercase tracking-label text-ink-300">
+              CV and / or LinkedIn
+            </span>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1 flex items-center gap-1.5">
-              <Linkedin size={16} className="text-[#0a66c2]" /> LinkedIn URL
-              <span className="text-ink-400 font-normal">(enriched via Exa)</span>
-            </label>
-            <input
-              type="url"
-              value={linkedinUrl}
-              onChange={(e) => setLinkedinUrl(e.target.value)}
-              className="input-field"
-              placeholder="https://linkedin.com/in/candidate"
-              disabled={isRunning}
-            />
+          <div className="p-6 space-y-6">
+            {/* CV dropzone */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault()
+                setDragOver(true)
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`flex flex-col items-center justify-center gap-2.5 border border-dashed p-10 cursor-pointer transition-colors ${
+                dragOver
+                  ? 'border-rust-500 bg-rust-50'
+                  : 'border-ink/25 hover:border-ink hover:bg-ink/[0.02]'
+              }`}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.docx,.txt,.md"
+                className="hidden"
+                onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
+              />
+              {cvFile ? (
+                <div className="flex items-center gap-3">
+                  <FileText size={18} className="text-rust-500 shrink-0" />
+                  <span className="font-semibold text-sm truncate">{cvFile.name}</span>
+                  <span className="font-mono text-[11px] text-ink-400 shrink-0">
+                    {(cvFile.size / 1024).toFixed(0)} KB
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setCvFile(null)
+                    }}
+                    className="p-1 text-ink-400 hover:text-rust-600 transition-colors"
+                    title="Remove"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <UploadCloud size={26} className="text-ink-300" />
+                  <p className="font-semibold text-sm">Drop the CV here, or click to upload</p>
+                  <p className="font-mono text-[11px] uppercase tracking-label text-ink-400">
+                    PDF · DOCX · TXT — max 10 MB
+                  </p>
+                </>
+              )}
+            </div>
+
+            <div>
+              <label className="field-label flex items-center gap-2">
+                <Linkedin size={13} />
+                LinkedIn URL
+                <span className="text-ink-300">— enriched via Exa</span>
+              </label>
+              <input
+                type="url"
+                value={linkedinUrl}
+                onChange={(e) => setLinkedinUrl(e.target.value)}
+                className="input-field"
+                placeholder="https://linkedin.com/in/candidate"
+                disabled={isRunning}
+              />
+            </div>
           </div>
         </StaggerItem>
 
-        <StaggerItem className="studio-card p-6 space-y-4">
-          <h3 className="font-bold">Job Description</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Title <span className="text-ink-400 font-normal">(optional)</span></label>
-              <input
-                value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
-                className="input-field"
-                placeholder="Senior Data Engineer"
-                disabled={isRunning}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Company <span className="text-ink-400 font-normal">(optional)</span></label>
-              <input
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                className="input-field"
-                placeholder="Avanade"
-                disabled={isRunning}
-              />
-            </div>
+        {/* Job */}
+        <StaggerItem className="studio-card">
+          <div className="px-6 py-4 border-b border-ink/15 flex items-center justify-between">
+            <p className="eyebrow">Job description</p>
+            <span className="font-mono text-[11px] uppercase tracking-label text-ink-300">
+              Parsed automatically
+            </span>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Description *</label>
-            <textarea
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              className="input-field min-h-[180px] font-mono text-sm"
-              placeholder="Paste the full job description here — skills, years of experience, seniority and languages are extracted automatically…"
-              disabled={isRunning}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Analysis Language <span className="text-ink-400 font-normal">(report & recommendation text)</span>
-            </label>
-            <div className="flex gap-2">
-              {(['en-US', 'pt-BR'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => setLanguage(lang)}
+
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="field-label">
+                  Title <span className="text-ink-300">— optional</span>
+                </label>
+                <input
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                  className="input-field"
+                  placeholder="Senior Data Engineer"
                   disabled={isRunning}
-                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                    language === lang
-                      ? 'border-primary-600 bg-primary-50 text-primary-700'
-                      : 'border-ink/20 text-ink-500 hover:border-primary-400'
-                  }`}
-                >
-                  {lang === 'en-US' ? '🇺🇸 EN-US' : '🇧🇷 PT-BR'}
-                </button>
-              ))}
+                />
+              </div>
+              <div>
+                <label className="field-label">
+                  Company <span className="text-ink-300">— optional</span>
+                </label>
+                <input
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  className="input-field"
+                  placeholder="Avanade"
+                  disabled={isRunning}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="field-label">Description — required</label>
+              <textarea
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                className="input-field min-h-[200px] font-mono text-[13px] leading-relaxed"
+                placeholder="Paste the full job description. Skills, years of experience, seniority and languages are extracted automatically…"
+                disabled={isRunning}
+              />
+            </div>
+
+            <div>
+              <label className="field-label">
+                Output language <span className="text-ink-300">— report &amp; recommendation</span>
+              </label>
+              <div className="inline-flex border border-ink/20">
+                {(['en-US', 'pt-BR'] as const).map((lang, i) => (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => setLanguage(lang)}
+                    disabled={isRunning}
+                    className={`px-5 py-2.5 font-mono text-[11px] uppercase tracking-label transition-colors ${
+                      i === 1 ? 'border-l border-ink/20' : ''
+                    } ${
+                      language === lang
+                        ? 'bg-ink text-paper'
+                        : 'text-ink-500 hover:bg-ink/[0.04]'
+                    }`}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </StaggerItem>
 
         <StaggerItem>
-          <motion.button
-            type="submit"
-            disabled={isRunning}
-            whileHover={{ scale: isRunning ? 1 : 1.02 }}
-            whileTap={{ scale: isRunning ? 1 : 0.98 }}
-            className="btn-studio-primary w-full py-3 text-base flex items-center justify-center gap-2"
-          >
+          <button type="submit" disabled={isRunning} className="btn-studio-primary w-full">
             {isRunning ? (
               <>
                 <motion.span
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  className="inline-block"
-                >
-                  <Sparkles size={18} />
-                </motion.span>
+                  transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+                  className="inline-block w-3 h-3 border-2 border-paper/30 border-t-paper rounded-full"
+                />
                 Agents evaluating…
               </>
             ) : (
               <>
-                <Sparkles size={18} /> Run Agentic Analysis
+                Run the chain
+                <ArrowRight size={17} />
               </>
             )}
-          </motion.button>
+          </button>
         </StaggerItem>
       </form>
 
+      {/* Pipeline console */}
       <AnimatePresence>
         {notes.length > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="rounded-lg p-6 bg-ink text-cream-100 font-mono text-sm overflow-hidden"
+            className="overflow-hidden mt-6"
           >
-            {notes.map((note, i) => (
-              <motion.p
-                key={i}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.15 }}
-              >
-                <span className="text-green-400">✓</span> {note}
-              </motion.p>
-            ))}
+            <div className="panel p-6">
+              <div className="flex items-center gap-2.5 mb-5">
+                <motion.span
+                  className="w-1.5 h-1.5 rounded-full bg-mint-500"
+                  animate={{ opacity: [1, 0.25, 1] }}
+                  transition={{ duration: 1.4, repeat: Infinity }}
+                />
+                <span className="panel-label">Pipeline trace</span>
+              </div>
+              <div className="space-y-1.5">
+                {notes.map((note, i) => (
+                  <motion.p
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.12 }}
+                    className="font-mono text-[13px] text-white/75 flex gap-3"
+                  >
+                    <span className="text-mint-500 shrink-0">✓</span>
+                    <span>{note}</span>
+                  </motion.p>
+                ))}
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

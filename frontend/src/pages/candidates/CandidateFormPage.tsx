@@ -1,65 +1,63 @@
 import { useParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft, Check } from 'lucide-react'
+import { Page, StaggerItem } from '@/components/motion'
+import { PageHeader } from '@/components/studio/PageHeader'
+
+const FIELDS: { label: string; type: string; placeholder: string; hint?: string }[] = [
+  { label: 'Name', type: 'text', placeholder: 'Full name' },
+  { label: 'Email', type: 'email', placeholder: 'email@example.com' },
+  { label: 'Phone', type: 'tel', placeholder: '+55 11 90000-0000' },
+  { label: 'Location', type: 'text', placeholder: 'City, Country' },
+  { label: 'Years of experience', type: 'number', placeholder: '10' },
+  { label: 'Languages', type: 'text', placeholder: 'English, Portuguese', hint: 'comma-separated' },
+  { label: 'Education', type: 'text', placeholder: "Master's in Computer Science" },
+  {
+    label: 'Certifications',
+    type: 'text',
+    placeholder: 'AWS Solutions Architect',
+    hint: 'comma-separated',
+  },
+]
 
 export default function CandidateFormPage() {
   const { id } = useParams<{ id?: string }>()
   const navigate = useNavigate()
-
   const isEditMode = !!id
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1>{isEditMode ? 'Edit Candidate' : 'Add New Candidate'}</h1>
-        <button onClick={() => navigate('/candidates')} className="btn-secondary">
-          Cancel
-        </button>
-      </div>
+    <Page className="max-w-2xl">
+      <PageHeader
+        eyebrow="02 / Talent pool"
+        title={isEditMode ? ['Edit', { text: 'candidate.', italic: true }] : ['New', { text: 'candidate.', italic: true }]}
+        subtitle="Most candidates arrive through an analysis — this is the manual path."
+        action={
+          <button onClick={() => navigate('/candidates')} className="btn-secondary">
+            <ArrowLeft size={15} />
+            Cancel
+          </button>
+        }
+      />
 
-      <div className="card">
-        <form className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium mb-2">Name</label>
-            <input type="text" className="input-field" placeholder="Full name" />
-          </div>
+      <StaggerItem className="studio-card">
+        <div className="px-6 py-4 border-b border-ink/15">
+          <p className="eyebrow">Details</p>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
-            <input type="email" className="input-field" placeholder="email@example.com" />
-          </div>
+        <form className="p-6 space-y-6">
+          {FIELDS.map((field) => (
+            <div key={field.label}>
+              <label className="field-label">
+                {field.label}
+                {field.hint && <span className="text-ink-300"> — {field.hint}</span>}
+              </label>
+              <input type={field.type} className="input-field" placeholder={field.placeholder} />
+            </div>
+          ))}
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Phone</label>
-            <input type="tel" className="input-field" placeholder="+1 (555) 000-0000" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Location</label>
-            <input type="text" className="input-field" placeholder="City, Country" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Years of Experience</label>
-            <input type="number" className="input-field" placeholder="10" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Languages</label>
-            <input type="text" className="input-field" placeholder="English, Spanish" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Education</label>
-            <input type="text" className="input-field" placeholder="Master's in CS" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Certifications</label>
-            <input type="text" className="input-field" placeholder="AWS Solution Architect" />
-          </div>
-
-          <div className="flex gap-2">
+          <div className="flex gap-3 pt-2">
             <button type="submit" className="btn-primary">
-              {isEditMode ? 'Update' : 'Create'} Candidate
+              <Check size={15} />
+              {isEditMode ? 'Save changes' : 'Create candidate'}
             </button>
             <button
               type="button"
@@ -70,7 +68,7 @@ export default function CandidateFormPage() {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </StaggerItem>
+    </Page>
   )
 }

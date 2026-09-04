@@ -1,14 +1,24 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { FileText, RefreshCw, Download } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, Download, FileText, RefreshCw } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchEvaluation, addInterviewNotes } from '@/store/slices/evaluationsSlice'
-import { Page, StaggerItem, AnimatedNumber, ScoreBar, scoreColor } from '@/components/motion'
+import { Page, StaggerItem, AnimatedNumber } from '@/components/motion'
+import { PageHeader } from '@/components/studio/PageHeader'
+import { ScoreRow } from '@/components/studio/Meter'
+import { Ledger, LedgerRow, LedgerStats, LedgerFooter } from '@/components/studio/Ledger'
+import { EmptyState } from '@/components/studio/EmptyState'
 
 const API_URL =
   import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:8000')
+
+const STATUS_TONE: Record<string, string> = {
+  GO: 'badge-success',
+  HOLD: 'badge-warning',
+  NO_GO: 'badge-danger',
+}
 
 export default function EvaluationResultPage() {
   const { id } = useParams<{ id: string }>()
@@ -33,7 +43,9 @@ export default function EvaluationResultPage() {
     setIsRecalculating(true)
     try {
       const updated = await dispatch(addInterviewNotes({ id, notes: notes.trim() })).unwrap()
-      toast.success(`Scores recalculated: ${updated.final_score}/100 — ${updated.recommendation_status}`)
+      toast.success(
+        `Scores recalculated: ${updated.final_score}/100 — ${updated.recommendation_status}`
+      )
       setNotes('')
     } catch (err) {
       const message = typeof err === 'string' ? err : 'Failed to recalculate scores'
@@ -71,26 +83,19 @@ export default function EvaluationResultPage() {
 
   if (!evaluation) {
     return (
-      <div className="card text-center">
-        <p className="text-ink-400">Evaluation not found</p>
-        <button onClick={() => navigate('/evaluations')} className="btn-primary mt-4">
-          Back to Evaluations
-        </button>
-      </div>
+      <Page className="max-w-3xl">
+        <EmptyState
+          message="Evaluation not found"
+          hint="It may have expired from the server, or the link is out of date."
+          action={
+            <button onClick={() => navigate('/evaluations')} className="btn-primary">
+              <ArrowLeft size={16} />
+              Back to evaluations
+            </button>
+          }
+        />
+      </Page>
     )
-  }
-
-  const getRecommendationColor = (status: string) => {
-    switch (status) {
-      case 'GO':
-        return 'bg-green-50 text-green-900 border-green-500'
-      case 'HOLD':
-        return 'bg-yellow-50 text-yellow-900 border-yellow-500'
-      case 'NO_GO':
-        return 'bg-red-50 text-red-900 border-red-500'
-      default:
-        return 'bg-ink/[0.02] text-ink border-ink/20'
-    }
   }
 
   const usesPeopleAnalytics = evaluation.people_analytics_score != null
@@ -99,151 +104,197 @@ export default function EvaluationResultPage() {
     usesPeopleAnalytics
       ? { label: 'People Analytics', value: evaluation.people_analytics_score as number }
       : { label: 'Technical', value: evaluation.technical_score },
-    { label: 'Culture Fit', value: evaluation.culture_score },
+    { label: 'Culture fit', value: evaluation.culture_score },
     { label: 'References', value: evaluation.reference_score },
   ]
 
+  const hasDelta = evaluation.pre_interview_score != null
+  const badge = STATUS_TONE[evaluation.recommendation_status] ?? 'badge-info'
+
   return (
-    <Page className="space-y-6">
-      <StaggerItem className="flex justify-between items-center">
-        <h1>Evaluation Result</h1>
-        <div className="flex gap-2">
-          <a
-            href={`${API_URL}/api/evaluations/${id}/report`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary flex items-center gap-2"
-            title="Open the full report — use its Print / Save as PDF button to export as PDF"
-          >
-            <FileText size={16} />
-            View Full Report
-          </a>
-          <button
-            onClick={handleDownloadHtml}
-            disabled={isDownloading}
-            className="btn-secondary flex items-center gap-2"
-          >
-            <Download size={16} />
-            {isDownloading ? 'Downloading…' : 'Download HTML'}
-          </button>
-          <button onClick={() => navigate('/evaluations')} className="btn-secondary">
-            Back
-          </button>
-        </div>
-      </StaggerItem>
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 24 }}
-        className={`card border-l-4 ${getRecommendationColor(evaluation.recommendation_status)}`}
-      >
-        <div className="flex justify-between items-center">
-          <div>
-            <AnimatedNumber value={evaluation.final_score} decimals={1} className="text-5xl font-bold" />
-            <p className="text-sm mt-1">Overall Score</p>
-            {evaluation.pre_interview_score != null && (
-              <p className="text-xs text-ink-400 mt-1">
-                Before interview notes: <span className="font-semibold">{evaluation.pre_interview_score}/100</span>
-                {' '}({evaluation.pre_interview_status})
-              </p>
-            )}
-          </div>
-          <div className="text-right">
-            <motion.p
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-3xl font-bold"
+    <Page>
+      <PageHeader
+        eyebrow="04 / Verified run"
+        title={['Evaluation', { text: 'result.', italic: true }]}
+        action={
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={`${API_URL}/api/evaluations/${id}/report`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary"
+              title="Open the full report — print it from there to save as PDF"
             >
-              {evaluation.recommendation_status}
-            </motion.p>
-            <p className="text-sm">Recommendation</p>
+              <FileText size={15} />
+              Full report
+              <ArrowUpRight size={14} />
+            </a>
+            <button
+              onClick={handleDownloadHtml}
+              disabled={isDownloading}
+              className="btn-secondary"
+            >
+              <Download size={15} />
+              {isDownloading ? 'Downloading…' : 'HTML'}
+            </button>
+            <button onClick={() => navigate('/evaluations')} className="btn-secondary">
+              <ArrowLeft size={15} />
+              Back
+            </button>
           </div>
-        </div>
-      </motion.div>
+        }
+      />
 
-      <StaggerItem className="card">
-        <h3 className="mb-5">Score Breakdown</h3>
-        <div className="space-y-4">
-          {scoreRows.map((row) => (
-            <div key={row.label} className="grid grid-cols-[140px_56px_1fr] items-center gap-3">
-              <span className="text-sm text-ink-500">{row.label}</span>
-              <AnimatedNumber value={row.value} decimals={1} className="font-semibold text-ink" />
-              <ScoreBar value={row.value} colorClass={scoreColor(row.value)} />
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_0.85fr] gap-8 mb-8">
+        {/* Verdict ledger */}
+        <StaggerItem>
+          <Ledger
+            label="Verdict"
+            meta={`${scoreRows.length} dimensions${usesPeopleAnalytics ? ' · People Analytics' : ''}`}
+            live={false}
+          >
+            <div className="flex items-end justify-between gap-6 mb-8">
+              <div>
+                <p className="panel-label mb-2">Final score</p>
+                <AnimatedNumber
+                  value={evaluation.final_score}
+                  decimals={1}
+                  className="stat-num text-6xl leading-none text-white"
+                />
+              </div>
+              <div className="text-right">
+                <p className="panel-label mb-2">Recommendation</p>
+                <p className="stat-num text-3xl text-white">
+                  {evaluation.recommendation_status.replace('_', '-')}
+                </p>
+              </div>
             </div>
-          ))}
-        </div>
-        <div className="flex gap-8 mt-6 pt-4 border-t border-ink/10 text-sm text-ink-500">
-          <span>
-            Confidence:{' '}
-            <AnimatedNumber value={evaluation.confidence} suffix="%" className="font-semibold text-ink" />
-          </span>
-          <span>
-            Strategic Bonus:{' '}
-            <span className="font-semibold text-ink">+{evaluation.strategic_bonus.toFixed(1)}</span>
-          </span>
-        </div>
+
+            {hasDelta && (
+              <>
+                <LedgerRow
+                  label="Before interview notes"
+                  value={(evaluation.pre_interview_score as number).toFixed(1)}
+                  pct={evaluation.pre_interview_score as number}
+                  tone="ochre"
+                />
+                <LedgerRow
+                  label="After interview notes"
+                  value={evaluation.final_score.toFixed(1)}
+                  pct={evaluation.final_score}
+                  tone="mint"
+                  delay={0.12}
+                />
+              </>
+            )}
+
+            <LedgerStats
+              items={[
+                {
+                  value: <AnimatedNumber value={evaluation.confidence} suffix="%" countOnView />,
+                  unit: 'confidence',
+                },
+                {
+                  value: `+${evaluation.strategic_bonus.toFixed(1)}`,
+                  unit: 'strategic bonus',
+                },
+              ]}
+            />
+
+            <LedgerFooter
+              left={hasDelta ? `Was ${evaluation.pre_interview_status}` : 'No interview notes yet'}
+              right={evaluation.recommendation_status.replace('_', '-')}
+            />
+          </Ledger>
+        </StaggerItem>
+
+        {/* Score breakdown */}
+        <StaggerItem className="studio-card">
+          <div className="px-6 py-4 border-b border-ink/15 flex items-center justify-between">
+            <p className="eyebrow">Score breakdown</p>
+            <span className={badge}>{evaluation.recommendation_status.replace('_', '-')}</span>
+          </div>
+          <div className="p-6 space-y-7">
+            {scoreRows.map((row, i) => (
+              <ScoreRow key={row.label} label={row.label} value={row.value} delay={i * 0.08} />
+            ))}
+          </div>
+        </StaggerItem>
+      </div>
+
+      {/* Rationale */}
+      <StaggerItem className="studio-card p-8 md:p-10 mb-8">
+        <p className="rule-eyebrow mb-6">Rationale</p>
+        <blockquote className="serif-em text-2xl md:text-[28px] leading-[1.35] text-ink max-w-3xl">
+          {evaluation.rationale}
+        </blockquote>
       </StaggerItem>
 
-      <StaggerItem className="card">
-        <h3 className="mb-4">Rationale</h3>
-        <p className="text-ink-700">{evaluation.rationale}</p>
-      </StaggerItem>
+      {/* Evidence */}
+      {(evaluation.strengths.length > 0 || evaluation.gaps.length > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          {evaluation.strengths.length > 0 && (
+            <StaggerItem className="studio-card">
+              <div className="px-6 py-4 border-b border-ink/15">
+                <p className="eyebrow text-mint-700">Strengths</p>
+              </div>
+              <ul className="p-6 space-y-3.5">
+                {evaluation.strengths.map((strength, idx) => (
+                  <motion.li
+                    key={idx}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + idx * 0.06 }}
+                    className="flex gap-3.5 text-[15px] text-ink-700 leading-relaxed"
+                  >
+                    <span className="text-mint-600 shrink-0 font-mono">+</span>
+                    <span>{strength}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </StaggerItem>
+          )}
 
-      {evaluation.strengths.length > 0 && (
-        <StaggerItem className="card">
-          <h3 className="mb-4">Strengths</h3>
-          <ul className="space-y-2">
-            {evaluation.strengths.map((strength, idx) => (
-              <motion.li
-                key={idx}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + idx * 0.08 }}
-                className="flex items-start"
-              >
-                <span className="text-green-600 mr-2">✓</span>
-                <span>{strength}</span>
-              </motion.li>
-            ))}
-          </ul>
-        </StaggerItem>
+          {evaluation.gaps.length > 0 && (
+            <StaggerItem className="studio-card">
+              <div className="px-6 py-4 border-b border-ink/15">
+                <p className="eyebrow text-ochre-600">Addressable gaps</p>
+              </div>
+              <ul className="p-6 space-y-3.5">
+                {evaluation.gaps.map((gap, idx) => (
+                  <motion.li
+                    key={idx}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + idx * 0.06 }}
+                    className="flex gap-3.5 text-[15px] text-ink-700 leading-relaxed"
+                  >
+                    <span className="text-ochre-500 shrink-0 font-mono">→</span>
+                    <span>{gap}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </StaggerItem>
+          )}
+        </div>
       )}
 
-      {evaluation.gaps.length > 0 && (
-        <StaggerItem className="card">
-          <h3 className="mb-4">Addressable Gaps</h3>
-          <ul className="space-y-2">
-            {evaluation.gaps.map((gap, idx) => (
-              <motion.li
-                key={idx}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + idx * 0.08 }}
-                className="flex items-start"
-              >
-                <span className="text-yellow-600 mr-2">⚠</span>
-                <span>{gap}</span>
-              </motion.li>
-            ))}
-          </ul>
-        </StaggerItem>
-      )}
-
+      {/* Critical flags */}
       {evaluation.critical_flags.length > 0 && (
-        <StaggerItem className="card bg-red-50 border-l-4 border-red-500">
-          <h3 className="mb-4 text-red-900">Critical Flags</h3>
-          <ul className="space-y-2">
+        <StaggerItem className="border border-rust-500 bg-rust-50 mb-8">
+          <div className="px-6 py-4 border-b border-rust-500/30">
+            <p className="eyebrow text-rust-600">Critical flags</p>
+          </div>
+          <ul className="p-6 space-y-3.5">
             {evaluation.critical_flags.map((flag, idx) => (
               <motion.li
                 key={idx}
-                initial={{ opacity: 0, x: -12 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + idx * 0.08 }}
-                className="flex items-start text-red-800"
+                transition={{ delay: 0.2 + idx * 0.06 }}
+                className="flex gap-3.5 text-[15px] text-rust-700 leading-relaxed"
               >
-                <span className="mr-2">⚡</span>
+                <span className="shrink-0 font-mono">!</span>
                 <span>{flag}</span>
               </motion.li>
             ))}
@@ -251,47 +302,62 @@ export default function EvaluationResultPage() {
         </StaggerItem>
       )}
 
-      <StaggerItem className="card space-y-4">
-        <div>
-          <h3 className="mb-1">Post-Interview Notes</h3>
-          <p className="text-sm text-ink-400">
-            Add what came up in the interview — skills demonstrated, culture fit signals, reference
-            feedback — and the agents will recalculate every score against it.
-          </p>
+      {/* Post-interview notes */}
+      <StaggerItem className="studio-card">
+        <div className="px-6 py-4 border-b border-ink/15 flex items-center justify-between gap-4">
+          <p className="eyebrow">Post-interview notes</p>
+          <span className="font-mono text-[11px] uppercase tracking-label text-ink-300">
+            Scores never fall
+          </span>
         </div>
 
-        {evaluation.interview_notes && (
-          <div className="bg-purple-50 border-l-4 border-purple-400 rounded-lg p-4">
-            <p className="text-sm text-ink whitespace-pre-line">{evaluation.interview_notes}</p>
-            {evaluation.notes_updated_at && (
-              <p className="text-xs text-ink-400 mt-2">Updated: {evaluation.notes_updated_at}</p>
-            )}
-          </div>
-        )}
+        <div className="p-6 space-y-6">
+          <p className="text-ink-500 leading-relaxed max-w-2xl">
+            Add what came up in the room — skills demonstrated, culture signals, reference feedback —
+            and the chain runs again against it. A dimension keeps the higher of its previous and
+            recalculated score, so notes can only add evidence.
+          </p>
 
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="input-field min-h-[100px] text-sm"
-          placeholder="E.g. Candidate demonstrated strong AWS and system design skills in the technical interview; references confirmed leadership experience…"
-          disabled={isRecalculating}
-        />
-        <motion.button
-          onClick={handleRecalculate}
-          disabled={isRecalculating}
-          whileHover={{ scale: isRecalculating ? 1 : 1.02 }}
-          whileTap={{ scale: isRecalculating ? 1 : 0.98 }}
-          className="btn-primary flex items-center gap-2"
-        >
-          <motion.span
-            animate={isRecalculating ? { rotate: 360 } : {}}
-            transition={{ duration: 1, repeat: isRecalculating ? Infinity : 0, ease: 'linear' }}
-            className="inline-block"
+          {evaluation.interview_notes && (
+            <div className="border-l-2 border-ink pl-5 py-1">
+              <p className="eyebrow mb-2">On the record</p>
+              <p className="text-[15px] text-ink-700 whitespace-pre-line leading-relaxed">
+                {evaluation.interview_notes}
+              </p>
+              {evaluation.notes_updated_at && (
+                <p className="font-mono text-[11px] uppercase tracking-label text-ink-400 mt-3">
+                  Updated {evaluation.notes_updated_at}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label className="field-label">Add notes</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="input-field min-h-[120px]"
+              placeholder="E.g. Demonstrated strong AWS and system design in the technical round; references confirmed leadership experience…"
+              disabled={isRecalculating}
+            />
+          </div>
+
+          <button
+            onClick={handleRecalculate}
+            disabled={isRecalculating}
+            className="btn-primary"
           >
-            <RefreshCw size={16} />
-          </motion.span>
-          {isRecalculating ? 'Recalculating…' : 'Add Notes & Recalculate'}
-        </motion.button>
+            <motion.span
+              animate={isRecalculating ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isRecalculating ? Infinity : 0, ease: 'linear' }}
+              className="inline-block"
+            >
+              <RefreshCw size={15} />
+            </motion.span>
+            {isRecalculating ? 'Recalculating…' : 'Add notes & recalculate'}
+          </button>
+        </div>
       </StaggerItem>
     </Page>
   )
