@@ -23,6 +23,7 @@ export default function AnalyzePage() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [cvFile, setCvFile] = useState<File | null>(null)
+  const [candidateName, setCandidateName] = useState('')
   const [linkedinUrl, setLinkedinUrl] = useState('')
   const [jobTitle, setJobTitle] = useState('')
   const [company, setCompany] = useState('')
@@ -57,6 +58,7 @@ export default function AnalyzePage() {
       form.append('job_description', jobDescription)
       form.append('job_title', jobTitle)
       form.append('company', company)
+      form.append('candidate_name', candidateName)
       form.append('linkedin_url', linkedinUrl)
       form.append('language', language)
       if (cvFile) form.append('cv_file', cvFile)
@@ -99,6 +101,23 @@ export default function AnalyzePage() {
           </div>
 
           <div className="p-6 space-y-6">
+            <div>
+              <label className="field-label">
+                Candidate name <span className="text-ink-300">— optional, but recommended</span>
+              </label>
+              <input
+                value={candidateName}
+                onChange={(e) => setCandidateName(e.target.value)}
+                className="input-field"
+                placeholder="Marina Duarte"
+                disabled={isRunning}
+              />
+              <p className="text-xs text-ink-400 mt-1.5">
+                Left blank, the name is guessed from the CV or LinkedIn profile — that guess
+                can fail. Type it here to be sure the report is right.
+              </p>
+            </div>
+
             {/* CV dropzone */}
             <div
               onDragOver={(e) => {

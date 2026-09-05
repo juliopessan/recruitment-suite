@@ -4,7 +4,7 @@ from src.agents.orchestrator import RecruitmentOrchestrator
 from src.models.candidate import Candidate, CandidateProfile
 from src.models.evaluation import Evaluation
 from src.models.job import JobDescription
-from src.services.interview_guide import PACK_SIZE, build_interview_guide
+from src.services.interview_guide import PACK_SIZE, _role_label, build_interview_guide
 
 
 def _candidate(cv_text: str, years: int = 6, certifications=None) -> Candidate:
@@ -109,6 +109,25 @@ class TestTechnicalSlots:
             _job(responsibilities=["Own the ingestion pipeline SLAs"]),
         )
         assert any("ingestion pipeline SLAs" in q["question"] for q in pack)
+
+    def test_seniority_scenario_does_not_repeat_a_word_the_title_already_has(self):
+        """Regression: a title of 'Lead AI Engineer' with seniority_level
+        'Lead' must read as 'Lead AI Engineer', not 'Lead Lead AI Engineer'."""
+        job = JobDescription(
+            id="job_lead", title="Lead AI Engineer", company="EPAM Systems",
+            description="d", required_skills=[], nice_to_have_skills=[],
+            years_experience_required=8, seniority_level="Lead",
+        )
+        assert _role_label(job) == "Lead AI Engineer"
+
+        pack = _pack(_candidate("Analyst."), job)
+        assert not any("Lead Lead" in q["question"] for q in pack)
+
+    def test_role_label_prefixes_seniority_when_title_lacks_it(self):
+        job = _job()
+        job.title = "Data Engineer"
+        job.seniority_level = "Senior"
+        assert _role_label(job) == "Senior Data Engineer"
 
 
 class TestBehavioralSlots:

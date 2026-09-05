@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session
 from src.database import CandidateRecord, JobRecord, EvaluationRecord, get_db
 from src.models import Candidate
 from src.agents.orchestrator import RecruitmentOrchestrator
-from src.services.cv_parser import CVParseError, extract_cv_text, guess_candidate_fields
+from src.services.cv_parser import (
+    CVParseError,
+    extract_cv_text,
+    guess_candidate_fields,
+    guess_name_from_linkedin_title,
+)
 from src.services.linkedin_enricher import EnrichmentError, enrich_linkedin
 from src.services.jd_parser import is_people_analytics_role, parse_job_description
 from src.services.i18n_service import DEFAULT_LOCALE, normalize_locale
@@ -76,14 +81,40 @@ async def run_analysis(
             "Provide a CV file and/or a LinkedIn URL so the agents have candidate data",
         )
 
-    # 3. Candidate fields (form wins, then CV heuristics, then LinkedIn text)
-    guessed = guess_candidate_fields(cv_text) if cv_text else {}
-    if not guessed and linkedin_profile:
-        guessed = guess_candidate_fields(linkedin_profile.get("text", ""))
+    # 3. Candidate fields. Priority: the form field the recruiter typed, then
+    # each source independently — a CV that only yields an email must not
+    # block falling back to LinkedIn for the name (the previous version
+    # gated the *entire* LinkedIn fallback on the CV guess dict being fully
+    # empty, so a CV with an email but no detectable name never even tried
+    # LinkedIn). The Exa page <title> is checked before LinkedIn's free-text
+    # body, since a LinkedIn profile's title reliably starts with the
+    # person's name while the body can start with anything.
+    cv_guessed = guess_candidate_fields(cv_text) if cv_text else {}
+    li_guessed = guess_candidate_fields(linkedin_profile.get("text", "")) if linkedin_profile else {}
+    li_title_name = (
+        guess_name_from_linkedin_title(linkedin_profile.get("title") or "")
+        if linkedin_profile else None
+    )
 
-    name = candidate_name or guessed.get("name") or "Unknown Candidate"
-    email = candidate_email or guessed.get("email") or f"unknown+{uuid.uuid4().hex[:8]}@candidate.local"
-    years = guessed.get("total_years_experience", 0)
+    name = (
+        candidate_name
+        or cv_guessed.get("name")
+        or li_title_name
+        or li_guessed.get("name")
+        or "Unknown Candidate"
+    )
+    if name == "Unknown Candidate":
+        notes.append(
+            "Could not detect the candidate's name from the CV or LinkedIn profile — "
+            "edit the candidate record to set it before sharing this report."
+        )
+    email = (
+        candidate_email
+        or cv_guessed.get("email")
+        or li_guessed.get("email")
+        or f"unknown+{uuid.uuid4().hex[:8]}@candidate.local"
+    )
+    years = cv_guessed.get("total_years_experience") or li_guessed.get("total_years_experience") or 0
 
     combined_cv_text = cv_text
     if linkedin_profile:

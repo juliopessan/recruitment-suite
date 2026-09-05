@@ -97,7 +97,7 @@ pt-BR:
     listen_scenario: "Um primeiro movimento concreto, não um recital de framework — e um exemplo passado que realmente se pareça com essa responsabilidade."
     q_nice_to_have: "A vaga lista %{skill} como diferencial. Pergunte como pegaria isso rápido se ainda não tem, ou onde já usou de fato se tem."
     listen_nice_to_have: "Curiosidade genuína ou histórico de mão na massa genuíno — os dois servem, uma resposta vaga não."
-    q_seniority_scenario: "Para um(a) %{title} nível %{seniority}, peça que descreva em voz alta como abordaria a primeira grande decisão técnica desta vaga."
+    q_seniority_scenario: "Para o cargo de %{role}, peça que descreva em voz alta como abordaria a primeira grande decisão técnica desta vaga."
     listen_seniority_scenario: "Raciocínio estruturado sob ambiguidade, e as perguntas que faria antes de se comprometer com uma abordagem."
 
     # --- Comportamental (STAR), posição 3: o contexto de time da vaga ----

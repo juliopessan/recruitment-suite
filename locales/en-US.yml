@@ -97,7 +97,7 @@ en-US:
     listen_scenario: "A concrete first move, not a framework recital — and a past example that actually resembles this responsibility."
     q_nice_to_have: "The role lists %{skill} as a plus. Ask how they'd pick it up fast if they don't have it yet, or where they've actually used it if they do."
     listen_nice_to_have: "Genuine curiosity or genuine hands-on history — either is fine, a vague answer is not."
-    q_seniority_scenario: "For a %{seniority} %{title}, ask them to sketch out loud how they'd approach the first big technical decision of this role."
+    q_seniority_scenario: "For a %{role}, ask them to sketch out loud how they'd approach the first big technical decision of this role."
     listen_seniority_scenario: "Structured thinking under ambiguity, and the questions they'd ask before committing to an approach."
 
     # --- Behavioral (STAR), slot 3: the JD's team context ----------------

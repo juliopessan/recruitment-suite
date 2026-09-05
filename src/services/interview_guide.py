@@ -130,6 +130,19 @@ def _technical_slot_1(
     )
 
 
+def _role_label(job: JobDescription) -> str:
+    """Job title with its seniority prefixed, without repeating a word the
+    title already carries — a title like "Lead AI Engineer" combined with a
+    seniority_level of "Lead" must read as "Lead AI Engineer", not
+    "Lead Lead AI Engineer".
+    """
+    title = (job.title or "").strip()
+    seniority = (job.seniority_level or "").strip()
+    if not seniority or seniority.lower() in title.lower():
+        return title
+    return f"{seniority} {title}".strip()
+
+
 def _technical_slot_2(
     evaluation: Evaluation, job: Optional[JobDescription], use_people_analytics: bool, language: str
 ) -> Optional[dict]:
@@ -181,8 +194,7 @@ def _technical_slot_2(
             question=t(
                 "interview.q_seniority_scenario",
                 language,
-                seniority=job.seniority_level,
-                title=job.title,
+                role=_role_label(job),
             ),
             listen_for=t("interview.listen_seniority_scenario", language),
         )

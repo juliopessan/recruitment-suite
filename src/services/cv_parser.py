@@ -83,3 +83,32 @@ def guess_candidate_fields(cv_text: str) -> dict:
             break
 
     return fields
+
+
+_LINKEDIN_TITLE_SUFFIXES = re.compile(r"\s*\|\s*linkedin\s*$", re.IGNORECASE)
+
+
+def guess_name_from_linkedin_title(title: str) -> str | None:
+    """Extract a candidate's name from a LinkedIn page's <title>.
+
+    Exa returns the page's own <title> tag, which for a LinkedIn profile
+    page is reliably formatted as "First Last - Headline - Company |
+    LinkedIn" (or without the trailing "| LinkedIn" on some pages). The
+    segment before the first separator is the name — a much stronger
+    signal than regex-guessing a name out of the free-text body, and one
+    that survives even when the body starts with a bullet list or a
+    "Summary" header instead of the person's name.
+    """
+    if not title:
+        return None
+
+    cleaned = _LINKEDIN_TITLE_SUFFIXES.sub("", title).strip()
+    if not cleaned:
+        return None
+
+    # Titles separate the name from the headline with " - ", " – " or " | ".
+    first_segment = re.split(r"\s[-–|]\s", cleaned, maxsplit=1)[0].strip()
+    words = first_segment.split()
+    if 2 <= len(words) <= 5 and not any(ch.isdigit() for ch in first_segment):
+        return first_segment
+    return None
