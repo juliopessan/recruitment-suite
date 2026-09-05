@@ -136,6 +136,7 @@ class HTMLReportGenerator:
             "flags": evaluation_result.recommendation.critical_flags,
             "next_steps": evaluation_result.recommendation.next_steps,
             "onboarding": evaluation_result.recommendation.onboarding_plan,
+            "interview_guide": evaluation_result.recommendation.interview_guide,
             "agent_analysis": build_agent_analysis(evaluation_result.evaluation),
         }
 
@@ -164,6 +165,7 @@ class HTMLReportGenerator:
             "flags": [],
             "next_steps": [],
             "onboarding": [],
+            "interview_guide": [],
             "agent_analysis": {},
             "interview_notes": None,
             "pre_interview_score": None,

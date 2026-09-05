@@ -66,6 +66,7 @@ export interface Evaluation {
   gaps: string[]
   critical_flags: string[]
   next_steps: string[]
+  interview_guide?: InterviewQuestion[]
   onboarding_plan?: Record<string, unknown>
   playbook: string
   interview_notes?: string | null
@@ -107,4 +108,14 @@ export interface PaginatedResponse<T> {
   total: number
   skip: number
   limit: number
+}
+
+/** One gap-derived probe from the interview guide. */
+export interface InterviewQuestion {
+  /** Which scored dimension the answer will move. */
+  dimension: string
+  /** The specific gap being closed — a skill name, or a named theme. */
+  focus: string
+  question: string
+  listen_for: string
 }

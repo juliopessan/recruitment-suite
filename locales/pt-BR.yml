@@ -66,3 +66,38 @@ pt-BR:
     interview_notes_tip: "Notas do recrutador adicionadas após a entrevista, realimentadas nos agentes para recalcular as notas acima."
     score_before_notes: "Nota antes das notas da entrevista"
     export_pdf: "Imprimir / Salvar como PDF"
+
+  interview:
+    title: "Roteiro de Entrevista"
+    tip: "Perguntas escolhidas a partir das lacunas deste candidato. Traga as respostas como notas pós-entrevista e todas as pontuações são recalculadas com base nelas."
+    focus_col: "Foco"
+    question_col: "Pergunte"
+    listen_col: "Escute por"
+    dimension_col: "Avalia"
+    none: "Nenhuma dimensão ficou fraca o suficiente para exigir uma pergunta dirigida."
+
+    focus_experience: "Profundidade de experiência"
+    focus_collaboration: "Colaboração e liderança"
+    focus_verifiability: "Verificabilidade"
+    focus_corroboration: "Corroboração"
+
+    q_missing_skill: "Não há evidência de %{skills} no material. Peça a última coisa que a pessoa construiu ou operou com isso, e o que deu errado."
+    listen_missing_skill: "Um projeto específico, a parte que ela mesma conduziu e uma falha concreta que diagnosticou — não uma lista de ferramentas."
+
+    q_missing_signal: "Nenhum sinal de %{signals} em todo o material. Peça um exemplo concreto dos últimos dois anos."
+    listen_missing_signal: "Um programa ou base de dados com nome, o papel dela nisso, e o que mudou como resultado."
+
+    q_profile: "Experiência pontuou %{score}/100 frente a um requisito de %{years} anos. Peça que percorra as duas posições mais próximas desta e o que conduziu pessoalmente."
+    listen_profile: "O escopo que era dela, não o do time, e decisões que tomou sem respaldo."
+
+    q_culture: "Sinais de cultura pontuaram %{score}/100 — o material é raso em colaboração e liderança. Pergunte sobre a última vez que mudou a opinião de um time, e como."
+    listen_culture: "Uma divergência concreta, o outro lado exposto com justiça, e o que custou sustentar a posição."
+
+    q_references: "Verificabilidade pontuou %{score}/100: pouca coisa no material pode ser checada de forma independente. Pergunte quem poderia falar sobre o projeto que ela usa como carro-chefe, e em que qualidade."
+    listen_references: "Pessoas com nome e relação real de reporte, e disposição de que sejam contatadas."
+
+    q_corroboration: "Pegue a afirmação mais forte do currículo e peça que ela reconstrua do início ao fim: o problema, as decisões que tomou, os números, e o que faria diferente."
+    listen_corroboration: "Detalhe que não daria para ensaiar — restrições, trade-offs, e um erro que ela assume."
+    q_missing_skills: "Não há evidência de %{skills} no material. Peça que escolha a que domina melhor, descreva a última coisa que construiu ou operou com ela, e diga o que deu errado."
+    q_missing_signals: "Nenhum sinal de %{signals} em todo o material. Peça que escolha um e dê um exemplo concreto dos últimos dois anos."
+    list_and: "e"

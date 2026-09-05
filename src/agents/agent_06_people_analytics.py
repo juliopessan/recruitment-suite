@@ -69,7 +69,8 @@ class Agent06PeopleAnalytics(BaseAgent):
             total += dim_score * weight
             dimension_scores.append(
                 self._dimension_score(dimension, int(dim_score), weight,
-                                      strengths=hits)
+                                      strengths=hits,
+                                      gap_items=[] if hits else [dimension])
             )
 
         score = int(total)

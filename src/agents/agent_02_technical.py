@@ -63,6 +63,7 @@ class Agent02Technical(BaseAgent):
                 "Required Skills Coverage", int(req_score), 0.70,
                 gaps=[f"Missing: {s}" for s in missing_req],
                 strengths=[f"Has: {s}" for s in matched_req],
+                gap_items=list(missing_req),
             ),
             self._dimension_score("Nice-to-have Skills", int(nice_score), 0.15),
             self._dimension_score("Certifications", int(cert_score), 0.15),

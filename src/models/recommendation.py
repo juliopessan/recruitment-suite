@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -27,6 +27,10 @@ class Recommendation(BaseModel):
 
     next_steps: List[str] = Field(default_factory=list)
     onboarding_plan: Optional[List[str]] = None
+
+    # Questions derived from this candidate's gaps: each is
+    # {dimension, focus, question, listen_for}. See services/interview_guide.
+    interview_guide: List[Dict[str, Any]] = Field(default_factory=list)
 
     confidence_level: int = Field(default=0, ge=0, le=100)
 

@@ -149,6 +149,22 @@
     padding-top:3px;flex:0 0 24px}
   .step p{font-size:15px;color:var(--ink-700);line-height:1.55}
 
+  /* ---------- Interview guide ---------- */
+  .guide{border-top:1px solid var(--line)}
+  .gq{padding:22px 4px;border-bottom:1px solid var(--line-soft);display:grid;
+    grid-template-columns:26px 1fr;gap:0 22px}
+  .gq .gqn{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-300);padding-top:3px}
+  .gq .gqhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:8px}
+  .gq .gqfocus{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink)}
+  .gq .gqdim{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-400);border:1px solid var(--line);padding:2px 8px}
+  .gq .gqtext{font-size:15.5px;color:var(--ink-700);line-height:1.55}
+  .gq .gqlisten{margin-top:10px;padding-left:14px;border-left:2px solid var(--mint-600);
+    font-size:14px;color:var(--ink-500);line-height:1.5}
+  .gq .gqlisten b{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--mint-700);display:block;margin-bottom:3px}
+
   /* ---------- Interview notes ---------- */
   .notes-card{border-left:2px solid var(--ink);padding:4px 0 4px 24px}
   .notes-card p{font-size:15px;color:var(--ink-700);margin:0 0 .7rem}
@@ -437,10 +453,38 @@
   </div>
 </section>
 
-{% if interview_notes %}
+{% if interview_guide %}
 <section>
   <div class="wrap">
     <span class="eyebrow rule-eyebrow">04</span>
+    <h2 class="h">{{ 'interview.title' | t(language) }}</h2>
+    <div class="section-intro">{{ 'interview.tip' | t(language) }}</div>
+    <div class="guide">
+      {% for q in interview_guide %}
+      <div class="gq">
+        <div class="gqn">{{ '%02d' % loop.index }}</div>
+        <div>
+          <div class="gqhead">
+            <span class="gqfocus">{{ q.focus }}</span>
+            {% if q.dimension %}<span class="gqdim">{{ q.dimension }}</span>{% endif %}
+          </div>
+          <p class="gqtext">{{ q.question }}</p>
+          <div class="gqlisten">
+            <b>{{ 'interview.listen_col' | t(language) }}</b>
+            {{ q.listen_for }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if interview_notes %}
+<section>
+  <div class="wrap">
+    <span class="eyebrow rule-eyebrow">05</span>
     <h2 class="h">{{ 'report.interview_notes' | t(language) }}</h2>
     <div class="section-intro">{{ 'report.interview_notes_tip' | t(language) }}</div>
     <div class="notes-card">

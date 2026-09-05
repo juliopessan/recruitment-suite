@@ -52,6 +52,9 @@ class EvaluationDetailResponse(EvaluationResponse):
     strengths: List[str]
     gaps: List[str]
     critical_flags: List[str]
+    next_steps: List[str] = []
+    onboarding_plan: Optional[List[str]] = None
+    interview_guide: List[dict] = []
     interview_notes: Optional[str] = None
     pre_interview_score: Optional[float] = None
     pre_interview_status: Optional[str] = None
@@ -149,6 +152,7 @@ def run_evaluation(
         critical_flags=result.recommendation.critical_flags or [],
         next_steps=result.recommendation.next_steps or [],
         onboarding_plan=result.recommendation.onboarding_plan or [],
+        interview_guide=result.recommendation.interview_guide or [],
         agent_analysis=build_agent_analysis(result.evaluation),
         playbook=request.playbook,
         use_people_analytics=1 if request.use_people_analytics else 0,
@@ -352,6 +356,7 @@ def add_interview_notes(
     evaluation.critical_flags = recommendation.critical_flags or []
     evaluation.next_steps = recommendation.next_steps or []
     evaluation.onboarding_plan = recommendation.onboarding_plan or []
+    evaluation.interview_guide = recommendation.interview_guide or []
     evaluation.agent_analysis = build_agent_analysis(clamped)
     evaluation.interview_notes = request.notes
     evaluation.notes_updated_at = datetime.utcnow()
@@ -422,6 +427,7 @@ def get_evaluation_report(evaluation_id: str, db: Session = Depends(get_db)):
         "flags": evaluation.critical_flags or [],
         "next_steps": evaluation.next_steps or [],
         "onboarding": evaluation.onboarding_plan or [],
+        "interview_guide": evaluation.interview_guide or [],
         "agent_analysis": evaluation.agent_analysis or {},
         "language": normalize_locale(evaluation.language),
         "interview_notes": evaluation.interview_notes,

@@ -87,6 +87,7 @@ class BaseAgent(ABC):
         weight: float,
         gaps: Optional[List[str]] = None,
         strengths: Optional[List[str]] = None,
+        gap_items: Optional[List[str]] = None,
     ) -> DimensionScore:
         """
         Helper to create DimensionScore.
@@ -95,8 +96,10 @@ class BaseAgent(ABC):
             dimension: Dimension name
             score: Score for this dimension
             weight: Weight in overall evaluation
-            gaps: List of gaps identified
+            gaps: List of gaps identified, as display strings
             strengths: List of strengths identified
+            gap_items: The bare subjects behind `gaps` (skill or signal names),
+                unformatted, for consumers that need to build on them
 
         Returns:
             DimensionScore object
@@ -109,6 +112,7 @@ class BaseAgent(ABC):
             contribution=contribution,
             gaps=gaps or [],
             strengths=strengths or [],
+            gap_items=gap_items or [],
             agent=self.agent_type,
         )
 

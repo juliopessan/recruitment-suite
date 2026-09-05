@@ -66,3 +66,38 @@ en-US:
     interview_notes_tip: "Recruiter notes added after the interview, fed back into the agents to recalculate the scores above."
     score_before_notes: "Score before interview notes"
     export_pdf: "Print / Save as PDF"
+
+  interview:
+    title: "Interview Guide"
+    tip: "Questions chosen from this candidate's gaps. Bring the answers back as post-interview notes and every score recalculates against them."
+    focus_col: "Focus"
+    question_col: "Ask"
+    listen_col: "Listen for"
+    dimension_col: "Probes"
+    none: "Nothing scored weakly enough to need a targeted probe."
+
+    focus_experience: "Depth of experience"
+    focus_collaboration: "Collaboration and leadership"
+    focus_verifiability: "Verifiability"
+    focus_corroboration: "Corroboration"
+
+    q_missing_skill: "The record shows no evidence of %{skills}. Ask for the last thing they built or ran with it, and what broke."
+    listen_missing_skill: "A specific project, the part they personally owned, and a concrete failure they diagnosed — not a list of tools."
+
+    q_missing_signal: "No signal for %{signals} anywhere in the record. Ask for a concrete example from the last two years."
+    listen_missing_signal: "A named programme or dataset, their role in it, and what changed as a result."
+
+    q_profile: "Experience scored %{score}/100 against a requirement of %{years} years. Ask them to walk through the two roles closest to this one and what they personally owned."
+    listen_profile: "Scope they owned rather than the team's, and decisions they made without cover."
+
+    q_culture: "Culture signals scored %{score}/100 — the record is thin on collaboration and leadership. Ask about the last time they changed a team's mind, and how."
+    listen_culture: "A named disagreement, the other side stated fairly, and what holding the position cost them."
+
+    q_references: "Verifiability scored %{score}/100: little on the record can be checked independently. Ask who could speak to the project they lead with, and in what capacity."
+    listen_references: "Named people with a real reporting relationship, and a willingness to have them contacted."
+
+    q_corroboration: "Take the strongest claim on the CV and ask them to reconstruct it end to end: the problem, the decisions they made, the numbers, and what they would do differently."
+    listen_corroboration: "Detail that could not have been rehearsed — constraints, tradeoffs, and a mistake they own."
+    q_missing_skills: "The record shows no evidence of %{skills}. Ask them to pick the one they know best, describe the last thing they built or ran with it, and say what broke."
+    q_missing_signals: "No signal for %{signals} anywhere in the record. Ask them to pick one and give a concrete example from the last two years."
+    list_and: "and"

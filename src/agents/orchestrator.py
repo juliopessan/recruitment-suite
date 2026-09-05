@@ -9,6 +9,7 @@ from src.models import (
     AgentScore,
 )
 from src.services.i18n_service import t, t_list, DEFAULT_LOCALE
+from src.services.interview_guide import build_interview_guide
 from .agent_01_profile import Agent01Profile
 from .agent_02_technical import Agent02Technical
 from .agent_03_culture import Agent03Culture
@@ -206,6 +207,9 @@ class RecruitmentOrchestrator:
             critical_flags=self._extract_flags(evaluation, use_people_analytics, language),
             next_steps=self._generate_next_steps(status, language),
             onboarding_plan=self._generate_onboarding(status, language),
+            interview_guide=build_interview_guide(
+                evaluation, job, use_people_analytics, language
+            ),
             confidence_level=evaluation.confidence,
         )
 

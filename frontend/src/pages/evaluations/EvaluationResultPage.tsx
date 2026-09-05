@@ -302,6 +302,56 @@ export default function EvaluationResultPage() {
         </StaggerItem>
       )}
 
+      {/* Interview guide — sits directly above the notes box, because the
+          answers to these questions are what goes into it. */}
+      {evaluation.interview_guide && evaluation.interview_guide.length > 0 && (
+        <StaggerItem className="studio-card mb-8">
+          <div className="px-6 py-4 border-b border-ink/15 flex items-center justify-between gap-4">
+            <p className="eyebrow">Interview guide</p>
+            <span className="font-mono text-[11px] uppercase tracking-label text-ink-300">
+              {evaluation.interview_guide.length} question
+              {evaluation.interview_guide.length === 1 ? '' : 's'}
+            </span>
+          </div>
+
+          <p className="px-6 pt-5 text-ink-500 leading-relaxed max-w-2xl">
+            Chosen from this candidate's gaps. Bring the answers back as notes below and
+            every score recalculates against them.
+          </p>
+
+          <div className="p-6 pt-5">
+            {evaluation.interview_guide.map((q, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 + idx * 0.07 }}
+                className="grid grid-cols-[26px_1fr] gap-x-4 py-5 border-t border-ink/10 first:border-t-0 first:pt-0"
+              >
+                <span className="font-mono text-[11px] tracking-label text-ink-300 pt-1">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5 mb-2">
+                    <span className="font-mono text-[11px] uppercase tracking-label text-ink">
+                      {q.focus}
+                    </span>
+                    {q.dimension && <span className="badge-info">{q.dimension}</span>}
+                  </div>
+                  <p className="text-[15px] text-ink-700 leading-relaxed">{q.question}</p>
+                  <div className="mt-3 pl-3.5 border-l-2 border-mint-600">
+                    <p className="font-mono text-[10px] uppercase tracking-label text-mint-700 mb-1">
+                      Listen for
+                    </p>
+                    <p className="text-sm text-ink-500 leading-relaxed">{q.listen_for}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </StaggerItem>
+      )}
+
       {/* Post-interview notes */}
       <StaggerItem className="studio-card">
         <div className="px-6 py-4 border-b border-ink/15 flex items-center justify-between gap-4">
