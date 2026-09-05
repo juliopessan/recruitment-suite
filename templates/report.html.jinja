@@ -4,6 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{{ 'report.title' | t(language) }} — {{ candidate_name }}</title>
+<!-- Inlined as base64 (matches frontend/public/favicon.svg) so the icon shows
+     both on the live report URL and when the "Download HTML" button saves
+     this page standalone — a relative /favicon.svg path only resolves when
+     served from the app's own origin. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIGZpbGw9IiMxNDE0MGYiLz4KICA8dGV4dAogICAgeD0iMTYiIHk9IjE2IgogICAgZmlsbD0iI2YzZjBlNyIKICAgIGZvbnQtZmFtaWx5PSJBcmNoaXZvLCBIZWx2ZXRpY2EsIEFyaWFsLCBzYW5zLXNlcmlmIgogICAgZm9udC1zaXplPSIyMCIKICAgIGZvbnQtd2VpZ2h0PSI4MDAiCiAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIgogICAgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiCiAgPlI8L3RleHQ+Cjwvc3ZnPgo=" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
