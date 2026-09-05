@@ -208,7 +208,7 @@ class RecruitmentOrchestrator:
             next_steps=self._generate_next_steps(status, language),
             onboarding_plan=self._generate_onboarding(status, language),
             interview_guide=build_interview_guide(
-                evaluation, job, use_people_analytics, language
+                evaluation, candidate, job, use_people_analytics, language
             ),
             confidence_level=evaluation.confidence,
         )

@@ -315,7 +315,8 @@ export default function EvaluationResultPage() {
           </div>
 
           <p className="px-6 pt-5 text-ink-500 leading-relaxed max-w-2xl">
-            Chosen from this candidate's gaps. Bring the answers back as notes below and
+            Technical and behavioral, built from this role's JD and this candidate's profile.
+            Run it as a real conversation, then bring what you learn back as notes below —
             every score recalculates against them.
           </p>
 

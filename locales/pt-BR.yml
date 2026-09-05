@@ -69,35 +69,50 @@ pt-BR:
 
   interview:
     title: "Roteiro de Entrevista"
-    tip: "Perguntas escolhidas a partir das lacunas deste candidato. Traga as respostas como notas pós-entrevista e todas as pontuações são recalculadas com base nelas."
-    focus_col: "Foco"
-    question_col: "Pergunte"
+    tip: "Cinco perguntas — técnicas e comportamentais — construídas a partir da vaga e do perfil deste candidato. Faça delas uma conversa de verdade, não um checklist: siga a história para onde ela for."
+    kind_technical: "Técnico"
+    kind_behavioral: "Comportamental"
     listen_col: "Escute por"
-    dimension_col: "Avalia"
-    none: "Nenhuma dimensão ficou fraca o suficiente para exigir uma pergunta dirigida."
+    focus_team_fit: "Adaptação ao time"
+    focus_influence: "Influência sem autoridade"
+    focus_achievement: "Conquista de destaque"
+    focus_ownership: "Responsabilidade sob pressão"
+    focus_judgment: "Julgamento técnico"
+    q_tech_generic: "Peça que descreva a abordagem padrão dela para depurar algo que nunca viu falhar antes — as três primeiras coisas que checaria, em ordem."
+    listen_tech_generic: "Um método estruturado, não uma história de tentativa e erro — e evidência de que já precisou disso antes de verdade."
+    q_behavioral_ownership: "Peça uma história da última vez em que algo sob sua responsabilidade deu errado — a situação, a tarefa, o que ela realmente fez a respeito, e o resultado."
+    listen_behavioral_ownership: "Se ela assume o erro diretamente, uma ação concreta de recuperação, e o que mudou depois — não só 'aprendemos muito'."
+    dimension_col: "Tipo"
+    list_and: "e"
 
-    focus_experience: "Profundidade de experiência"
-    focus_collaboration: "Colaboração e liderança"
-    focus_verifiability: "Verificabilidade"
-    focus_corroboration: "Corroboração"
+    # --- Técnica, posição 1: a competência central da vaga, lacuna ou força
+    q_tech_gap_one: "Não há evidência de %{skill} no material. Conduza por um cenário real: o último sistema em que ela mexeu que fosse próximo disso, o que buscaria primeiro, e onde esperaria travar."
+    q_tech_gap_many: "Não há evidência de %{skills} no material. Peça que escolha a mais próxima de algo que já fez de verdade, e conduza do início ao fim — o desenho, os trade-offs, o que quebrou."
+    listen_tech_gap: "Raciocínio real transferindo de uma ferramenta próxima, não definição decorada — e honestidade sobre onde o conhecimento realmente para."
+    q_tech_strength: "O material mostra profundidade real em %{skill}. Peça que leve você para dentro da coisa mais complexa que construiu com isso — as restrições, as decisões que ninguém mais concordava, e o que reconstruiria diferente hoje."
+    listen_tech_strength: "Um sistema específico, uma decisão que era dela e que defenderia, e um genuíno 'hoje eu faria diferente' — não um discurso de vitrine."
 
-    q_missing_skill: "Não há evidência de %{skills} no material. Peça a última coisa que a pessoa construiu ou operou com isso, e o que deu errado."
-    listen_missing_skill: "Um projeto específico, a parte que ela mesma conduziu e uma falha concreta que diagnosticou — não uma lista de ferramentas."
+    # --- Técnica, posição 2: ancorada nas próprias palavras da vaga -------
+    q_scenario: "A responsabilidade central desta vaga é: \"%{responsibility}\". Peça que descreva, passo a passo, como abordaria isso nos primeiros 90 dias — ancorado em algo parecido que já fez de verdade."
+    listen_scenario: "Um primeiro movimento concreto, não um recital de framework — e um exemplo passado que realmente se pareça com essa responsabilidade."
+    q_nice_to_have: "A vaga lista %{skill} como diferencial. Pergunte como pegaria isso rápido se ainda não tem, ou onde já usou de fato se tem."
+    listen_nice_to_have: "Curiosidade genuína ou histórico de mão na massa genuíno — os dois servem, uma resposta vaga não."
+    q_seniority_scenario: "Para um(a) %{title} nível %{seniority}, peça que descreva em voz alta como abordaria a primeira grande decisão técnica desta vaga."
+    listen_seniority_scenario: "Raciocínio estruturado sob ambiguidade, e as perguntas que faria antes de se comprometer com uma abordagem."
 
-    q_missing_signal: "Nenhum sinal de %{signals} em todo o material. Peça um exemplo concreto dos últimos dois anos."
-    listen_missing_signal: "Um programa ou base de dados com nome, o papel dela nisso, e o que mudou como resultado."
+    # --- Comportamental (STAR), posição 3: o contexto de time da vaga ----
+    q_behavioral_team_context: "A vaga descreve este contexto de time: \"%{team_context}\". Peça uma história de uma vez em que teve que adaptar seu jeito de trabalhar para caber em um time assim — a situação, o que se esperava dela, o que ela realmente fez, e como isso repercutiu."
+    q_behavioral_general: "Peça uma história da última vez em que precisou influenciar uma decisão sem ter autoridade para tomá-la — a situação, o que estava em jogo, o que ela fez, e o que aconteceu."
+    listen_behavioral_general: "Uma divergência real, o outro lado representado com justiça, uma ação concreta — não uma declaração de valores — e um resultado honesto, vitória ou não."
 
-    q_profile: "Experiência pontuou %{score}/100 frente a um requisito de %{years} anos. Peça que percorra as duas posições mais próximas desta e o que conduziu pessoalmente."
-    listen_profile: "O escopo que era dela, não o do time, e decisões que tomou sem respaldo."
+    # --- Comportamental (STAR), posição 4: um tema nomeado, lacuna ou força
+    q_behavioral_theme_gap: "Nada no material sinaliza %{theme}. Peça uma história sobre isso mesmo assim — a situação, a tarefa, a ação que tomou, e o resultado — mesmo que pequeno."
+    listen_behavioral_theme_gap: "Se existe mesmo um exemplo real, e se existe, se a ação descrita era realmente dela."
+    q_behavioral_theme_strength: "O material sinaliza %{theme}. Peça a história por trás disso: a situação, o que precisava acontecer, o que ela realmente fez, e aonde isso levou."
+    listen_behavioral_theme_strength: "Especificidade — nomes, números, uma decisão que era genuinamente dela de tomar."
 
-    q_culture: "Sinais de cultura pontuaram %{score}/100 — o material é raso em colaboração e liderança. Pergunte sobre a última vez que mudou a opinião de um time, e como."
-    listen_culture: "Uma divergência concreta, o outro lado exposto com justiça, e o que custou sustentar a posição."
-
-    q_references: "Verificabilidade pontuou %{score}/100: pouca coisa no material pode ser checada de forma independente. Pergunte quem poderia falar sobre o projeto que ela usa como carro-chefe, e em que qualidade."
-    listen_references: "Pessoas com nome e relação real de reporte, e disposição de que sejam contatadas."
-
-    q_corroboration: "Pegue a afirmação mais forte do currículo e peça que ela reconstrua do início ao fim: o problema, as decisões que tomou, os números, e o que faria diferente."
-    listen_corroboration: "Detalhe que não daria para ensaiar — restrições, trade-offs, e um erro que ela assume."
-    q_missing_skills: "Não há evidência de %{skills} no material. Peça que escolha a que domina melhor, descreva a última coisa que construiu ou operou com ela, e diga o que deu errado."
-    q_missing_signals: "Nenhum sinal de %{signals} em todo o material. Peça que escolha um e dê um exemplo concreto dos últimos dois anos."
+    # --- Encerramento, posição 5: reconstruir a alegação mais forte, como história
+    q_closing_claim: "Peça que reconstrua %{claim} do início ao fim, como uma história: a situação, a tarefa, exatamente o que fez, e o resultado — números incluídos, e o que mudaria agora."
+    q_closing_generic: "Peça que conduza pela conquista de que mais se orgulha, como uma história completa: a situação, a tarefa, exatamente o que fez, e o resultado."
+    listen_closing: "Detalhe que não daria para ensaiar — uma restrição real, um trade-off real, um erro que ela assume."
     list_and: "e"

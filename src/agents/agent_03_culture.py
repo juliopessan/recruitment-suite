@@ -10,6 +10,18 @@ SOFT_SKILL_SIGNALS = [
     "transformation", "advisor", "facilitat", "cross-functional",
 ]
 
+# The same signals regrouped into a handful of *nameable* behavioral themes.
+# Raw tokens like "mentor" or "coach" aren't a question topic on their own,
+# but "Mentoring & coaching" is — this is what lets the interview guide ask
+# about a specific, missing (or evidenced) behavior instead of a token.
+BEHAVIORAL_THEMES = {
+    "Leadership": ["leadership"],
+    "Mentoring & coaching": ["mentor", "coach"],
+    "Cross-functional collaboration": ["collaborat", "cross-functional", "team"],
+    "Stakeholder communication": ["stakeholder", "communication"],
+    "Change & transformation": ["change management", "transformation"],
+}
+
 
 class Agent03Culture(BaseAgent):
     """Culture Fit Analyzer."""
@@ -35,6 +47,15 @@ class Agent03Culture(BaseAgent):
         else:
             gaps.append("No soft-skill signals detected in candidate record")
             signal_score = 55.0
+
+        # The same evidence, regrouped into nameable themes for the interview
+        # guide (see BEHAVIORAL_THEMES) — kept separate from `found` above so
+        # the existing score formula is untouched.
+        theme_strengths = [
+            theme for theme, tokens in BEHAVIORAL_THEMES.items()
+            if any(tok in corpus for tok in tokens)
+        ]
+        theme_gaps = [t for t in BEHAVIORAL_THEMES if t not in theme_strengths]
 
         # Alignment with the job's team context (25%)
         context_score = 70.0
@@ -65,7 +86,11 @@ class Agent03Culture(BaseAgent):
         )
 
         dimension_scores = [
-            self._dimension_score("Soft-skill Signals", int(signal_score), 0.60),
+            self._dimension_score(
+                "Soft-skill Signals", int(signal_score), 0.60,
+                gap_items=theme_gaps,
+                strength_items=theme_strengths,
+            ),
             self._dimension_score("Team-context Alignment", int(context_score), 0.25),
             self._dimension_score("Communication Readiness", int(lang_score), 0.15),
         ]

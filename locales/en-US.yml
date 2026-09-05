@@ -69,35 +69,49 @@ en-US:
 
   interview:
     title: "Interview Guide"
-    tip: "Questions chosen from this candidate's gaps. Bring the answers back as post-interview notes and every score recalculates against them."
-    focus_col: "Focus"
-    question_col: "Ask"
+    tip: "Five questions — technical and behavioral — built from this role's JD and this candidate's profile. Ask them as a real conversation, not a checklist: follow the story wherever it goes."
+    kind_technical: "Technical"
+    kind_behavioral: "Behavioral"
     listen_col: "Listen for"
-    dimension_col: "Probes"
-    none: "Nothing scored weakly enough to need a targeted probe."
-
-    focus_experience: "Depth of experience"
-    focus_collaboration: "Collaboration and leadership"
-    focus_verifiability: "Verifiability"
-    focus_corroboration: "Corroboration"
-
-    q_missing_skill: "The record shows no evidence of %{skills}. Ask for the last thing they built or ran with it, and what broke."
-    listen_missing_skill: "A specific project, the part they personally owned, and a concrete failure they diagnosed — not a list of tools."
-
-    q_missing_signal: "No signal for %{signals} anywhere in the record. Ask for a concrete example from the last two years."
-    listen_missing_signal: "A named programme or dataset, their role in it, and what changed as a result."
-
-    q_profile: "Experience scored %{score}/100 against a requirement of %{years} years. Ask them to walk through the two roles closest to this one and what they personally owned."
-    listen_profile: "Scope they owned rather than the team's, and decisions they made without cover."
-
-    q_culture: "Culture signals scored %{score}/100 — the record is thin on collaboration and leadership. Ask about the last time they changed a team's mind, and how."
-    listen_culture: "A named disagreement, the other side stated fairly, and what holding the position cost them."
-
-    q_references: "Verifiability scored %{score}/100: little on the record can be checked independently. Ask who could speak to the project they lead with, and in what capacity."
-    listen_references: "Named people with a real reporting relationship, and a willingness to have them contacted."
-
-    q_corroboration: "Take the strongest claim on the CV and ask them to reconstruct it end to end: the problem, the decisions they made, the numbers, and what they would do differently."
-    listen_corroboration: "Detail that could not have been rehearsed — constraints, tradeoffs, and a mistake they own."
-    q_missing_skills: "The record shows no evidence of %{skills}. Ask them to pick the one they know best, describe the last thing they built or ran with it, and say what broke."
-    q_missing_signals: "No signal for %{signals} anywhere in the record. Ask them to pick one and give a concrete example from the last two years."
+    focus_team_fit: "Team fit & adaptability"
+    focus_influence: "Influence without authority"
+    focus_achievement: "Signature achievement"
+    focus_ownership: "Ownership under pressure"
+    focus_judgment: "Technical judgment"
+    q_tech_generic: "Ask them to describe their default approach to debugging something they've never seen fail before — the first three things they'd check, in order."
+    listen_tech_generic: "A structured method, not a guess-and-check story — and evidence they've actually needed it before."
+    q_behavioral_ownership: "Ask for a story about the last time something under their ownership went wrong — the situation, the task, what they actually did about it, and the result."
+    listen_behavioral_ownership: "Whether they own the mistake directly, a concrete recovery action, and what changed afterward — not just 'we learned a lot'."
+    dimension_col: "Type"
     list_and: "and"
+
+    # --- Technical, slot 1: the role's core skill, gap or strength -------
+    q_tech_gap_one: "The record shows no evidence of %{skill}. Walk them through a real scenario: the last system they touched that was adjacent to it, what they'd reach for first, and where they'd expect to get stuck."
+    q_tech_gap_many: "The record shows no evidence of %{skills}. Ask them to pick the one closest to something they've actually done, and walk you through it end to end — the design, the tradeoffs, what broke."
+    listen_tech_gap: "Real reasoning transferring from an adjacent tool, not memorized definitions — and honesty about where their knowledge actually stops."
+    q_tech_strength: "The record shows real depth in %{skill}. Ask them to take you inside the most complex thing they built with it — the constraints, the decisions nobody else agreed with, and what they'd rebuild differently today."
+    listen_tech_strength: "A specific system, a decision they owned and would defend, and a genuine 'I'd do this differently now' — not a highlight reel."
+
+    # --- Technical, slot 2: grounded in the JD's own words ---------------
+    q_scenario: "This role's core responsibility is: \"%{responsibility}\". Ask them to walk through, step by step, how they'd approach it in their first 90 days — grounded in something similar they've actually done."
+    listen_scenario: "A concrete first move, not a framework recital — and a past example that actually resembles this responsibility."
+    q_nice_to_have: "The role lists %{skill} as a plus. Ask how they'd pick it up fast if they don't have it yet, or where they've actually used it if they do."
+    listen_nice_to_have: "Genuine curiosity or genuine hands-on history — either is fine, a vague answer is not."
+    q_seniority_scenario: "For a %{seniority} %{title}, ask them to sketch out loud how they'd approach the first big technical decision of this role."
+    listen_seniority_scenario: "Structured thinking under ambiguity, and the questions they'd ask before committing to an approach."
+
+    # --- Behavioral (STAR), slot 3: the JD's team context ----------------
+    q_behavioral_team_context: "The role describes this team context: \"%{team_context}\". Ask for a story about a time they had to adapt their working style to fit a team like that — the situation, what was expected of them, what they actually did, and how it landed."
+    q_behavioral_general: "Ask for a story about the last time they had to influence a decision without having the authority to make it — the situation, what was at stake, what they did, and what happened."
+    listen_behavioral_general: "A real disagreement, the other side represented fairly, a concrete action — not a value statement — and an honest result, wins or not."
+
+    # --- Behavioral (STAR), slot 4: a named theme, gap or strength -------
+    q_behavioral_theme_gap: "Nothing in the record signals %{theme}. Ask for a story about it anyway — the situation, the task, the action they took, and the result — even a small one."
+    listen_behavioral_theme_gap: "Whether a real example exists at all, and if it does, whether the action described was actually theirs."
+    q_behavioral_theme_strength: "The record signals %{theme}. Ask for the story behind it: the situation, what needed to happen, what they actually did, and what it led to."
+    listen_behavioral_theme_strength: "Specificity — names, numbers, a decision that was genuinely theirs to make."
+
+    # --- Closing, slot 5: reconstruct the strongest claim, as a story ----
+    q_closing_claim: "Ask them to reconstruct %{claim} end to end, as a story: the situation, the task, exactly what they did, and the result — numbers included, and what they'd change now."
+    q_closing_generic: "Ask them to walk you through the achievement they're proudest of, as a full story: the situation, the task, exactly what they did, and the result."
+    listen_closing: "Detail that could not have been rehearsed — a real constraint, a real tradeoff, a mistake they own."

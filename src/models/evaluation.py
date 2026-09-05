@@ -28,10 +28,12 @@ class DimensionScore(BaseModel):
     gaps: List[str] = Field(default_factory=list)
     strengths: List[str] = Field(default_factory=list)
 
-    # The bare subjects behind `gaps` — skill names, signal names — kept
-    # unformatted so downstream consumers (the interview guide) can build on
-    # them without parsing prose out of the display strings.
+    # The bare subjects behind `gaps`/`strengths` — skill names, signal or
+    # theme names — kept unformatted so downstream consumers (the interview
+    # guide) can build on them without parsing prose out of the display
+    # strings.
     gap_items: List[str] = Field(default_factory=list)
+    strength_items: List[str] = Field(default_factory=list)
 
     agent: AgentType
 

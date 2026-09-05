@@ -32,7 +32,7 @@ class Agent02Technical(BaseAgent):
             gaps.append(f"No evidence of required skill: {skill}")
 
         # Nice-to-have coverage (15%)
-        matched_nice, _ = self._match_skills(job.nice_to_have_skills, corpus)
+        matched_nice, missing_nice = self._match_skills(job.nice_to_have_skills, corpus)
         if job.nice_to_have_skills:
             nice_score = 100.0 * len(matched_nice) / len(job.nice_to_have_skills)
         else:
@@ -64,8 +64,13 @@ class Agent02Technical(BaseAgent):
                 gaps=[f"Missing: {s}" for s in missing_req],
                 strengths=[f"Has: {s}" for s in matched_req],
                 gap_items=list(missing_req),
+                strength_items=list(matched_req),
             ),
-            self._dimension_score("Nice-to-have Skills", int(nice_score), 0.15),
+            self._dimension_score(
+                "Nice-to-have Skills", int(nice_score), 0.15,
+                gap_items=list(missing_nice),
+                strength_items=list(matched_nice),
+            ),
             self._dimension_score("Certifications", int(cert_score), 0.15),
         ]
 
