@@ -6,6 +6,8 @@
 **Deployment:** Vercel (frontend + backend as a single serverless project)
 **Live:** https://recruitment-suite.vercel.app
 
+![Recruitment Suite landing page hero](docs/screenshots/landing-hero.png)
+
 ---
 
 ## What it does
