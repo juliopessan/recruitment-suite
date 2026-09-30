@@ -89,3 +89,6 @@ Thumbs.db
 # Temporary runtime files
 /tmp/
 *.sock
+
+# Frontend source modules (not Python build output)
+!frontend/src/lib/
