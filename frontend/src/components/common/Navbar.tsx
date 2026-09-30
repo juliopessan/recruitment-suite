@@ -4,6 +4,7 @@ import { logout } from '@/store/slices/authSlice'
 import { toggleSidebar } from '@/store/slices/uiSlice'
 import { PanelLeft, LogOut } from 'lucide-react'
 import { Wordmark } from '@/components/studio/StudioMark'
+import { ThemeToggle } from '@/components/studio/ThemeToggle'
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -24,34 +25,41 @@ export default function Navbar() {
         <div className="flex items-center gap-4 min-w-0">
           <button
             onClick={() => dispatch(toggleSidebar())}
-            className="p-2 -ml-2 text-ink-400 hover:text-ink hover:bg-ink/[0.05] transition-colors"
+            className="icon-btn -ml-3"
+            aria-label="Toggle sidebar"
             title="Toggle sidebar"
           >
-            <PanelLeft size={18} />
+            <PanelLeft size={18} aria-hidden="true" />
           </button>
-          <button onClick={() => navigate('/')} className="min-w-0" title="Dashboard">
+          <button
+            onClick={() => navigate('/')}
+            className="min-w-0 min-h-target inline-flex items-center"
+            aria-label="Recruitment Suite — dashboard"
+          >
             <Wordmark size={22} />
           </button>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           {token && (
             <>
-              <div className="text-right hidden sm:block">
+              <div className="h-7 w-px bg-ink/15 mx-1" />
+              <div className="text-right hidden sm:block mr-1">
                 <p className="font-mono text-[11px] uppercase tracking-label text-ink truncate max-w-[180px]">
                   {user?.name || 'Account'}
                 </p>
-                <p className="font-mono text-[10px] uppercase tracking-label text-ink-400">
+                <p className="font-mono text-[10px] uppercase tracking-label text-ink-soft">
                   {user?.role || 'Signed in'}
                 </p>
               </div>
-              <div className="h-7 w-px bg-ink/15" />
               <button
                 onClick={handleLogout}
-                className="p-2 text-ink-400 hover:text-rust-600 hover:bg-rust-50 transition-colors"
+                className="icon-btn"
+                aria-label="Sign out"
                 title="Sign out"
               >
-                <LogOut size={18} />
+                <LogOut size={18} aria-hidden="true" />
               </button>
             </>
           )}

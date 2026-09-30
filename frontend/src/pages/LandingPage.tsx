@@ -10,6 +10,8 @@ import { Marquee } from '@/components/studio/Marquee'
 import { Wordmark } from '@/components/studio/StudioMark'
 import { SplitHeading } from '@/components/studio/SplitHeading'
 import { ScoreRow } from '@/components/studio/Meter'
+import { ScrollProgress } from '@/components/studio/ScrollProgress'
+import { ThemeToggle } from '@/components/studio/ThemeToggle'
 
 const NAV = [
   { href: '#cost', label: 'The cost' },
@@ -94,6 +96,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-paper text-ink">
+      <ScrollProgress />
       {/* ── Header ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-paper/95 backdrop-blur-sm border-b border-ink/15">
         <div className="max-w-[1200px] mx-auto px-6 h-[72px] flex items-center justify-between gap-6">
@@ -118,6 +121,7 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <span className="chip hidden md:inline-flex">V1.0 / 5 Agents</span>
             {token ? (
               <>
@@ -130,7 +134,7 @@ export default function LandingPage() {
                 </button>
               </>
             ) : (
-              <button onClick={() => navigate('/login')} className="btn-primary py-2.5 px-5">
+              <button onClick={() => navigate('/login')} className="btn-secondary">
                 Sign in
               </button>
             )}
@@ -212,7 +216,7 @@ export default function LandingPage() {
                 label="Before the interview · what the record supports"
                 value={<AnimatedNumber value={71} decimals={1} countOnView />}
                 pct={71}
-                tone="ochre"
+                tone="rust"
               />
               <LedgerRow
                 label="After interview notes · what was confirmed"
@@ -221,17 +225,17 @@ export default function LandingPage() {
                 tone="mint"
                 delay={0.15}
               />
+              {/* Stat row: exactly one ratio and one count. */}
               <LedgerStats
                 items={[
-                  { value: <AnimatedNumber value={84} decimals={1} countOnView />, unit: 'final score' },
-                  { value: 'GO', unit: 'recommendation' },
-                  { value: '05', unit: 'agents run' },
                   { value: <AnimatedNumber value={92} suffix="%" countOnView />, unit: 'confidence' },
+                  { value: '05', unit: 'agents run' },
                 ]}
               />
-              <LedgerCallout title="Traceable, not asserted">
-                Every figure opens into the CV line, job requirement or interview note that produced
-                it. The report shows its working.
+              {/* Honesty rule: these are illustrative, so the note says so. */}
+              <LedgerCallout title="Sample figures, real mechanics">
+                These numbers are a sample run, not a measurement. In a real report every figure
+                opens into the CV line, job requirement or interview note that produced it.
               </LedgerCallout>
               <LedgerFooter
                 left="Profile · Technical · Culture · References"
@@ -427,16 +431,16 @@ export default function LandingPage() {
                     </div>
 
                     <div>
-                      <p className="font-mono text-[11px] uppercase tracking-label text-ochre-600 mb-3">
+                      <p className="font-mono text-[11px] uppercase tracking-label text-ink-soft mb-3">
                         Addressable gaps
                       </p>
                       <ul className="space-y-2 text-[15px] text-ink-700">
                         <li className="flex gap-3">
-                          <span className="text-ochre-500 shrink-0">→</span>
+                          <span className="text-ink-soft shrink-0">→</span>
                           No named cloud certification on the record
                         </li>
                         <li className="flex gap-3">
-                          <span className="text-ochre-500 shrink-0">→</span>
+                          <span className="text-ink-soft shrink-0">→</span>
                           Reference trail thin: no dated education
                         </li>
                       </ul>
@@ -489,7 +493,7 @@ export default function LandingPage() {
                     label="Technical · before"
                     value={<AnimatedNumber value={68} decimals={1} countOnView />}
                     pct={68}
-                    tone="ochre"
+                    tone="rust"
                   />
                   <LedgerRow
                     label="Technical · after notes"
@@ -498,9 +502,10 @@ export default function LandingPage() {
                     tone="mint"
                     delay={0.15}
                   />
+                  {/* One ratio (80 vs 68 = +17.6%) and one count. */}
                   <LedgerStats
                     items={[
-                      { value: '+12', unit: 'verification bonus' },
+                      { value: '+18%', unit: 'after notes' },
                       { value: '00', unit: 'scores lowered' },
                     ]}
                   />
@@ -562,12 +567,12 @@ export default function LandingPage() {
                   lines={['Score your next', { text: 'candidate.', italic: true }]}
                   className="text-[clamp(2.5rem,5.5vw,4rem)] font-extrabold tracking-tight leading-[1.0] mb-8 text-paper"
                 />
-                <p className="text-white/60 text-[17px] leading-relaxed max-w-lg mx-auto mb-10">
+                <p className="text-panel-soft text-[17px] leading-relaxed max-w-lg mx-auto mb-10">
                   Upload a CV, paste the job description, and read the whole chain in one pass.
                 </p>
                 <button
                   onClick={() => navigate('/login')}
-                  className="inline-flex items-center justify-center gap-3 px-7 py-4 bg-paper text-ink font-bold text-[15px] hover:bg-white active:translate-y-px transition-all"
+                  className="btn-on-panel min-h-[52px] px-7 text-[15px] font-bold gap-3"
                 >
                   Start an evaluation
                   <ArrowUpRight size={17} />

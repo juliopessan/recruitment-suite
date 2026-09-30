@@ -70,7 +70,7 @@ export default function LoginPage() {
             <SplitHeading
               as="h1"
               animateOnMount
-              lines={['Pick up where', { text: 'the chain left off.', italic: true }]}
+              lines={['Pick up where', 'the chain left off.']}
               className="text-[clamp(2.25rem,4vw,3.25rem)] font-extrabold tracking-tight leading-[1.0] mb-8"
             />
             <div className="border-t border-ink/15">

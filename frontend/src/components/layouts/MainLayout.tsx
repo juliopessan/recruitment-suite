@@ -10,6 +10,9 @@ export default function MainLayout() {
 
   return (
     <div className="flex h-screen bg-paper">
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       <AnimatePresence initial={false}>
         {sidebarOpen && (
           <motion.div
@@ -25,7 +28,7 @@ export default function MainLayout() {
       </AnimatePresence>
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar />
-        <main className="flex-1 overflow-auto">
+        <main id="main" tabIndex={-1} className="flex-1 overflow-auto focus:outline-none">
           <div className="p-6 lg:p-8 max-w-7xl mx-auto">
             <AnimatePresence mode="wait">
               <motion.div key={location.pathname}>

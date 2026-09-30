@@ -44,7 +44,7 @@ export default function DashboardPage() {
     <Page>
       <PageHeader
         eyebrow="00 / Overview"
-        title={['Where the', { text: 'pipeline stands.', italic: true }]}
+        title={['Where the pipeline stands']}
         subtitle="Everything scored so far, and what came out of it."
         action={
           <button onClick={() => navigate('/analyze')} className="btn-primary">
@@ -98,7 +98,7 @@ export default function DashboardPage() {
                   label="HOLD · needs a conversation"
                   value={holdCount}
                   pct={pct(holdCount)}
-                  tone="ochre"
+                  tone="plain"
                   delay={0.1}
                 />
                 <LedgerRow
@@ -108,29 +108,35 @@ export default function DashboardPage() {
                   tone="rust"
                   delay={0.2}
                 />
+                {/* Proof Panel stat row: exactly one ratio and one count. */}
                 <LedgerStats
                   items={[
-                    {
-                      value: <AnimatedNumber value={avgScore} decimals={1} countOnView />,
-                      unit: 'average score',
-                    },
                     {
                       value: <AnimatedNumber value={goRate} suffix="%" countOnView />,
                       unit: 'reach GO',
                     },
+                    {
+                      value: <AnimatedNumber value={total} countOnView />,
+                      unit: 'evaluations scored',
+                    },
                   ]}
                 />
-                <LedgerFooter left="Weighted across every agent" right="Live" />
+                <LedgerFooter
+                  left={`Average score ${avgScore.toFixed(1)} · weighted across every agent`}
+                  right="Live"
+                />
               </>
             ) : (
               <div className="py-10 text-center">
                 <p className="panel-label mb-5">No evaluations yet</p>
+                {/* The page header already carries this view's one solid
+                    button, so the panel offers the same action as a link. */}
                 <button
                   onClick={() => navigate('/analyze')}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-paper text-ink font-semibold text-sm hover:bg-white transition-colors"
+                  className="inline-flex items-center gap-2 min-h-target font-semibold text-sm text-panel-text underline decoration-panel-soft underline-offset-4 hover:decoration-rust-500 hover:gap-3 transition-all"
                 >
                   Score your first candidate
-                  <ArrowRight size={15} />
+                  <ArrowRight size={15} aria-hidden="true" />
                 </button>
               </div>
             )}

@@ -2,20 +2,19 @@ import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 
 /* ====================================================================
-   The ledger panel — the signature surface of this system.
+   The Proof Panel — Ledger's signature component.
 
-   A dark, monospace read-out that quotes figures back at the reader:
-   a header with a live dot and a corpus note, label/value rows each
-   backed by a flat meter, a grid of headline figures, an optional
-   callout, and a footer of provenance. Used on the landing hero and
-   anywhere a set of numbers is the argument.
+   A fixed-dark read-out (same surface in both themes) that shows a
+   measured before/after instead of an adjective: header with the lime
+   live dot, an orange baseline bar ALWAYS before the mint bar, a stat
+   row, a mint-bordered note, and a muted provenance footer.
    ==================================================================== */
 
+/* Two signal colours only. "plain" is panel ink, for a neutral figure. */
 const TONE = {
-  rust: { text: 'text-rust-400', bar: 'bg-rust-500' },
+  rust: { text: 'text-rust-500', bar: 'bg-rust-500' },
   mint: { text: 'text-mint-500', bar: 'bg-mint-500' },
-  ochre: { text: 'text-ochre-500', bar: 'bg-ochre-500' },
-  plain: { text: 'text-white', bar: 'bg-white/70' },
+  plain: { text: 'text-panel-text', bar: 'bg-panel-text/70' },
 } as const
 
 export type LedgerTone = keyof typeof TONE
@@ -37,13 +36,7 @@ export function Ledger({
     <div className={`panel p-6 md:p-7 ${className}`}>
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2.5 min-w-0">
-          {live && (
-            <motion.span
-              className="w-1.5 h-1.5 rounded-full bg-mint-500 shrink-0"
-              animate={{ opacity: [1, 0.25, 1] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            />
-          )}
+          {live && <span className="live-dot" aria-hidden="true" />}
           <span className="panel-label truncate">{label}</span>
         </div>
         {meta && <span className="panel-label text-right shrink-0">{meta}</span>}
@@ -99,7 +92,7 @@ export function LedgerStats({
   items: { value: ReactNode; unit: string }[]
 }) {
   return (
-    <div className="grid grid-cols-2 gap-x-6 gap-y-5 py-6 my-2 panel-rule border-b border-white/10">
+    <div className="grid grid-cols-2 gap-x-6 gap-y-5 py-6 my-2 panel-rule border-b border-panel-line">
       {items.map((item, i) => (
         <motion.div
           key={i}
@@ -109,7 +102,7 @@ export function LedgerStats({
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.15 + i * 0.07 }}
         >
-          <span className="stat-num text-2xl md:text-[26px] text-white leading-none shrink-0">
+          <span className="stat-num text-2xl md:text-[26px] text-panel-text leading-none shrink-0">
             {item.value}
           </span>
           <span className="panel-label truncate">{item.unit}</span>
@@ -119,7 +112,10 @@ export function LedgerStats({
   )
 }
 
-/** Bordered note with a signal-coloured glyph block. */
+/**
+ * The panel's note: mint-bordered on panel-2, with a flag whose glyph is a
+ * fixed near-black (#0C0A08) so it holds contrast on mint in both themes.
+ */
 export function LedgerCallout({
   title,
   children,
@@ -128,22 +124,24 @@ export function LedgerCallout({
 }: {
   title: string
   children: ReactNode
-  tone?: LedgerTone
+  tone?: 'mint' | 'rust'
   glyph?: string
 }) {
-  const bg = tone === 'rust' ? 'bg-rust-500' : tone === 'ochre' ? 'bg-ochre-500' : 'bg-mint-500'
+  const border = tone === 'rust' ? 'border-rust-500' : 'border-mint-500'
+  const flag = tone === 'rust' ? 'bg-rust-500' : 'bg-mint-500'
 
   return (
-    <div className="border border-white/15 p-4 flex gap-4 items-start">
+    <div className={`border ${border} bg-panel-700 p-4 flex gap-4 items-start`}>
       <span
-        className={`${bg} w-7 h-7 shrink-0 flex items-center justify-center text-panel font-bold text-sm`}
+        className={`${flag} w-7 h-7 shrink-0 flex items-center justify-center font-bold text-sm`}
+        style={{ color: '#0C0A08' }}
         aria-hidden="true"
       >
         {glyph}
       </span>
       <div className="min-w-0">
         <p className="panel-label mb-1.5">{title}</p>
-        <p className="text-[13px] leading-relaxed text-white/70">{children}</p>
+        <p className="text-[13px] leading-relaxed text-panel-text">{children}</p>
       </div>
     </div>
   )
@@ -154,7 +152,7 @@ export function LedgerFooter({ left, right }: { left: ReactNode; right?: ReactNo
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 mt-6 panel-label">
       <span>{left}</span>
-      {right && <span className="text-white/70">{right}</span>}
+      {right && <span className="text-panel-text">{right}</span>}
     </div>
   )
 }

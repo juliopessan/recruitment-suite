@@ -3,13 +3,73 @@
 @tailwind utilities;
 
 /* ====================================================================
-   Editorial paper + terminal ledger
+   Ledger design system
    --------------------------------------------------------------------
-   Paper ground, editorial ink, monospace for anything that is data.
-   Square corners, hairline rules, two signal colours (rust = cost/risk,
-   mint = saving/pass). Shadows are used almost nowhere — separation
-   comes from rules and from the dark panels.
+   Five colours, one job each — paper (ground), ink (text and rules),
+   orange (cost / error), mint (savings / proof), lime (live dot only).
+   Square corners, hairline rules, no shadows. Colour marks, ink speaks:
+   sentences are ink or ink-soft; orange and mint tint borders, bars and
+   glyphs, and switch to their -ink shade when they must be read as text.
+
+   Tokens are RGB channels so Tailwind opacity modifiers keep working.
+   Light on :root, dark under the OS preference unless the toggle forced
+   light, and again under [data-theme="dark"] so the toggle wins both
+   ways. The dark panel is a fixed surface in BOTH themes.
    ==================================================================== */
+
+:root {
+  --paper: 241 238 229;      /* #F1EEE5 */
+  --paper-2: 232 228 215;    /* #E8E4D7 */
+  --ink: 23 20 15;           /* #17140F */
+  --ink-soft: 90 84 70;      /* #5A5446 */
+  --line: 207 201 184;       /* #CFC9B8 */
+  --orange: 201 89 31;       /* #C9591F */
+  --orange-ink: 168 70 15;   /* #A8460F */
+  --mint: 78 158 120;        /* #4E9E78 */
+  --mint-ink: 47 116 84;     /* #2F7454 */
+  --lime: 185 204 62;        /* #B9CC3E */
+
+  --panel: 16 14 11;         /* #100E0B */
+  --panel-2: 26 23 19;       /* #1A1713 */
+  --panel-line: 56 51 43;    /* #38332B */
+  --panel-text: 237 233 222; /* #EDE9DE */
+  --panel-text-soft: 168 162 148; /* #A8A294 */
+
+  --orange-tint: color-mix(in srgb, rgb(var(--orange)) 8%, rgb(var(--paper)));
+  --mint-tint: color-mix(in srgb, rgb(var(--mint)) 10%, rgb(var(--paper)));
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: 21 19 16;         /* #151310 */
+    --paper-2: 29 26 22;       /* #1D1A16 */
+    --ink: 237 233 222;        /* #EDE9DE */
+    --ink-soft: 168 162 148;   /* #A8A294 */
+    --line: 51 46 39;          /* #332E27 */
+    --orange: 224 122 60;      /* #E07A3C */
+    --orange-ink: 224 122 60;
+    --mint: 126 200 161;       /* #7EC8A1 */
+    --mint-ink: 126 200 161;
+    --lime: 201 217 95;        /* #C9D95F */
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: 21 19 16;
+  --paper-2: 29 26 22;
+  --ink: 237 233 222;
+  --ink-soft: 168 162 148;
+  --line: 51 46 39;
+  --orange: 224 122 60;
+  --orange-ink: 224 122 60;
+  --mint: 126 200 161;
+  --mint-ink: 126 200 161;
+  --lime: 201 217 95;
+  color-scheme: dark;
+}
 
 @layer base {
   html {
@@ -22,7 +82,6 @@
     font-feature-settings: 'kern' 1;
   }
 
-  /* The app shell paints its own ground; this keeps legacy usages sane. */
   .surface-studio {
     @apply bg-paper text-ink;
   }
@@ -48,32 +107,59 @@
     @apply text-base font-bold tracking-tight;
   }
 
+  /* Mandatory visible focus, everywhere, for keyboard users. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--orange));
+    outline-offset: 3px;
+  }
+
   ::selection {
     @apply bg-ink text-paper;
   }
 
-  /* Numbers should never jitter while they animate. */
   .tabular, table td, table th {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Screen-reader-only text (live announcements, icon-button labels). */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 }
 
 @layer components {
 
-  /* --- Editorial type ------------------------------------------------ */
+  /* --- Skip link ------------------------------------------------------ */
 
-  /** The emphasised half of a headline: high-contrast serif italic. */
+  .skip-link {
+    @apply absolute left-3 z-[200] px-3.5 py-2.5 bg-ink text-paper font-semibold text-sm;
+    top: -60px;
+  }
+
+  .skip-link:focus {
+    top: 12px;
+  }
+
+  /* --- Editorial type (marketing surfaces only) ----------------------- */
+
+  /** The emphasised half of a marketing headline. Never inside the app. */
   .serif-em {
     @apply font-serif italic font-normal;
     letter-spacing: -0.01em;
   }
 
-  /** Small uppercase monospace label — the workhorse of this system. */
   .eyebrow {
-    @apply font-mono text-[11px] font-medium uppercase tracking-label text-ink-400;
+    @apply font-mono text-[11px] font-medium uppercase tracking-label text-ink-soft;
   }
 
-  /** Eyebrow preceded by a short rule: ——— CONTEXT LEDGER */
   .rule-eyebrow {
     @apply eyebrow inline-flex items-center gap-3;
   }
@@ -83,9 +169,8 @@
     @apply block w-10 h-px bg-current opacity-40;
   }
 
-  /** Same label on a dark panel. */
   .rule-eyebrow-dark {
-    @apply font-mono text-[11px] font-medium uppercase tracking-label text-white/45
+    @apply font-mono text-[11px] font-medium uppercase tracking-label text-panel-soft
            inline-flex items-center gap-3;
   }
 
@@ -94,76 +179,102 @@
     @apply block w-10 h-px bg-current opacity-60;
   }
 
-  /** Bordered monospace chip: V0.1.0 / MIT */
   .chip {
     @apply inline-flex items-center gap-2 border border-ink/25 px-3 py-1.5
-           font-mono text-[11px] uppercase tracking-label text-ink-500;
+           font-mono text-[11px] uppercase tracking-label text-ink-soft;
   }
 
   .chip-dark {
-    @apply inline-flex items-center gap-2 border border-white/20 px-3 py-1.5
-           font-mono text-[11px] uppercase tracking-label text-white/60;
+    @apply inline-flex items-center gap-2 border border-panel-line px-3 py-1.5
+           font-mono text-[11px] uppercase tracking-label text-panel-soft;
   }
 
-  /* --- Buttons -------------------------------------------------------- */
+  /* --- Buttons: 44px targets, solid hover goes to orange-ink ---------- */
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-ink text-paper
-           font-semibold text-sm hover:bg-ink-700 active:translate-y-px
-           transition-all disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-5 min-h-target bg-ink text-paper
+           font-semibold text-sm transition-all
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary:not(:disabled):hover {
+    @apply bg-rust-600 -translate-y-px;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-ink/25
-           text-ink font-semibold text-sm hover:border-ink hover:bg-ink/[0.04]
-           active:translate-y-px transition-all disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-5 min-h-target border border-ink/25
+           text-ink font-semibold text-sm hover:border-ink hover:bg-paper-200
+           transition-all disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-rust-500
-           text-rust-600 font-semibold text-sm hover:bg-rust-500 hover:text-paper
+    @apply inline-flex items-center justify-center gap-2 px-5 min-h-target border border-rust-500
+           text-ink font-semibold text-sm hover:bg-rust-600 hover:text-paper hover:border-rust-600
            transition-all disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
-  /** Hero-scale solid button. */
   .btn-studio-primary {
-    @apply inline-flex items-center justify-center gap-3 px-7 py-4 bg-ink text-paper
-           font-bold text-[15px] hover:bg-ink-700 active:translate-y-px
-           transition-all disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-3 px-7 min-h-[52px] bg-ink text-paper
+           font-bold text-[15px] transition-all
+           disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
-  /** Underlined text action with a trailing arrow. */
+  .btn-studio-primary:not(:disabled):hover {
+    @apply bg-rust-600 -translate-y-px;
+  }
+
+  /** Solid button sitting on the dark panel (fixed colours in both themes). */
+  .btn-on-panel {
+    @apply inline-flex items-center justify-center gap-2 px-5 min-h-target
+           bg-panel-text text-panel font-semibold text-sm transition-all;
+  }
+
+  .btn-on-panel:hover {
+    @apply bg-rust-500 text-panel -translate-y-px;
+  }
+
   .btn-studio-secondary {
-    @apply inline-flex items-center gap-2 pb-1 font-semibold text-[15px] text-ink
+    @apply inline-flex items-center gap-2 pb-1 min-h-target font-semibold text-[15px] text-ink
            border-b border-ink/30 hover:border-ink hover:gap-3 transition-all;
   }
 
   .link-action {
-    @apply font-mono text-xs uppercase tracking-label text-ink-500
-           border-b border-ink/25 pb-0.5 hover:text-rust-600 hover:border-rust-500 transition-colors;
+    @apply inline-flex items-center min-h-target font-mono text-xs uppercase tracking-label
+           text-ink-soft hover:text-ink transition-colors;
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--ink) / 0.3);
+    text-underline-offset: 4px;
+  }
+
+  .link-action:hover {
+    text-decoration-color: rgb(var(--orange));
+  }
+
+  /** Square icon-only button with a 44px hit area; always needs aria-label. */
+  .icon-btn {
+    @apply inline-flex items-center justify-center w-11 h-11 text-ink-soft
+           hover:text-ink hover:bg-paper-200 transition-colors;
   }
 
   /* --- Fields --------------------------------------------------------- */
 
   .input-field {
-    @apply w-full px-3.5 py-2.5 bg-paper-50 border border-ink/20 text-ink text-sm
-           placeholder:text-ink-300 focus:outline-none focus:border-ink
-           focus:ring-1 focus:ring-ink transition-colors
+    @apply w-full px-3.5 min-h-target py-2.5 bg-paper border border-ink/25 text-ink text-sm
+           placeholder:text-ink-soft focus:border-ink transition-colors
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .field-label {
-    @apply block font-mono text-[11px] uppercase tracking-label text-ink-500 mb-2;
+    @apply block font-mono text-[11px] uppercase tracking-label text-ink-soft mb-2;
   }
 
   /* --- Surfaces ------------------------------------------------------- */
 
   .card,
   .studio-card {
-    @apply bg-paper-50 border border-ink/15;
+    @apply bg-paper border border-ink/15;
   }
 
-  /* `.card` keeps its own padding for older call sites. */
   .card {
     @apply p-6;
   }
@@ -172,60 +283,88 @@
     @apply card hover:border-ink transition-colors cursor-pointer;
   }
 
-  /** The signature dark ledger panel. */
+  /** The Proof Panel: a fixed dark surface in both themes. */
   .panel {
-    @apply bg-panel text-paper-100 border border-panel-600;
+    @apply bg-panel text-panel-text border border-panel-line;
   }
 
   .panel-rule {
-    @apply border-t border-white/10;
+    @apply border-t border-panel-line;
   }
 
   .panel-label {
-    @apply font-mono text-[11px] uppercase tracking-label text-white/45;
+    @apply font-mono text-[11px] uppercase tracking-label text-panel-soft;
   }
 
   .panel-value {
-    @apply font-mono tabular-nums text-white;
+    @apply font-mono tabular-nums text-panel-text;
   }
 
   /* --- Data display --------------------------------------------------- */
 
-  /** Flat 3px meter — square ends, no gloss. */
   .meter-track {
     @apply h-[3px] w-full bg-ink/10 overflow-hidden;
   }
 
   .meter-track-dark {
-    @apply h-[3px] w-full bg-white/10 overflow-hidden;
+    @apply h-[3px] w-full bg-panel-line overflow-hidden;
   }
 
   .stat-num {
     @apply font-mono tabular-nums font-bold tracking-tight;
   }
 
+  /* The live-status dot: the one round element, lime, with a pulse ring. */
+  .live-dot {
+    @apply inline-block w-2 h-2 rounded-full bg-lime shrink-0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .live-dot {
+      @apply animate-pulse;
+    }
+  }
+
+  /* Badges: status is shape + word + tint, never colour alone. The word
+     is always ink; the colour lives on the border and the glyph. */
   .badge {
-    @apply inline-flex items-center px-2.5 py-1 font-mono text-[11px] font-medium
-           uppercase tracking-label border;
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-[11px] font-medium
+           uppercase tracking-label border text-ink;
   }
 
   .badge-success {
-    @apply badge border-mint-600 text-mint-700 bg-mint-50;
+    @apply badge border-mint bg-mint-50;
   }
 
+  .badge-success::before {
+    content: '✓';
+    @apply text-mint-700 font-bold;
+  }
+
+  /* HOLD / attention: no colour at all — the shape and the word carry it. */
   .badge-warning {
-    @apply badge border-ochre-500 text-ochre-600 bg-ochre-50;
+    @apply badge border-ink/60;
+  }
+
+  .badge-warning::before {
+    content: '▲';
+    @apply text-[8px] text-ink;
   }
 
   .badge-danger {
-    @apply badge border-rust-500 text-rust-600 bg-rust-50;
+    @apply badge border-rust bg-rust-50;
+  }
+
+  .badge-danger::before {
+    content: '✕';
+    @apply text-rust-600 font-bold;
   }
 
   .badge-info {
-    @apply badge border-ink/25 text-ink-500 bg-ink/[0.03];
+    @apply badge border-ink/25 text-ink-soft;
   }
 
-  /* --- Tables --------------------------------------------------------- */
+  /* --- Tables: 44px rows ---------------------------------------------- */
 
   .studio-table {
     @apply w-full text-sm;
@@ -233,11 +372,11 @@
 
   .studio-table thead th {
     @apply text-left px-6 py-3.5 font-mono text-[11px] font-medium uppercase
-           tracking-label text-ink-400 border-b border-ink/15;
+           tracking-label text-ink-soft border-b border-ink/15 bg-paper-200;
   }
 
   .studio-table tbody td {
-    @apply px-6 py-4 border-b border-ink/10 align-middle;
+    @apply px-6 py-3 h-11 border-b border-ink/10 align-middle;
   }
 
   .studio-table tbody tr:last-child td {
@@ -250,30 +389,34 @@
 }
 
 @layer utilities {
-  /* Hairline rules that read the same on paper and on panel. */
   .rule {
     @apply border-t border-ink/15;
   }
 
   .rule-dark {
-    @apply border-t border-white/10;
+    @apply border-t border-panel-line;
   }
 }
 
-/* --- Toasts: square, monospace, on-palette ---------------------------- */
+/* --- Toasts: square, hairline, on-palette, both themes ----------------- */
 
 .Toastify__toast {
   border-radius: 0 !important;
-  font-family: 'Archivo', system-ui, sans-serif !important;
+  font-family: 'Archivo', Arial, sans-serif !important;
   font-size: 14px !important;
-  border: 1px solid rgba(20, 20, 15, 0.15) !important;
-  box-shadow: 0 8px 24px -12px rgba(20, 20, 15, 0.35) !important;
-  background: #f8f6f0 !important;
-  color: #14140f !important;
+  border: 1px solid rgb(var(--ink) / 0.25) !important;
+  box-shadow: none !important;
+  background: rgb(var(--paper)) !important;
+  color: rgb(var(--ink)) !important;
 }
 
 .Toastify__toast-body {
-  font-family: 'Archivo', system-ui, sans-serif !important;
+  font-family: 'Archivo', Arial, sans-serif !important;
+}
+
+.Toastify__close-button {
+  color: rgb(var(--ink)) !important;
+  opacity: 0.6;
 }
 
 .Toastify__progress-bar {
@@ -281,19 +424,123 @@
 }
 
 .Toastify__progress-bar--success {
-  background: #57ab74 !important;
+  background: rgb(var(--mint)) !important;
 }
 
 .Toastify__progress-bar--error {
-  background: #d2542a !important;
+  background: rgb(var(--orange)) !important;
 }
 
-.Toastify__progress-bar--warning {
-  background: #c08a2e !important;
+.Toastify__progress-bar--warning,
+.Toastify__progress-bar--info,
+.Toastify__progress-bar--default {
+  background: rgb(var(--ink)) !important;
+}
+
+.Toastify__toast--success .Toastify__toast-icon svg {
+  fill: rgb(var(--mint-ink));
+}
+
+.Toastify__toast--error .Toastify__toast-icon svg {
+  fill: rgb(var(--orange-ink));
 }
 
 .Toastify__toast-icon svg {
-  fill: #14140f;
+  fill: rgb(var(--ink));
+}
+
+/* --- Scroll progress (marketing) --------------------------------------- */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgb(var(--orange));
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* --- Spinning verbs ------------------------------------------------------
+   A wait state that names the work: ticking square + verb + stepped dots
+   + elapsed clock. The square ticks corner to corner in discrete steps. */
+
+.verb {
+  @apply inline-flex items-center gap-2.5 font-mono text-[13px] text-ink;
+  font-variant-numeric: tabular-nums;
+}
+
+.verb__sq {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid currentColor;
+  flex-shrink: 0;
+}
+
+.verb__sq::after {
+  content: '';
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+  top: -1.5px;
+  left: -1.5px;
+}
+
+.verb__flag {
+  @apply inline-flex items-center justify-center w-3.5 h-3.5 text-[10px] font-bold shrink-0;
+  color: #0C0A08;
+}
+
+.verb__flag--done { background: rgb(var(--mint)); }
+.verb__flag--fail { background: rgb(var(--orange)); }
+
+.verb__clock {
+  @apply text-ink-soft;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .verb__sq::after {
+    animation: verbTick 1s steps(1) infinite;
+  }
+
+  .verb__dots::after {
+    content: '';
+    animation: verbDots 1.2s steps(1) infinite;
+  }
+
+  .verb__word--in {
+    animation: verbRoll 0.24s cubic-bezier(.2, .7, .2, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verb__dots::after {
+    content: '...';
+  }
+}
+
+@keyframes verbTick {
+  0%   { top: -1.5px; left: -1.5px; }
+  25%  { top: -1.5px; left: calc(100% - 1.5px); }
+  50%  { top: calc(100% - 1.5px); left: calc(100% - 1.5px); }
+  75%  { top: calc(100% - 1.5px); left: -1.5px; }
+}
+
+@keyframes verbDots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+}
+
+@keyframes verbRoll {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Animations -------------------------------------------------------- */
@@ -308,6 +555,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {

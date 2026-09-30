@@ -61,7 +61,7 @@ export function PipelineDiagram({
               key={`in-${i}`}
               d={`M 19 50 C 28 50, 28 ${yFor(i)}, 37 ${yFor(i)}`}
               fill="none"
-              stroke="rgba(20,20,15,0.22)"
+              style={{ stroke: 'rgb(var(--ink) / 0.22)' }}
               strokeWidth="0.4"
               strokeDasharray="2 2"
               vectorEffect="non-scaling-stroke"
@@ -77,7 +77,7 @@ export function PipelineDiagram({
             <motion.circle
               key={`pulse-${i}`}
               r="0.7"
-              fill="#d2542a"
+              style={{ fill: 'rgb(var(--orange))' }}
               vectorEffect="non-scaling-stroke"
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 1, 0] }}
@@ -103,7 +103,7 @@ export function PipelineDiagram({
               key={`out-${i}`}
               d={`M 63.5 ${yFor(i)} C 71 ${yFor(i)}, 71 50, 77.5 50`}
               fill="none"
-              stroke="rgba(210,84,42,0.5)"
+              style={{ stroke: 'rgb(var(--orange) / 0.5)' }}
               strokeWidth="0.4"
               strokeDasharray="2 2"
               vectorEffect="non-scaling-stroke"
@@ -180,7 +180,7 @@ export function PipelineDiagram({
                 transition={{ duration: 0.6, delay: 0.7 }}
               />
               <motion.div
-                className="h-[3px] bg-white/25"
+                className="h-[3px] bg-paper/25"
                 initial={{ width: 0 }}
                 whileInView={{ width: '66%' }}
                 viewport={{ once: true }}

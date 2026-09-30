@@ -1,22 +1,28 @@
 import { motion } from 'framer-motion'
 import { AnimatedNumber } from '@/components/motion'
 
-/** Signal colour for a 0–100 score: mint passes, ochre holds, rust fails. */
-export function toneForScore(value: number): 'mint' | 'ochre' | 'rust' {
+/**
+ * Tone for a 0–100 score. Mint passes, orange fails; the middle band is
+ * plain ink — Ledger has no sixth colour for "hold", the figure and the
+ * word beside it carry that state instead.
+ */
+export type ScoreTone = 'mint' | 'ink' | 'rust'
+
+export function toneForScore(value: number): ScoreTone {
   if (value >= 75) return 'mint'
-  if (value >= 50) return 'ochre'
+  if (value >= 50) return 'ink'
   return 'rust'
 }
 
 const BAR = {
   mint: 'bg-mint-600',
-  ochre: 'bg-ochre-500',
+  ink: 'bg-ink/55',
   rust: 'bg-rust-500',
 } as const
 
 const TEXT = {
   mint: 'text-mint-700',
-  ochre: 'text-ochre-600',
+  ink: 'text-ink',
   rust: 'text-rust-600',
 } as const
 
@@ -27,7 +33,7 @@ export function Meter({
   delay = 0,
 }: {
   value: number
-  tone?: 'mint' | 'ochre' | 'rust'
+  tone?: ScoreTone
   delay?: number
 }) {
   const t = tone ?? toneForScore(value)

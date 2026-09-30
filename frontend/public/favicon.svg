@@ -1,12 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" fill="#14140f"/>
-  <text
-    x="16" y="16"
-    fill="#f3f0e7"
-    font-family="Archivo, Helvetica, Arial, sans-serif"
-    font-size="20"
-    font-weight="800"
-    text-anchor="middle"
-    dominant-baseline="central"
-  >R</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .bg{fill:#17140F} .fg{fill:#F1EEE5}
+    @media (prefers-color-scheme: dark){.bg{fill:#EDE9DE} .fg{fill:#151310}}
+  </style>
+  <rect class="bg" width="32" height="32"/>
+  <text class="fg" x="16" y="24" text-anchor="middle" font-family="Archivo,'Arial Black',Arial,sans-serif" font-weight="800" font-size="22">R</text>
 </svg>

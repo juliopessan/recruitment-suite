@@ -28,7 +28,7 @@ export default function CandidateFormPage() {
     <Page className="max-w-2xl">
       <PageHeader
         eyebrow="02 / Talent pool"
-        title={isEditMode ? ['Edit', { text: 'candidate.', italic: true }] : ['New', { text: 'candidate.', italic: true }]}
+        title={[isEditMode ? 'Edit candidate' : 'New candidate']}
         subtitle="Most candidates arrive through an analysis — this is the manual path."
         action={
           <button onClick={() => navigate('/candidates')} className="btn-secondary">

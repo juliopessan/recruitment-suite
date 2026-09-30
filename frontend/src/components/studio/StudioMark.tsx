@@ -4,8 +4,8 @@
  * uppercase wordmark (see `Wordmark`).
  */
 export function StudioMark({ size = 26, inverted = false }: { size?: number; inverted?: boolean }) {
-  const bg = inverted ? '#f3f0e7' : '#14140f'
-  const fg = inverted ? '#14140f' : '#f3f0e7'
+  const bg = inverted ? 'rgb(var(--paper))' : 'rgb(var(--ink))'
+  const fg = inverted ? 'rgb(var(--ink))' : 'rgb(var(--paper))'
 
   return (
     <svg
@@ -15,11 +15,11 @@ export function StudioMark({ size = 26, inverted = false }: { size?: number; inv
       aria-hidden="true"
       className="shrink-0"
     >
-      <rect width="32" height="32" fill={bg} />
+      <rect width="32" height="32" style={{ fill: bg }} />
       <text
         x="16"
         y="16.5"
-        fill={fg}
+        style={{ fill: fg }}
         fontFamily="Archivo, system-ui, sans-serif"
         fontSize="19"
         fontWeight="800"

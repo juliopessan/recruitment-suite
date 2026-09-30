@@ -142,9 +142,9 @@ export function ScoreBar({ value, colorClass }: { value: number; colorClass?: st
   )
 }
 
-/** Bar colour for a 0–100 score: mint passes, ochre holds, rust fails. */
+/** Bar colour for a 0–100 score: mint passes, ink holds, orange fails. */
 export function scoreColor(value: number): string {
   if (value >= 75) return 'bg-mint-600'
-  if (value >= 50) return 'bg-ochre-500'
+  if (value >= 50) return 'bg-ink/55'
   return 'bg-rust-500'
 }

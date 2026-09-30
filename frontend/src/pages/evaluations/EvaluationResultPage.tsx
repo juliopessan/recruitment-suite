@@ -10,6 +10,8 @@ import { PageHeader } from '@/components/studio/PageHeader'
 import { ScoreRow } from '@/components/studio/Meter'
 import { Ledger, LedgerRow, LedgerStats, LedgerFooter } from '@/components/studio/Ledger'
 import { EmptyState } from '@/components/studio/EmptyState'
+import { VerbStatus, type VerbPhase } from '@/components/studio/VerbStatus'
+import { tab } from '@/lib/ledger'
 
 const API_URL =
   import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:8000')
@@ -28,6 +30,8 @@ export default function EvaluationResultPage() {
   const [notes, setNotes] = useState('')
   const [isRecalculating, setIsRecalculating] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [phase, setPhase] = useState<VerbPhase>('idle')
+  const [recalcError, setRecalcError] = useState('')
 
   useEffect(() => {
     if (id) {
@@ -41,14 +45,22 @@ export default function EvaluationResultPage() {
       return
     }
     setIsRecalculating(true)
+    setRecalcError('')
+    setPhase('running')
+    tab.set({ state: 'live' })
     try {
       const updated = await dispatch(addInterviewNotes({ id, notes: notes.trim() })).unwrap()
+      setPhase('done')
+      tab.set({ state: 'idle' })
       toast.success(
         `Scores recalculated: ${updated.final_score}/100 — ${updated.recommendation_status}`
       )
       setNotes('')
     } catch (err) {
       const message = typeof err === 'string' ? err : 'Failed to recalculate scores'
+      setRecalcError(`Scores not recalculated: ${message}`)
+      setPhase('error')
+      tab.set({ state: 'error' })
       if (message.toLowerCase().includes('not found')) {
         toast.error('This evaluation is no longer available on the server. Please re-run the analysis.')
       } else {
@@ -115,7 +127,7 @@ export default function EvaluationResultPage() {
     <Page>
       <PageHeader
         eyebrow="04 / Verified run"
-        title={['Evaluation', { text: 'result.', italic: true }]}
+        title={['Evaluation result']}
         action={
           <div className="flex flex-wrap gap-3">
             <a
@@ -159,12 +171,12 @@ export default function EvaluationResultPage() {
                 <AnimatedNumber
                   value={evaluation.final_score}
                   decimals={1}
-                  className="stat-num text-6xl leading-none text-white"
+                  className="stat-num text-6xl leading-none text-panel-text"
                 />
               </div>
               <div className="text-right">
                 <p className="panel-label mb-2">Recommendation</p>
-                <p className="stat-num text-3xl text-white">
+                <p className="stat-num text-3xl text-panel-text">
                   {evaluation.recommendation_status.replace('_', '-')}
                 </p>
               </div>
@@ -176,7 +188,7 @@ export default function EvaluationResultPage() {
                   label="Before interview notes"
                   value={(evaluation.pre_interview_score as number).toFixed(1)}
                   pct={evaluation.pre_interview_score as number}
-                  tone="ochre"
+                  tone="rust"
                 />
                 <LedgerRow
                   label="After interview notes"
@@ -225,7 +237,7 @@ export default function EvaluationResultPage() {
       {/* Rationale */}
       <StaggerItem className="studio-card p-8 md:p-10 mb-8">
         <p className="rule-eyebrow mb-6">Rationale</p>
-        <blockquote className="serif-em text-2xl md:text-[28px] leading-[1.35] text-ink max-w-3xl">
+        <blockquote className="font-display font-semibold text-xl md:text-2xl leading-[1.4] tracking-tight text-ink max-w-3xl border-l-2 border-ink pl-5">
           {evaluation.rationale}
         </blockquote>
       </StaggerItem>
@@ -258,7 +270,7 @@ export default function EvaluationResultPage() {
           {evaluation.gaps.length > 0 && (
             <StaggerItem className="studio-card">
               <div className="px-6 py-4 border-b border-ink/15">
-                <p className="eyebrow text-ochre-600">Addressable gaps</p>
+                <p className="eyebrow">Addressable gaps</p>
               </div>
               <ul className="p-6 space-y-3.5">
                 {evaluation.gaps.map((gap, idx) => (
@@ -269,7 +281,7 @@ export default function EvaluationResultPage() {
                     transition={{ delay: 0.2 + idx * 0.06 }}
                     className="flex gap-3.5 text-[15px] text-ink-700 leading-relaxed"
                   >
-                    <span className="text-ochre-500 shrink-0 font-mono">→</span>
+                    <span className="text-ink-soft shrink-0 font-mono">→</span>
                     <span>{gap}</span>
                   </motion.li>
                 ))}
@@ -399,15 +411,15 @@ export default function EvaluationResultPage() {
             disabled={isRecalculating}
             className="btn-primary"
           >
-            <motion.span
-              animate={isRecalculating ? { rotate: 360 } : {}}
-              transition={{ duration: 1, repeat: isRecalculating ? Infinity : 0, ease: 'linear' }}
-              className="inline-block"
-            >
-              <RefreshCw size={15} />
-            </motion.span>
-            {isRecalculating ? 'Recalculating…' : 'Add notes & recalculate'}
+            <RefreshCw size={15} aria-hidden="true" />
+            {isRecalculating ? 'Recalculating scores' : 'Recalculate scores'}
           </button>
+          <VerbStatus
+            phase={phase}
+            set="recalculate"
+            label="Recalculating scores"
+            error={recalcError}
+          />
         </div>
       </StaggerItem>
     </Page>

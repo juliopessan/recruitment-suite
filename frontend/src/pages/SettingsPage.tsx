@@ -46,7 +46,7 @@ export default function SettingsPage() {
     <Page className="max-w-3xl">
       <PageHeader
         eyebrow="— / Settings"
-        title={['Workspace', { text: 'settings.', italic: true }]}
+        title={['Workspace settings']}
         subtitle="How this workspace is configured, and how to sign out of it."
       />
 

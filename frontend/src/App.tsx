@@ -1,9 +1,11 @@
 import { Provider } from 'react-redux'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { store } from '@/store'
 import { useAppSelector } from '@/hooks/useRedux'
+import { tab } from '@/lib/ledger'
 
 // Layouts
 import MainLayout from '@/components/layouts/MainLayout'
@@ -24,10 +26,38 @@ import EvaluationsPage from '@/pages/evaluations/EvaluationsPage'
 import EvaluationResultPage from '@/pages/evaluations/EvaluationResultPage'
 import SettingsPage from '@/pages/SettingsPage'
 
+/** Tab titles read `Page | Product`, page first so truncated tabs stay
+    distinguishable. Set on every route change. */
+function routeTitle(pathname: string, signedIn: boolean): string {
+  if (pathname === '/') return signedIn ? 'Dashboard' : ''
+  if (pathname === '/login') return 'Sign in'
+  if (pathname === '/analyze') return 'Analyze'
+  if (pathname === '/settings') return 'Settings'
+  if (pathname.endsWith('/new')) return pathname.startsWith('/jobs') ? 'New job' : 'New candidate'
+  if (pathname.endsWith('/edit')) return pathname.startsWith('/jobs') ? 'Edit job' : 'Edit candidate'
+  if (pathname.startsWith('/evaluations/')) return 'Evaluation'
+  if (pathname.startsWith('/evaluations')) return 'Evaluations'
+  if (pathname.startsWith('/candidates/')) return 'Candidate'
+  if (pathname.startsWith('/candidates')) return 'Candidates'
+  if (pathname.startsWith('/jobs/')) return 'Job'
+  if (pathname.startsWith('/jobs')) return 'Jobs'
+  return ''
+}
+
+function RouteTitle({ signedIn }: { signedIn: boolean }) {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    tab.set({ title: routeTitle(pathname, signedIn) })
+  }, [pathname, signedIn])
+  return null
+}
+
 function AppContent() {
   const token = useAppSelector((state) => state.auth.token)
 
   return (
+    <>
+    <RouteTitle signedIn={!!token} />
     <Routes>
       {!token ? (
         <>
@@ -58,6 +88,7 @@ function AppContent() {
         </>
       )}
     </Routes>
+    </>
   )
 }
 

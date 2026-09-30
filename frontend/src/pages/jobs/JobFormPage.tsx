@@ -12,7 +12,7 @@ export default function JobFormPage() {
     <Page className="max-w-2xl">
       <PageHeader
         eyebrow="03 / Open roles"
-        title={isEditMode ? ['Edit', { text: 'job.', italic: true }] : ['New', { text: 'job.', italic: true }]}
+        title={[isEditMode ? 'Edit job' : 'New job']}
         subtitle="Roles are usually parsed from a pasted description — this is the manual path."
         action={
           <button onClick={() => navigate('/jobs')} className="btn-secondary">

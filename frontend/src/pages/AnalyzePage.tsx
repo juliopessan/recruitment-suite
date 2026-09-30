@@ -5,6 +5,8 @@ import { toast } from 'react-toastify'
 import { ArrowRight, FileText, Linkedin, UploadCloud, X } from 'lucide-react'
 import { Page, StaggerItem } from '@/components/motion'
 import { PageHeader } from '@/components/studio/PageHeader'
+import { VerbStatus, type VerbPhase } from '@/components/studio/VerbStatus'
+import { tab } from '@/lib/ledger'
 
 const API_URL =
   import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:8000')
@@ -32,6 +34,8 @@ export default function AnalyzePage() {
   const [isRunning, setIsRunning] = useState(false)
   const [notes, setNotes] = useState<string[]>([])
   const [dragOver, setDragOver] = useState(false)
+  const [phase, setPhase] = useState<VerbPhase>('idle')
+  const [runError, setRunError] = useState('')
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -52,7 +56,10 @@ export default function AnalyzePage() {
     }
 
     setIsRunning(true)
-    setNotes(['Starting agent pipeline…'])
+    setRunError('')
+    setPhase('running')
+    tab.set({ state: 'live' })
+    setNotes([])
     try {
       const form = new FormData()
       form.append('job_description', jobDescription)
@@ -70,12 +77,18 @@ export default function AnalyzePage() {
       }
       const data: AnalysisResponse = await res.json()
       setNotes(data.pipeline_notes)
+      setPhase('done')
+      tab.set({ state: 'idle' })
       toast.success(
-        `${data.candidate_name}: ${data.final_score}/100 — ${data.recommendation_status}`
+        `Chain run · ${data.candidate_name}: ${data.final_score}/100 — ${data.recommendation_status}`
       )
       setTimeout(() => navigate(`/evaluations/${data.evaluation_id}`), 900)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Analysis failed')
+      const message = err instanceof Error ? err.message : 'Analysis failed'
+      setRunError(`Chain run failed: ${message}. Check the inputs and run the chain again.`)
+      setPhase('error')
+      tab.set({ state: 'error' })
+      toast.error(message)
       setNotes([])
     } finally {
       setIsRunning(false)
@@ -86,7 +99,7 @@ export default function AnalyzePage() {
     <Page className="max-w-3xl">
       <PageHeader
         eyebrow="01 / Run the pipeline"
-        title={['Agentic', { text: 'analysis.', italic: true }]}
+        title={['Agentic analysis']}
         subtitle="A CV, a LinkedIn profile and a job description. Five agents score profile fit, technical depth, culture signals and how verifiable the record is."
       />
 
@@ -265,22 +278,16 @@ export default function AnalyzePage() {
 
         <StaggerItem>
           <button type="submit" disabled={isRunning} className="btn-studio-primary w-full">
-            {isRunning ? (
-              <>
-                <motion.span
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
-                  className="inline-block w-3 h-3 border-2 border-paper/30 border-t-paper rounded-full"
-                />
-                Agents evaluating…
-              </>
-            ) : (
-              <>
-                Run the chain
-                <ArrowRight size={17} />
-              </>
-            )}
+            {isRunning ? 'Running the chain' : 'Run the chain'}
+            {!isRunning && <ArrowRight size={17} />}
           </button>
+          <VerbStatus
+            phase={phase}
+            set="evaluate"
+            label="Running the chain"
+            error={runError}
+            className="mt-3"
+          />
         </StaggerItem>
       </form>
 
@@ -309,7 +316,7 @@ export default function AnalyzePage() {
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.12 }}
-                    className="font-mono text-[13px] text-white/75 flex gap-3"
+                    className="font-mono text-[13px] text-panel-text flex gap-3"
                   >
                     <span className="text-mint-500 shrink-0">✓</span>
                     <span>{note}</span>
