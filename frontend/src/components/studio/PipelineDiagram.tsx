@@ -41,11 +41,7 @@ export function PipelineDiagram({
   return (
     <div className="studio-card relative overflow-hidden p-6">
       <div className="flex items-center gap-2.5 mb-6">
-        <motion.span
-          className="w-1.5 h-1.5 rounded-full bg-mint-600"
-          animate={{ opacity: [1, 0.25, 1] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-        />
+<span className="live-dot" />
         <span className="eyebrow">{liveLabel}</span>
       </div>
 

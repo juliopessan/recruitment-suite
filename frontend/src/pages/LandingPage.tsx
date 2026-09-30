@@ -12,6 +12,7 @@ import { SplitHeading } from '@/components/studio/SplitHeading'
 import { ScoreRow } from '@/components/studio/Meter'
 import { ScrollProgress } from '@/components/studio/ScrollProgress'
 import { ThemeToggle } from '@/components/studio/ThemeToggle'
+import { Rail } from '@/components/studio/Rail'
 
 const NAV = [
   { href: '#cost', label: 'The cost' },
@@ -99,7 +100,7 @@ export default function LandingPage() {
       <ScrollProgress />
       {/* ── Header ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-paper/95 backdrop-blur-sm border-b border-ink/15">
-        <div className="max-w-[1200px] mx-auto px-6 h-[72px] flex items-center justify-between gap-6">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-3 sm:gap-6">
           <motion.div
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
@@ -120,7 +121,7 @@ export default function LandingPage() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             <ThemeToggle />
             <span className="chip hidden md:inline-flex">V1.0 / 5 Agents</span>
             {token ? (
@@ -134,7 +135,7 @@ export default function LandingPage() {
                 </button>
               </>
             ) : (
-              <button onClick={() => navigate('/login')} className="btn-secondary">
+              <button onClick={() => navigate('/login')} className="btn-secondary px-3 sm:px-5">
                 Sign in
               </button>
             )}
@@ -516,6 +517,27 @@ export default function LandingPage() {
                 </Ledger>
               </StaggerItem>
             </div>
+
+            <StaggerItem className="mt-20">
+              <p className="eyebrow mb-8">The recruiter's loop</p>
+              <Rail
+                className="[--rail-ground:rgb(var(--paper-2))]"
+                steps={[
+                  {
+                    title: 'Run the chain',
+                    body: 'CV, LinkedIn and the job description go in; five agents return one scorecard.',
+                  },
+                  {
+                    title: 'Hold the interview',
+                    body: 'Five STAR questions built from the gaps the chain found, technical and behavioural.',
+                  },
+                  {
+                    title: 'Recalculate scores',
+                    body: 'Paste what the room confirmed. The chain runs again and no score goes down.',
+                  },
+                ]}
+              />
+            </StaggerItem>
           </Reveal>
         </div>
       </section>

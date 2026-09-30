@@ -302,11 +302,7 @@ export default function AnalyzePage() {
           >
             <div className="panel p-6">
               <div className="flex items-center gap-2.5 mb-5">
-                <motion.span
-                  className="w-1.5 h-1.5 rounded-full bg-mint-500"
-                  animate={{ opacity: [1, 0.25, 1] }}
-                  transition={{ duration: 1.4, repeat: Infinity }}
-                />
+<span className="live-dot" />
                 <span className="panel-label">Pipeline trace</span>
               </div>
               <div className="space-y-1.5">
