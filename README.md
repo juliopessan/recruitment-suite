@@ -1,8 +1,8 @@
 # Recruitment Suite
 
-> Agentic candidate evaluation platform. Upload a CV, add a LinkedIn URL, paste a job description in free text — six specialized agents score the candidate across Profile, Technical Skills, Culture Fit, References, and (optionally) People Analytics, and synthesize a hiring recommendation with a full HTML report in English or Portuguese.
+> Agentic candidate evaluation platform. Upload a CV, add a LinkedIn URL, paste a job description in free text — six specialized agents (reading the record with [TypeSafe Jev](https://docs.typesafe.ai) when enabled) score the candidate across Profile, Technical Skills, Culture Fit, References, and (optionally) People Analytics, and synthesize a hiring recommendation with a full HTML report in English or Portuguese.
 
-**Stack:** FastAPI (Python) + React/Vite (TypeScript) · SQLAlchemy · Redux Toolkit · Tailwind + Framer Motion
+**Stack:** FastAPI (Python) + React/Vite (TypeScript) · SQLAlchemy · Redux Toolkit · Tailwind + Framer Motion · TypeSafe Jev (semantic judgments)
 **Deployment:** Vercel (frontend + backend as a single serverless project)
 **Live:** https://recruitment-suite.vercel.app
 
@@ -13,7 +13,7 @@
 ## What it does
 
 1. **Agentic analysis** — upload a CV (PDF/DOCX/TXT) and/or a LinkedIn URL, paste a free-text job description. The pipeline extracts CV text, enriches the LinkedIn profile via the [Exa API](https://exa.ai), parses the JD (skills, seniority, years required, languages, urgency, People Analytics detection), and runs the full multi-agent evaluation — all from one form.
-2. **Multi-agent scoring** — 6 agents evaluate independently, then an orchestrator combines their scores into a weighted final score and a GO / HOLD / NO-GO recommendation with rationale, strengths, gaps, critical flags, next steps, and an onboarding plan.
+2. **Multi-agent scoring** — 6 agents evaluate independently (with `TYPESAFE_API_KEY`, each reads the CV and LinkedIn text through Jev rather than matching keywords), then an orchestrator combines their scores into a weighted final score and a GO / HOLD / NO-GO recommendation with rationale, strengths, gaps, critical flags, next steps, and an onboarding plan.
 3. **Post-interview recalculation** — after the interview, add free-text notes. The pipeline re-runs against the CV + notes, and an interview-verification bonus credits skills the interviewer directly confirmed (even if the CV already claimed them) — every score can only rise or hold, never regress below the pre-notes baseline.
 4. **Bilingual reports** — every generated evaluation (recommendation text, next steps, onboarding plan, report chrome) is rendered in **English (en-US)** or **Portuguese (pt-BR)**, selected per analysis.
 5. **Exportable HTML report** — a full, printable, branded report per evaluation with a score-breakdown accordion (each dimension explains *why* it scored that way), strengths/gaps/critical-flags, a rationale pull-quote, a next-steps/onboarding roadmap, and the post-interview notes. One click prints to PDF via the browser (no server-side PDF dependency) or downloads the raw HTML.
@@ -56,7 +56,7 @@ People Analytics roles: Final = Profile 15% + People Analytics 40% + Culture 25%
 
 The very first pre-notes score/status is snapshotted once (`pre_interview_score`/`pre_interview_status`) so the report can always show the before/after delta, no matter how many rounds of notes are added afterward.
 
-### Semantic judgments with TypeSafe (optional)
+### Semantic judgments with TypeSafe Jev (optional, live in production)
 
 With `TYPESAFE_API_KEY` set, the agents read the CV and LinkedIn text through [TypeSafe](https://docs.typesafe.ai) (Jev) instead of matching keywords. Code still owns weights, thresholds and GO / HOLD / NO-GO; TypeSafe only answers narrow, typed questions (`src/services/typesafe_judge.py`).
 
@@ -72,6 +72,16 @@ With `TYPESAFE_API_KEY` set, the agents read the CV and LinkedIn text through [T
 - **Human review routing**: a judgment with confidence < 0.5 becomes a "Verify manually" next step, and each one lowers the evaluation `confidence` by 4 points (capped at 20).
 - **Fallback**: with no key, or if the API fails, every agent uses the rule-based scoring above. An evaluation never fails because of TypeSafe.
 - **Privacy**: e-mail, phone number and the candidate's name are redacted from the text sent, and every question instructs the model to ignore personal attributes (name, age, gender, nationality). Judge scores still need validation on your own labeled hires before you trust the thresholds.
+- **Measured effect** (4 synthetic CVs, same Data Engineer job, same pipeline with and without the key):
+
+  | Candidate | Rule-based | With Jev |
+  |---|---|---|
+  | A · strong, skills used in depth | 68 | 73 |
+  | B · skills only listed, support background | 70 | 57 |
+  | C · BI analyst, partial stack | 55 | 55 |
+  | D · strong, CV in Portuguese, English implied | 60 | 67 |
+
+  The keyword-stuffed CV no longer outranks the strong one, and working English implied by context is credited. This is a small synthetic check, not a validation: all four still land on HOLD, and thresholds should be calibrated on your own labeled hires.
 - **Cost shape**: one request per agent per evaluation (all questions of an agent run in parallel), cached per identical request.
 
 ---

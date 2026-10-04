@@ -80,7 +80,7 @@ const LIMITS = [
   },
   {
     title: 'Scores are a model of fit, not a measurement of a person.',
-    body: 'Weighted, explainable and repeatable — which is a real improvement over a gut call at 6pm, and still not the truth about somebody.',
+    body: 'Weighted and explainable, with Jev reading the evidence — a real improvement over a gut call at 6pm, and still not the truth about somebody.',
   },
 ]
 
@@ -347,6 +347,21 @@ export default function LandingPage() {
                     HR &amp; People roles swap agent 02 for a People Analytics specialist —
                     listening platforms, org psychology, survey programmes, executive stakeholders.
                   </p>
+
+                  <div className="mt-8 border border-ink p-6">
+                    <p className="eyebrow mb-3">Reading layer / Jev by TypeSafe</p>
+                    <p className="text-sm leading-relaxed mb-3">
+                      The agents read the record with Jev, TypeSafe&apos;s judgment model, instead of
+                      matching keywords. A skill that is only listed earns little; one used on a
+                      described project earns full credit.
+                    </p>
+                    <p className="text-sm text-ink-500 leading-relaxed">
+                      When Jev is unsure, the item becomes a &ldquo;Verify manually&rdquo; next step
+                      and lowers the evaluation&apos;s confidence. Weights and GO / HOLD / NO-GO stay
+                      in plain code, and without the model the agents fall back to rule-based
+                      scoring.
+                    </p>
+                  </div>
                 </div>
               </StaggerItem>
             </div>
