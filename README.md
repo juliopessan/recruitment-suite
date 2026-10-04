@@ -32,7 +32,7 @@
 | **04 · References** | Verifiability of the record — LinkedIn/GitHub presence, dated education, certifications (not a live reference call) | `reference_score` |
 | **05 · Recommendation** | Synthesizes all scores into the final decision | *(built into orchestrator)* |
 | **06 · People Analytics** *(optional, HR/People roles)* | 8 hybrid HR+Tech signal buckets: Employee Listening Platforms, Analytics & Statistics, Organizational Psychology, Survey & Listening Programs, HR Domain Experience, Executive Stakeholder Engagement, Change Management & Transformation, Microsoft Ecosystem (Viva Insights/M365/Copilot/Teams) | `people_analytics_score` |
-| **07 · Eligibility** *(not scored)* | Hard constraints stated in the job (location, work model, time zone, right to work, start date, travel, relocation), each marked **Stated** (quoted from the record) or **Confirm** (becomes a next step). Never fails a candidate; nothing inferred from name, nationality or CV language | `eligibility_checks` |
+| **07 · Eligibility** *(not scored)* | Hard constraints stated in the job (location, work model, CLT/PJ, CNH, time zone, right to work, start date, travel, relocation), each marked **Stated** (quoted from the record) or **Confirm** (becomes a next step). Never fails a candidate; nothing inferred from name, nationality or CV language | `eligibility_checks` |
 
 Agent 06 replaces Agent 02 in the weighted formula when a role is detected (or explicitly flagged) as People Analytics/HR.
 
@@ -61,6 +61,7 @@ The very first pre-notes score/status is snapshotted once (`pre_interview_score`
 
 Location and work model used to be a fixed 75 inside the Profile score. They are knock-out criteria, not fit, so Agent 07 (`src/agents/agent_07_eligibility.py`) now handles them without scoring:
 
+- **Brazil first**: Portuguese job ads are read natively: *presencial / híbrido / remoto em …*, *residir em*, *Grande São Paulo*, hiring regime **CLT / PJ** (PJ also matches "possuo CNPJ"), **CNH**, *início em N dias*, *aviso prévio*, *disponibilidade para viagens / mudança*. Offers such as *auxílio mudança* are ignored. A contract check only counts as stated when the candidate says which regime they accept ("Aceito CLT ou PJ"); a past CLT job is not a preference.
 - **Constraints** come only from the job text, one check per sentence ("Hybrid role based in Manchester" is one check covering work model and location). Offers such as "visa sponsorship provided" are ignored.
 - **Stated vs. Confirm**: with TypeSafe, each check is a Noul ("does the record *explicitly* state this?") and counts as stated only at p ≥ 0.8. Without it, a keyword check only marks a constraint as stated when the record says so explicitly, for every part of the sentence. Anything else is **Confirm**.
 - **Output**: a report section with ▲ Confirm / ✓ Stated rows, and one "Confirm with the candidate: …" next step per open check. The Profile score now uses its four measured dimensions only (weights renormalised).

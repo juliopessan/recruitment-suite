@@ -403,8 +403,10 @@ def judge_eligibility(candidate, requirements: Sequence[str]) -> Optional[List[J
         f"req_{i}": _noul(
             "Does `candidate` explicitly state something showing they meet this job "
             f"requirement: \"{req}\"? Answer yes only for a direct statement in the record "
-            "(a stated current location, work arrangement, availability, travel or "
-            "relocation preference, or right to work). Silence or a guess counts as no."
+            "(a stated current location, work arrangement, availability or notice period, "
+            "travel or relocation preference, right to work, accepted hiring regime such as "
+            "CLT or PJ / having a CNPJ, or a driver's licence such as CNH). "
+            "Silence or a guess counts as no."
         )
         for i, req in enumerate(requirements)
     }

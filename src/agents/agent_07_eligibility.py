@@ -28,18 +28,26 @@ from src.services import typesafe_judge
 
 MET, CONFIRM = "met", "confirm"
 MET_PROBABILITY = 0.8  # a Noul must be this sure before a check counts as met
-MAX_CHECKS = 6
+MAX_CHECKS = 8
 MAX_LABEL = 140
 
 _SENTENCE_SPLIT = re.compile(r"(?<=[.!?;])\s+|\n+")
 
+# Phrases after which a JD names the place, in English and Brazilian Portuguese.
+LOCATION_TRIGGER = (
+    r"\b(based in|located in|location\s*:|must live in|reside in|"
+    r"localiza[cç][aã]o\s*:|local\s*:|residir (?:em|na|no)|morar (?:em|na|no)|sediad[oa] (?:em|na|no)|"
+    r"baseado (?:em|na|no)|alocad[oa] (?:em|na|no)|atua[cç][aã]o (?:presencial |h[íi]brida )?(?:em|na|no)|"
+    r"presencial (?:em|na|no)|h[íi]brido (?:em|na|no)|na regi[aã]o (?:de|da|do))\b"
+)
+
 # kind -> patterns that mark a sentence of the JD as stating that constraint
 JD_PATTERNS: Dict[str, List[str]] = {
     "work_model": [
-        r"\b(on[- ]?site|in[- ]office|presencial|hybrid|h[íi]brido|fully remote|100% remot[eo]|remote[- ]first|remote\b|remoto)\b",
+        r"\b(on[- ]?site|in[- ]office|presencial|hybrid|h[íi]brido|fully remote|100% remot[eo]|remote[- ]first|remote\b|remoto|home[- ]office|trabalho remoto)\b",
     ],
     "location": [
-        r"\b(based in|located in|location\s*:|localiza[cç][aã]o\s*:|must live in|reside in|residir em|sediad[oa] em)\b",
+        LOCATION_TRIGGER,
     ],
     "timezone": [
         r"\b(time ?zones?|fuso hor[aá]rio|overlap with|(?:utc|gmt)\s*[+\-±]\s*\d+|\b(?:est|pst|cet|brt|bst)\b hours?)\b",
@@ -48,32 +56,48 @@ JD_PATTERNS: Dict[str, List[str]] = {
         r"\b(right to work|work(?:ing)? authori[sz]ation|work permit|eligible to work|authori[sz]ed to work|visa|autoriza[cç][aã]o de trabalho)\b",
     ],
     "start_date": [
-        r"\b(start(?:ing)? (?:date|immediately|asap|within)|immediate start|available to start|notice period|in[íi]cio imediato|disponibilidade imediata)\b",
+        r"\b(start(?:ing)? (?:date|immediately|asap|within)|immediate start|available to start|notice period|in[íi]cio imediato|disponibilidade imediata|in[íi]cio em|disponibilidade para in[íi]cio|aviso pr[ée]vio)\b",
+    ],
+    # Brazil: hiring regime. PJ needs the candidate to have (or open) a CNPJ.
+    "contract": [
+        r"\b(CLT|PJ|pessoa jur[íi]dica|regime de contrata[cç][aã]o|CNPJ|cooperad[oa])\b",
+    ],
+    "driver_license": [
+        r"\b(CNH|carteira de habilita[cç][aã]o|driver'?s licen[cs]e)\b",
     ],
     "travel": [
         r"\b(travel(?:ling)? (?:up to|required|\d)|willing(?:ness)? to travel|disponibilidade para viage(?:m|ns))\b",
     ],
     "relocation": [
-        r"\b(relocat\w+|mudan[cç]a de cidade)\b",
+        r"\b(relocat\w+|mudan[cç]a de cidade|disponibilidade para mudan[cç]a)\b",
     ],
 }
 
 # A JD that *offers* something is not a constraint ("visa sponsorship provided").
 _OFFERS = re.compile(
-    r"\b(sponsorship (?:is )?(?:available|provided|offered)|we (?:sponsor|offer)|relocation (?:support|package|assistance)|patroc[íi]nio)\b",
+    r"\b(sponsorship (?:is )?(?:available|provided|offered)|we (?:sponsor|offer)|relocation (?:support|package|assistance)|patroc[íi]nio|aux[íi]lio[- ]mudan[cç]a|ajuda de custo|oferecemos)\b",
     re.IGNORECASE,
 )
 
 # Explicit statements in a candidate's record that settle each kind.
 RECORD_PATTERNS: Dict[str, str] = {
     "work_authorization": r"\b(right to work|authori[sz]ed to work|work permit|valid visa|settled status|permanent resident|green card|autoriza[cç][aã]o de trabalho)\b",
-    "start_date": r"\b(available (?:immediately|from|to start)|notice period|immediate availability|disponibilidade imediata|aviso pr[ée]vio)\b",
+    "start_date": r"\b(available (?:immediately|from|to start)|notice period|immediate availability|disponibilidade imediata|in[íi]cio imediato|aviso pr[ée]vio|posso come[cç]ar)\b",
+    "driver_license": r"\b(CNH|carteira de habilita[cç][aã]o|driver'?s licen[cs]e)\b",
     "travel": r"\b(willing to travel|available to travel|disponibilidade para viage(?:m|ns))\b",
     "relocation": r"\b(willing to relocate|open to relocation|dispon[íi]vel para mudan[cç]a)\b",
     "timezone": r"\b(time ?zone|fuso hor[aá]rio|(?:utc|gmt)\s*[+\-±]\s*\d+)\b",
 }
+# "Aceito PJ", "possuo CNPJ", "CLT ou PJ", "open to PJ": an explicit statement, not a mention.
+_CONTRACT_STATEMENT = re.compile(
+    r"\b(?:aceito|aceita|abert[oa] (?:a|para)|dispon[íi]vel (?:para|como)|possuo|tenho|prefer[eê]ncia(?: por)?|open to|regime)\b"
+    r"[^.\n]{0,25}\b(?:CLT|PJ|CNPJ)\b(?:\s*(?:ou|or|/|e)\s*(?:CLT|PJ))?"
+    r"|\b(?:CLT|PJ)\s*(?:ou|or|/)\s*(?:CLT|PJ)\b|\bCNPJ ativo\b",
+    re.IGNORECASE,
+)
+
 _WORK_MODES = {
-    "remote": r"\b(remote|remoto)\b",
+    "remote": r"\b(remote|remoto|home[- ]office)\b",
     "hybrid": r"\b(hybrid|h[íi]brido)\b",
     "onsite": r"\b(on[- ]?site|in[- ]office|presencial)\b",
 }
@@ -123,10 +147,27 @@ def _rule_check(kind: str, requirement: str, record: str) -> Optional[str]:
                 m = re.search(pattern, record, re.IGNORECASE)
                 return _quote(record, m) if m else None
         return None
+    if kind == "contract":
+        # Which regimes the job accepts; the record must state openness to one of them.
+        wanted = set()
+        if re.search(r"\bCLT\b", requirement):
+            wanted.add("CLT")
+        if re.search(r"\b(PJ|CNPJ|pessoa jur[íi]dica)\b", requirement, re.IGNORECASE):
+            wanted.add("PJ")
+        for m in _CONTRACT_STATEMENT.finditer(record):
+            stated = {"PJ" if t.upper() in ("PJ", "CNPJ") else "CLT" for t in re.findall(r"\b(CLT|PJ|CNPJ)\b", m.group(0), re.IGNORECASE)}
+            if not wanted or stated & wanted:
+                return _quote(record, m)
+        return None
     if kind == "location":
-        # Place names the JD gives after the trigger phrase, e.g. "based in London".
-        tail = re.split(JD_PATTERNS["location"][0], requirement, maxsplit=1, flags=re.IGNORECASE)[-1]
-        places = [p for p in re.findall(r"[A-ZÀ-Ý][\wÀ-ÿ'-]+(?:\s+[A-ZÀ-Ý][\wÀ-ÿ'-]+)*", tail) if len(p) > 2]
+        # Place names the JD gives after the trigger phrase, e.g. "based in London",
+        # "presencial em São Paulo (SP)". "Grande São Paulo" matches "São Paulo".
+        tail = re.split(LOCATION_TRIGGER, requirement, maxsplit=1, flags=re.IGNORECASE)[-1]
+        places = [
+            re.sub(r"^Grande\s+", "", p)
+            for p in re.findall(r"[A-ZÀ-Ý][\wÀ-ÿ'-]+(?:\s+(?:d[aeo]s?\s+)?[A-ZÀ-Ý][\wÀ-ÿ'-]+)*", tail)
+            if len(p) > 2
+        ]
         for place in places:
             m = re.search(r"\b" + re.escape(place) + r"\b", record)
             if m:
@@ -143,7 +184,7 @@ class Agent07Eligibility:
     """Checks the job's hard constraints against what the candidate states."""
 
     name = "Eligibility"
-    description = "Hard constraints from the job (location, work model, time zone, work authorisation, start date, travel): met, or confirm with the candidate"
+    description = "Hard constraints from the job (location, work model, CLT/PJ, CNH, time zone, work authorisation, start date, travel): met, or confirm with the candidate"
 
     def check(self, candidate: Candidate, job: JobDescription) -> List[Dict[str, object]]:
         constraints = extract_constraints(job.description or "")

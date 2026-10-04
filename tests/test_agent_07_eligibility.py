@@ -110,3 +110,56 @@ def test_a_sentence_counts_as_met_only_when_every_part_is_stated():
     cv = "Ana Lima, Data Engineer based in London."
     checks = {c["kind"]: c for c in Agent07Eligibility().check(_candidate(cv), _job())}
     assert checks["work_model+location"]["status"] == CONFIRM
+
+
+# --- Brazil ------------------------------------------------------------------
+
+JD_BR = """Engenheiro(a) de Dados Sênior
+Modelo híbrido, presencial em São Paulo (SP) duas vezes por semana.
+Contratação PJ (necessário CNPJ ativo).
+Necessário CNH categoria B.
+Disponibilidade para viagens nacionais.
+Início em até 30 dias. Oferecemos auxílio mudança.
+Requisitos: Python, SQL e AWS. 5+ anos de experiência."""
+
+
+def test_brazilian_jd_constraints():
+    kinds = [c["kinds"] for c in extract_constraints(JD_BR)]
+    assert kinds == [
+        ["work_model", "location"],
+        ["contract"],
+        ["driver_license"],
+        ["travel"],
+        ["start_date"],  # "Oferecemos auxílio mudança" is an offer, not a constraint
+    ]
+
+
+def test_brazilian_cv_statements_are_met():
+    cv = ("Ana Lima — Engenheira de Dados. Resido em São Paulo, trabalho em modelo híbrido. "
+          "Aceito PJ, possuo CNPJ ativo. CNH B. Disponibilidade para viagens. "
+          "Disponibilidade imediata.")
+    checks = {c["kind"]: c for c in Agent07Eligibility().check(_candidate(cv), _job(JD_BR))}
+    assert {k: c["status"] for k, c in checks.items()} == {
+        "work_model+location": MET,
+        "contract": MET,
+        "driver_license": MET,
+        "travel": MET,
+        "start_date": MET,
+    }
+
+
+def test_contract_needs_an_explicit_statement_of_the_right_regime():
+    job = _job(JD_BR)
+    agent = Agent07Eligibility()
+    def contract(cv):
+        return next(c for c in agent.check(_candidate(cv), job) if c["kind"] == "contract")["status"]
+    assert contract("Trabalhei 5 anos como CLT na Acme.") == CONFIRM  # a past job is not a preference
+    assert contract("Aceito apenas CLT.") == CONFIRM                 # wrong regime
+    assert contract("Aceito CLT ou PJ.") == MET
+    assert contract("Possuo CNPJ.") == MET
+
+
+def test_grande_sao_paulo_matches_a_sao_paulo_record():
+    job = _job("Atuação presencial na região da Grande São Paulo.")
+    checks = Agent07Eligibility().check(_candidate("Moro em São Paulo, trabalho presencial."), job)
+    assert checks[0]["status"] == MET
