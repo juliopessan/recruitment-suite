@@ -39,7 +39,36 @@ def _pdf_text_pymupdf(content: bytes) -> tuple[str, int] | None:
     except ImportError:
         return None
     doc = pymupdf.open(stream=content, filetype="pdf")
-    return "\n".join(page.get_text() for page in doc), max(len(doc), 1)
+    text = "\n".join(page.get_text() for page in doc)
+    name = _largest_heading_line(doc[0]) if len(doc) else None
+    if name and text.lstrip().split("\n", 1)[0].strip() != name:
+        # Designed CVs and LinkedIn's "Save to PDF" put the name in the largest
+        # font, but not first in reading order (LinkedIn starts with a sidebar).
+        text = name + "\n" + text
+    return text, max(len(doc), 1)
+
+
+def _largest_heading_line(page) -> str | None:
+    """The page's largest-font line when it clearly stands out and looks like a name."""
+    lines = []
+    for block in page.get_text("dict").get("blocks", []):
+        for line in block.get("lines", []):
+            spans = [s for s in line.get("spans", []) if s.get("text", "").strip()]
+            if spans:
+                size = max(s.get("size", 0) for s in spans)
+                lines.append((size, " ".join(s["text"].strip() for s in spans)))
+    if len(lines) < 3:
+        return None
+    sizes = sorted(size for size, _ in lines)
+    median = sizes[len(sizes) // 2]
+    size, candidate = max(lines, key=lambda x: x[0])
+    candidate = " ".join(candidate.split())
+    words = candidate.split()
+    if size < median * 1.3 or not (2 <= len(words) <= 5) or any(ch.isdigit() for ch in candidate):
+        return None
+    if EMAIL_RE.search(candidate) or _is_heading(candidate):
+        return None
+    return candidate
 
 
 def _pdf_text_pypdf(content: bytes) -> tuple[str, int]:
@@ -116,6 +145,12 @@ EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
 YEARS_RE = re.compile(r"(\d{1,2})\s*\+?\s*(?:years?|anos?)", re.IGNORECASE)
 
 
+def _is_heading(line: str) -> bool:
+    from src.services.cv_sections import _heading_key  # local: avoids an import cycle
+
+    return _heading_key(line) is not None
+
+
 def guess_candidate_fields(cv_text: str) -> dict:
     """Best-effort extraction of name/email/experience from CV text."""
     fields: dict = {}
@@ -131,6 +166,8 @@ def guess_candidate_fields(cv_text: str) -> dict:
     # First reasonable-looking line as the name
     for line in cv_text.splitlines():
         line = line.strip()
+        if _is_heading(line):
+            continue
         if 2 <= len(line.split()) <= 5 and len(line) < 60 and not EMAIL_RE.search(line) \
                 and not any(ch.isdigit() for ch in line):
             fields["name"] = line

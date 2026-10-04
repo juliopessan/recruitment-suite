@@ -37,7 +37,7 @@ _OTHER_HEADINGS = {
     "summary", "professional summary", "profile", "about", "experience", "professional experience",
     "work experience", "employment", "skills", "technical skills", "core capabilities",
     "technical toolkit", "projects", "selected enterprise impact", "professional focus",
-    "publications", "awards", "interests", "references", "resumo", "experiência", "experiencia",
+    "publications", "awards", "interests", "references", "contact", "top skills", "honors-awards", "honors & awards", "patents", "volunteer experience", "recommendations", "contato", "principais competências", "competências principais", "resumo", "experiência", "experiencia",
     "experiência profissional", "habilidades", "competências", "competencias", "projetos",
 }
 
@@ -84,10 +84,19 @@ def _heading_key(line: str) -> str | None:
 def _split_sections(text: str) -> Dict[str, List[str]]:
     sections: Dict[str, List[str]] = {"education": [], "certifications": [], "languages": []}
     current = None
+    first_line = next((_clean(l) for l in text.splitlines() if _clean(l)), "")
+    seen_first = False
     for raw in text.splitlines():
         line = _clean(raw)
         if not line:
             continue
+        # The name line (moved to the top for PDFs) closes any open section when it
+        # reappears, e.g. after the LinkedIn export's sidebar.
+        if line == first_line:
+            if seen_first:
+                current = None
+                continue
+            seen_first = True
         key = _heading_key(line)
         if key:
             current = key if key in sections else None

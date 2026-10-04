@@ -133,3 +133,36 @@ def test_pdf_keeps_section_structure(monkeypatch):
     assert got["education"] == ["Stanford University", "MBA - Business Strategy"]
     assert got["certifications"] == ["Agentic AI - Accenture (2026)"]
     assert cv_parser.guess_candidate_fields(text)["name"] == "JULIO PESSAN"
+
+
+def _linkedin_export_pdf() -> bytes:
+    """Mimics LinkedIn's 'Save to PDF': sidebar first, name in the largest font."""
+    pymupdf = pytest.importorskip("pymupdf")
+    doc = pymupdf.open()
+    page = doc.new_page()
+    y = 50
+    for line in ["Contact", "www.linkedin.com/in/gabrielhidekisuguiyama", "Top Skills", "Python",
+                 "Apache Spark", "Languages", "English (Full Professional)", "Portuguese (Native or Bilingual)",
+                 "Certifications", "AWS Certified Data Engineer"]:
+        page.insert_text((40, y), line, fontsize=9)
+        y += 14
+    page.insert_text((220, 60), "Gabriel Hideki Suguiyama", fontsize=24)
+    y = 90
+    for line in ["Data Engineer at Acme", "São Paulo, Brazil", "Summary",
+                 "Engenheiro de dados com 6 anos de experiência em pipelines na AWS.",
+                 "Experience", "Acme", "Data Engineer", "2021 - Present (4 years)",
+                 "Education", "Universidade de São Paulo",
+                 "Bacharelado, Engenharia de Computação · (2014 - 2019)"]:
+        page.insert_text((220, y), line, fontsize=10)
+        y += 16
+    return doc.tobytes()
+
+
+def test_linkedin_pdf_export_is_read_like_a_cv(monkeypatch):
+    monkeypatch.setattr(ocr, "ocr_pdf", lambda c: pytest.fail("OCR must not run for text PDFs"))
+    text = extract_cv_text("Profile.pdf", _linkedin_export_pdf())
+    assert cv_parser.guess_candidate_fields(text)["name"] == "Gabriel Hideki Suguiyama"
+    got = extract_profile_sections(text)
+    assert got["certifications"] == ["AWS Certified Data Engineer"]  # name/headline not swallowed
+    assert got["languages"] == ["English", "Portuguese"]
+    assert got["education"][0] == "Universidade de São Paulo"

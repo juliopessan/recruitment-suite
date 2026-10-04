@@ -164,3 +164,21 @@ class TestAnalyze:
         body = response.json()
         assert body["candidate_name"] == "Unknown Candidate"
         assert any("name" in note.lower() for note in body["pipeline_notes"])
+
+
+def test_linkedin_only_failure_explains_the_pdf_export(monkeypatch):
+    from src.services.linkedin_enricher import EnrichmentError
+
+    monkeypatch.setenv("EXA_API_KEY", "k")
+
+    def fail(url, timeout=30):
+        raise EnrichmentError("Exa could not read this LinkedIn profile (private, or not indexed yet)")
+
+    monkeypatch.setattr("src.api.routes.analyze.enrich_linkedin", fail)
+    response = client.post(
+        "/api/analyze/run",
+        data={"job_description": SAMPLE_JD, "linkedin_url": "https://www.linkedin.com/in/x/"},
+    )
+    assert response.status_code == 502
+    detail = response.json()["detail"]
+    assert "Save to PDF" in detail and ".." not in detail

@@ -67,6 +67,11 @@ Location and work model used to be a fixed 75 inside the Profile score. They are
 - **Output**: a report section with ▲ Confirm / ✓ Stated rows, and one "Confirm with the candidate: …" next step per open check. The Profile score now uses its four measured dimensions only (weights renormalised).
 - **Fairness**: the agent never infers location, right to work or availability from a name, nationality or the language a CV is written in.
 
+### LinkedIn without a CV
+
+- **Exa enrichment** canonicalises the profile URL first (`?isSelfProfile=false`, `br.` subdomains and tracking parameters are stripped), asks Exa for a live crawl when nothing is cached, and then falls back to a LinkedIn-profile search by the name in the slug. A search result is accepted **only if it is the same profile slug**, so the pipeline never evaluates the wrong person. A login wall counts as no content.
+- **When Exa cannot read the profile** (private or not indexed), the API says so and points to LinkedIn's own export: open the profile, **More → Save to PDF**, and upload that PDF in the CV field. The export is parsed like any CV: the name is taken from the largest font on page 1, and the sidebar (Contact, Top Skills, Languages, Certifications) is split into the right fields.
+
 ### CV extraction and OCR
 
 - **Text extraction**: PDFs are read with PyMuPDF (layout-aware, one visual line per line), with `pypdf` as a fallback. DOCX, TXT and MD are read directly.

@@ -85,7 +85,7 @@ export default function AnalyzePage() {
       setTimeout(() => navigate(`/evaluations/${data.evaluation_id}`), 900)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Analysis failed'
-      setRunError(`Chain run failed: ${message}. Check the inputs and run the chain again.`)
+      setRunError(`Chain run failed: ${message.replace(/[.\s]+$/, '')}. Check the inputs and run the chain again.`)
       setPhase('error')
       tab.set({ state: 'error' })
       toast.error(message)

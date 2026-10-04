@@ -73,9 +73,14 @@ async def run_analysis(
             # LinkedIn was the only source and Exa could not deliver — say why
             detail = f"LinkedIn enrichment failed: {enrichment_error}"
             if "EXA_API_KEY" in enrichment_error:
-                detail += ". Configure the EXA_API_KEY environment variable on the server, or upload a CV file instead."
+                detail += ". Configure the EXA_API_KEY environment variable on the server, or upload a CV file instead"
             else:
-                detail += ". Try uploading a CV file instead."
+                # LinkedIn exports any profile you can see as a PDF, which the
+                # CV parser reads like any other CV.
+                detail += (
+                    ". Without a CV, export the profile from LinkedIn: open it, click "
+                    "More → Save to PDF, and upload that PDF in the CV field"
+                )
             raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail)
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
