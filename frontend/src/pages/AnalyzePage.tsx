@@ -30,7 +30,7 @@ export default function AnalyzePage() {
   const [jobTitle, setJobTitle] = useState('')
   const [company, setCompany] = useState('')
   const [jobDescription, setJobDescription] = useState('')
-  const [language, setLanguage] = useState<'en-US' | 'pt-BR'>('en-US')
+  const [language, setLanguage] = useState<'en-US' | 'pt-BR'>('pt-BR')
   const [isRunning, setIsRunning] = useState(false)
   const [notes, setNotes] = useState<string[]>([])
   const [dragOver, setDragOver] = useState(false)
@@ -254,7 +254,7 @@ export default function AnalyzePage() {
                 Output language <span className="text-ink-300">— report &amp; recommendation</span>
               </label>
               <div className="inline-flex border border-ink/20">
-                {(['en-US', 'pt-BR'] as const).map((lang, i) => (
+                {(['pt-BR', 'en-US'] as const).map((lang, i) => (
                   <button
                     key={lang}
                     type="button"
