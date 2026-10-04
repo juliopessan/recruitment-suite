@@ -18,9 +18,9 @@ en-US:
     culture_tech_gap: "Large Culture-Tech gap (%{gap} points)"
 
   next_steps:
-    go: "✅ Extend offer\n✅ Complete reference verification\n✅ Background check\n✅ Schedule onboarding"
-    hold: "🟡 Schedule manager discussion\n🟡 Get additional data (skills assessment, etc.)\n🟡 Technical interview (if score 60-74)\n🟡 Revisit decision in 1 week"
-    no_go: "❌ Send respectful rejection\n❌ Archive candidate\n❌ Internal debrief (why we passed?)"
+    go: "Extend offer\nComplete reference verification\nBackground check\nSchedule onboarding"
+    hold: "Schedule manager discussion\nGet additional data (skills assessment, etc.)\nTechnical interview (if score 60-74)\nRevisit decision in 1 week"
+    no_go: "Send respectful rejection\nArchive candidate\nInternal debrief (why we passed?)"
 
   onboarding: "Week 1-2: Orientation & company culture\nWeek 2-4: Technical deep-dive & skill assessment\nWeek 4-6: First project (paired with mentor)\nWeek 6+: Full autonomy & ramp-up"
 

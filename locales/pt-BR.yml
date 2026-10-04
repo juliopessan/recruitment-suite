@@ -18,9 +18,9 @@ pt-BR:
     culture_tech_gap: "Grande discrepância Cultura-Técnico (%{gap} pontos)"
 
   next_steps:
-    go: "✅ Estender proposta\n✅ Concluir verificação de referências\n✅ Verificação de antecedentes\n✅ Agendar onboarding"
-    hold: "🟡 Agendar discussão com o gestor\n🟡 Obter dados adicionais (avaliação de skills, etc.)\n🟡 Entrevista técnica (se nota entre 60-74)\n🟡 Revisitar decisão em 1 semana"
-    no_go: "❌ Enviar recusa respeitosa\n❌ Arquivar candidato\n❌ Debrief interno (por que não avançamos?)"
+    go: "Estender proposta\nConcluir verificação de referências\nVerificação de antecedentes\nAgendar onboarding"
+    hold: "Agendar discussão com o gestor\nObter dados adicionais (avaliação de skills, etc.)\nEntrevista técnica (se nota entre 60-74)\nRevisitar decisão em 1 semana"
+    no_go: "Enviar recusa respeitosa\nArquivar candidato\nDebrief interno (por que não avançamos?)"
 
   onboarding: "Semana 1-2: Orientação e cultura da empresa\nSemana 2-4: Aprofundamento técnico e avaliação de skills\nSemana 4-6: Primeiro projeto (com mentor)\nSemana 6+: Autonomia total e ramp-up"
 
