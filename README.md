@@ -56,6 +56,24 @@ People Analytics roles: Final = Profile 15% + People Analytics 40% + Culture 25%
 
 The very first pre-notes score/status is snapshotted once (`pre_interview_score`/`pre_interview_status`) so the report can always show the before/after delta, no matter how many rounds of notes are added afterward.
 
+### Semantic judgments with TypeSafe (optional)
+
+With `TYPESAFE_API_KEY` set, the agents read the CV and LinkedIn text through [TypeSafe](https://docs.typesafe.ai) (Jev) instead of matching keywords. Code still owns weights, thresholds and GO / HOLD / NO-GO; TypeSafe only answers narrow, typed questions (`src/services/typesafe_judge.py`).
+
+| Agent | Judgment | Primitive |
+|---|---|---|
+| 01 · Profile | Career growth, scope vs. target seniority, education relevance | Score (4 levels) |
+| 01 · Profile | Each required language evidenced in the record | Noul |
+| 02 · Technical | Evidence depth per required / nice-to-have skill: absent → only named → used in a role → owned or delivered results | Score (4 levels) |
+| 03 · Culture | Evidence per behavioral theme (buzzword vs. described situation vs. measurable outcome) and fit to team context | Score (4 levels) |
+| 04 · References | How checkable the record is; CV vs. LinkedIn contradiction (flagged only at p ≥ 0.8, as "verify") | Score, Noul |
+| 06 · People Analytics | Evidence depth per expertise area | Score (4 levels) |
+
+- **Human review routing**: a judgment with confidence < 0.5 becomes a "Verify manually" next step, and each one lowers the evaluation `confidence` by 4 points (capped at 20).
+- **Fallback**: with no key, or if the API fails, every agent uses the rule-based scoring above. An evaluation never fails because of TypeSafe.
+- **Privacy**: e-mail, phone number and the candidate's name are redacted from the text sent, and every question instructs the model to ignore personal attributes (name, age, gender, nationality). Judge scores still need validation on your own labeled hires before you trust the thresholds.
+- **Cost shape**: one request per agent per evaluation (all questions of an agent run in parallel), cached per identical request.
+
 ---
 
 ## Backend (FastAPI)
@@ -114,6 +132,7 @@ version
 |---|---|
 | `DATABASE_URL` | SQLite by default (`sqlite:///./recruitment_suite.db`); **on Vercel serverless this falls back to an ephemeral `/tmp` file that resets on cold start** — set a persistent Postgres URL (Vercel Postgres/Neon/Supabase) for production durability |
 | `EXA_API_KEY` | Required for LinkedIn enrichment in `/api/analyze/run`; degrades gracefully (uses CV only) if missing |
+| `TYPESAFE_API_KEY`, `TYPESAFE_MODEL` | Optional. Enables TypeSafe semantic judgments (see above); key from https://console.typesafe.ai/, model defaults to `jev-latest`. Server-side only, never a `VITE_*` variable |
 | `SQL_ECHO`, `API_HOST`, `API_PORT`, `CORS_ORIGINS` | Standard FastAPI/dev server tuning |
 
 ---

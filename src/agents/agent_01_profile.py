@@ -1,6 +1,7 @@
 """Agent 01: Candidate Profile Evaluator."""
 
 from src.models import Candidate, JobDescription, AgentScore, AgentType
+from src.services import typesafe_judge
 from .base_agent import BaseAgent
 
 
@@ -28,6 +29,10 @@ class Agent01Profile(BaseAgent):
         score = 0
         gaps = []
         strengths = []
+        review = []  # ambiguous judgments routed to a person
+
+        # Graded judgments from TypeSafe when available; None -> rule-based paths.
+        judged = typesafe_judge.judge_profile(candidate, job)
 
         # Years of experience (25%)
         exp_score = self._evaluate_experience(
@@ -38,28 +43,39 @@ class Agent01Profile(BaseAgent):
         )
 
         # Education & domain expertise (30%)
-        edu_score = self._evaluate_education(
-            candidate.profile.education,
-            job.required_skills,
-            gaps,
-            strengths,
-        )
+        if judged is not None:
+            edu_score = self._judged_education(judged.education, gaps, strengths, review)
+        else:
+            edu_score = self._evaluate_education(
+                candidate.profile.education,
+                job.required_skills,
+                gaps,
+                strengths,
+            )
 
         # Seniority trajectory (20%)
-        traj_score = self._evaluate_trajectory(
-            candidate.profile,
-            job.seniority_level,
-            gaps,
-            strengths,
-        )
+        if judged is not None:
+            traj_score = self._judged_trajectory(
+                judged, job.seniority_level, gaps, strengths, review
+            )
+        else:
+            traj_score = self._evaluate_trajectory(
+                candidate.profile,
+                job.seniority_level,
+                gaps,
+                strengths,
+            )
 
         # Language requirements (15%)
-        lang_score = self._evaluate_languages(
-            candidate.profile.languages,
-            job.required_languages,
-            gaps,
-            strengths,
-        )
+        if judged is not None and job.required_languages:
+            lang_score = self._judged_languages(judged.languages, gaps, strengths, review)
+        else:
+            lang_score = self._evaluate_languages(
+                candidate.profile.languages,
+                job.required_languages,
+                gaps,
+                strengths,
+            )
 
         # Geographic fit (10%)
         geo_score = 75  # Simplified for now
@@ -82,6 +98,7 @@ Profile Evaluation for {candidate.profile.name}:
 
 Strengths: {', '.join(strengths) if strengths else 'None detected'}
 Gaps: {', '.join(gaps) if gaps else 'None detected'}
+{'Education, trajectory and languages judged by TypeSafe.' if judged is not None else ''}
 """
 
         dimension_scores = [
@@ -114,8 +131,54 @@ Gaps: {', '.join(gaps) if gaps else 'None detected'}
             analysis=analysis,
             dimension_scores=dimension_scores,
             red_flags=gaps,
-            recommendations=[f"Consider {gap}" for gap in gaps],
+            recommendations=[f"Consider {gap}" for gap in gaps] + review,
         )
+
+    # --- TypeSafe-judged variants (same 0-100 scale as the rule-based ones) ---
+
+    @staticmethod
+    def _judged_education(edu, gaps: list, strengths: list, review: list) -> float:
+        """Education relevance: 60 = nothing relevant on record, 100 = directly relevant."""
+        if edu.value < 0.5:
+            gaps.append("No education details found")
+        elif edu.value >= 1.5:
+            strengths.append("Education or training relevant to the role")
+        if edu.uncertain:
+            review.append(typesafe_judge.uncertain_note("education relevance", edu))
+        return 60.0 + 40.0 * edu.unit
+
+    @staticmethod
+    def _judged_trajectory(
+        judged, required_level: str, gaps: list, strengths: list, review: list
+    ) -> float:
+        """Career growth and scope vs. the target level, blended 50/50 into 50-100."""
+        growth, scope = judged.growth, judged.scope
+        if growth.value >= 1.5:
+            strengths.append("Career progression visible in profile")
+        else:
+            gaps.append("No clear career progression in profile")
+        if scope.value >= 1.5:
+            strengths.append(f"Scope matches {required_level} level")
+        elif scope.value < 1.0:
+            gaps.append(f"Scope below {required_level} level")
+        for label, j in (("career progression", growth), (f"{required_level} scope", scope)):
+            if j.uncertain:
+                review.append(typesafe_judge.uncertain_note(label, j))
+        blend = 0.5 * growth.unit + 0.5 * min(1.0, scope.value / 2.0)
+        return 50.0 + 50.0 * blend
+
+    @staticmethod
+    def _judged_languages(languages: dict, gaps: list, strengths: list, review: list) -> float:
+        """Required languages as probabilities, then the same scoring as the rule-based path."""
+        missing = [lang for lang, j in languages.items() if j.value < 0.5]
+        for lang, j in languages.items():
+            if j.uncertain:
+                review.append(typesafe_judge.uncertain_note(f"{lang} proficiency", j))
+        if not missing:
+            strengths.append(f"All required languages: {', '.join(languages)}")
+            return 95.0
+        gaps.append(f"Missing {len(missing)} required language(s)")
+        return max(50.0, 80.0 - len(missing) * 15)
 
     def _evaluate_experience(
         self,

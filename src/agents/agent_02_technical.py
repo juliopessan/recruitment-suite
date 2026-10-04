@@ -1,6 +1,7 @@
 """Agent 02: Technical Skills Evaluator."""
 
 from src.models import Candidate, JobDescription, AgentScore, AgentType
+from src.services import typesafe_judge
 from .base_agent import BaseAgent
 
 
@@ -19,24 +20,42 @@ class Agent02Technical(BaseAgent):
         corpus = self._candidate_corpus(candidate)
         gaps = []
         strengths = []
+        review = []  # ambiguous judgments routed to a person
+
+        # Graded evidence from TypeSafe when available; None -> literal/LLM matching.
+        judged = typesafe_judge.judge_skills(
+            candidate, job, job.required_skills, job.nice_to_have_skills
+        )
 
         # Required skills coverage (70%)
-        matched_req, missing_req = self._match_skills(job.required_skills, corpus)
-        if job.required_skills:
-            req_score = 100.0 * len(matched_req) / len(job.required_skills)
+        if judged is not None:
+            matched_req, missing_req, req_ratio = self._split_by_evidence(
+                job.required_skills, judged.required, review
+            )
+            req_score = 100.0 * req_ratio if job.required_skills else 75.0
         else:
-            req_score = 75.0  # No requirements listed; neutral score
+            matched_req, missing_req = self._match_skills(job.required_skills, corpus)
+            if job.required_skills:
+                req_score = 100.0 * len(matched_req) / len(job.required_skills)
+            else:
+                req_score = 75.0  # No requirements listed; neutral score
         for skill in matched_req:
             strengths.append(f"Required skill evidenced: {skill}")
         for skill in missing_req:
             gaps.append(f"No evidence of required skill: {skill}")
 
         # Nice-to-have coverage (15%)
-        matched_nice, missing_nice = self._match_skills(job.nice_to_have_skills, corpus)
-        if job.nice_to_have_skills:
-            nice_score = 100.0 * len(matched_nice) / len(job.nice_to_have_skills)
+        if judged is not None:
+            matched_nice, missing_nice, nice_ratio = self._split_by_evidence(
+                job.nice_to_have_skills, judged.nice, review
+            )
+            nice_score = 100.0 * nice_ratio if job.nice_to_have_skills else 50.0
         else:
-            nice_score = 50.0
+            matched_nice, missing_nice = self._match_skills(job.nice_to_have_skills, corpus)
+            if job.nice_to_have_skills:
+                nice_score = 100.0 * len(matched_nice) / len(job.nice_to_have_skills)
+            else:
+                nice_score = 50.0
         for skill in matched_nice:
             strengths.append(f"Nice-to-have skill: {skill}")
 
@@ -56,6 +75,7 @@ class Agent02Technical(BaseAgent):
             f" ({', '.join(matched_req) if matched_req else 'none'}); "
             f"{len(matched_nice)}/{len(job.nice_to_have_skills)} nice-to-have skills; "
             f"{len(certs)} certification(s)."
+            f"{' Evidence depth judged by TypeSafe.' if judged is not None else ''}"
         )
 
         dimension_scores = [
@@ -79,5 +99,23 @@ class Agent02Technical(BaseAgent):
             analysis=analysis,
             dimension_scores=dimension_scores,
             red_flags=[g for g in gaps if "required" in g],
-            recommendations=[f"Probe in interview: {s}" for s in missing_req],
+            recommendations=[f"Probe in interview: {s}" for s in missing_req] + review,
         )
+
+    @staticmethod
+    def _split_by_evidence(skills, judgments, review):
+        """Turn graded skill judgments into (matched, missing, coverage ratio).
+
+        A skill counts as evidenced from "used in a described role" upward
+        (level >= 1.5 of 3). Credit is graded: only being named earns about a
+        third, a described use earns full credit. Ambiguous judgments are
+        appended to `review` for a person to verify.
+        """
+        matched, missing, credit = [], [], 0.0
+        for skill, j in zip(skills, judgments):
+            credit += min(1.0, j.value / 2.0)
+            (matched if j.value >= 1.5 else missing).append(skill)
+            if j.uncertain:
+                review.append(typesafe_judge.uncertain_note(skill, j))
+        ratio = credit / len(skills) if skills else 0.0
+        return matched, missing, ratio

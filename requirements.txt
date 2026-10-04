@@ -13,6 +13,7 @@ httpx>=0.27
 pypdf>=4.0
 python-docx>=1.1
 python-multipart>=0.0.9
+typesafe-sdk>=0.7
 
 # Optional (CLI batch mode): pip install pandas
 # pandas>=2.1
