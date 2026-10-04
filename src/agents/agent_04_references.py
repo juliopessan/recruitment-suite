@@ -1,6 +1,7 @@
 """Agent 04: Reference Validator."""
 
 from src.models import Candidate, JobDescription, AgentScore, AgentType
+from src.services import typesafe_judge
 from .base_agent import BaseAgent
 
 
@@ -48,7 +49,30 @@ class Agent04References(BaseAgent):
             score += 10.0
             strengths.append(f"{len(profile.certifications)} certification(s) verifiable with issuers")
 
-        if candidate.cv_text and len(candidate.cv_text) > 100:
+        review = []  # ambiguous or contradictory findings routed to a person
+        judged = typesafe_judge.judge_verifiability(candidate, job)
+
+        if judged is not None:
+            # How checkable the record is: up to +15 (replaces the flat +5 for text length).
+            c = judged.concreteness
+            score += 15.0 * c.unit
+            if c.value >= 1.5:
+                strengths.append("Roles state employers, dates and checkable outcomes")
+            else:
+                gaps.append("Claims are vague: few named employers, dates or outcomes")
+            if c.uncertain:
+                review.append(typesafe_judge.uncertain_note("record concreteness", c))
+
+            # A contradiction between CV and LinkedIn is only worth a person's
+            # time when the model is confident; it stays a "verify", not a verdict.
+            inc = judged.inconsistency
+            if inc is not None and inc.value >= 0.8:
+                gaps.append("CV and LinkedIn may disagree on employers, titles or dates")
+                review.append(
+                    f"{typesafe_judge.UNCERTAIN_PREFIX}CV vs LinkedIn employers/titles/dates "
+                    f"(possible mismatch, p={inc.value:.2f})"
+                )
+        elif candidate.cv_text and len(candidate.cv_text) > 100:
             score += 5.0
         elif not candidate.cv_text:
             gaps.append("No CV text provided")
@@ -69,5 +93,5 @@ class Agent04References(BaseAgent):
                                       gaps=gaps, strengths=strengths),
             ],
             red_flags=gaps,
-            recommendations=["Complete formal reference calls before offer"],
+            recommendations=["Complete formal reference calls before offer"] + review,
         )

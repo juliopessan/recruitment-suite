@@ -1,6 +1,7 @@
 """Agent 03: Culture Fit Analyzer."""
 
 from src.models import Candidate, JobDescription, AgentScore, AgentType
+from src.services import typesafe_judge
 from .base_agent import BaseAgent
 
 # Signals of collaboration, leadership and adaptability we look for in the record
@@ -38,36 +39,69 @@ class Agent03Culture(BaseAgent):
         corpus = self._candidate_corpus(candidate)
         strengths = []
         gaps = []
+        review = []  # ambiguous judgments routed to a person
 
-        # Soft-skill signals in the candidate record (60%)
-        found = [s for s in SOFT_SKILL_SIGNALS if s in corpus]
-        signal_score = min(100.0, 55.0 + 8.0 * len(found))
-        if found:
-            strengths.append(f"Soft-skill signals: {', '.join(found[:6])}")
+        # Graded behavioral evidence from TypeSafe when available.
+        judged = typesafe_judge.judge_behaviors(candidate, job, list(BEHAVIORAL_THEMES))
+        found = []
+
+        if judged is not None:
+            theme_judgments, context_judgment = judged
+
+            # Behavioral evidence (60%): a described situation counts, a buzzword
+            # barely does. 55 = no evidence, 100 = every theme shown with outcomes.
+            mean_unit = sum(j.unit for j in theme_judgments.values()) / len(theme_judgments)
+            signal_score = 55.0 + 45.0 * mean_unit
+            theme_strengths = [t for t, j in theme_judgments.items() if j.value >= 1.5]
+            theme_gaps = [t for t in BEHAVIORAL_THEMES if t not in theme_strengths]
+            if theme_strengths:
+                strengths.append(f"Behavioral evidence: {', '.join(theme_strengths)}")
+            else:
+                gaps.append("No concrete behavioral evidence in candidate record")
+            review += [
+                typesafe_judge.uncertain_note(t, j)
+                for t, j in theme_judgments.items() if j.uncertain
+            ]
+            found = theme_strengths
         else:
-            gaps.append("No soft-skill signals detected in candidate record")
-            signal_score = 55.0
+            # Soft-skill signals in the candidate record (60%)
+            found = [s for s in SOFT_SKILL_SIGNALS if s in corpus]
+            signal_score = min(100.0, 55.0 + 8.0 * len(found))
+            if found:
+                strengths.append(f"Soft-skill signals: {', '.join(found[:6])}")
+            else:
+                gaps.append("No soft-skill signals detected in candidate record")
+                signal_score = 55.0
 
-        # The same evidence, regrouped into nameable themes for the interview
-        # guide (see BEHAVIORAL_THEMES) — kept separate from `found` above so
-        # the existing score formula is untouched.
-        theme_strengths = [
-            theme for theme, tokens in BEHAVIORAL_THEMES.items()
-            if any(tok in corpus for tok in tokens)
-        ]
-        theme_gaps = [t for t in BEHAVIORAL_THEMES if t not in theme_strengths]
+            # The same evidence, regrouped into nameable themes for the interview
+            # guide (see BEHAVIORAL_THEMES) — kept separate from `found` above so
+            # the existing score formula is untouched.
+            theme_strengths = [
+                theme for theme, tokens in BEHAVIORAL_THEMES.items()
+                if any(tok in corpus for tok in tokens)
+            ]
+            theme_gaps = [t for t in BEHAVIORAL_THEMES if t not in theme_strengths]
 
         # Alignment with the job's team context (25%)
         context_score = 70.0
         if job.team_context:
-            context_tokens = [
-                t for t in job.team_context.lower().replace(",", " ").split()
-                if len(t) > 4
-            ]
-            hits = [t for t in context_tokens if t in corpus]
-            context_score = min(100.0, 60.0 + 10.0 * len(hits))
-            if hits:
-                strengths.append(f"Team-context alignment: {', '.join(sorted(set(hits))[:5])}")
+            if judged is not None and context_judgment is not None:
+                context_score = 60.0 + 40.0 * context_judgment.unit
+                if context_judgment.value >= 1.5:
+                    strengths.append("Team-context alignment: described work matches the team's domain")
+                if context_judgment.uncertain:
+                    review.append(
+                        typesafe_judge.uncertain_note("team-context alignment", context_judgment)
+                    )
+            else:
+                context_tokens = [
+                    t for t in job.team_context.lower().replace(",", " ").split()
+                    if len(t) > 4
+                ]
+                hits = [t for t in context_tokens if t in corpus]
+                context_score = min(100.0, 60.0 + 10.0 * len(hits))
+                if hits:
+                    strengths.append(f"Team-context alignment: {', '.join(sorted(set(hits))[:5])}")
 
         # Language/communication readiness (15%) — multilingual is a proxy for
         # cross-cultural collaboration in global teams
@@ -83,6 +117,7 @@ class Agent03Culture(BaseAgent):
             f"{len(found)} soft-skill signal(s) detected; "
             f"{n_langs} language(s). "
             f"{'Strengths: ' + '; '.join(strengths) if strengths else 'Limited evidence available.'}"
+            f"{' Behavioral evidence judged by TypeSafe.' if judged is not None else ''}"
         )
 
         dimension_scores = [
@@ -102,5 +137,5 @@ class Agent03Culture(BaseAgent):
             red_flags=gaps,
             recommendations=(
                 ["Validate soft skills in behavioral interview"] if gaps else []
-            ),
+            ) + review,
         )

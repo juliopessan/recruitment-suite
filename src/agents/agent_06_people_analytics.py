@@ -1,6 +1,7 @@
 """Agent 06: People Analytics Specialist Evaluator."""
 
 from src.models import Candidate, JobDescription, AgentScore, AgentType
+from src.services import typesafe_judge
 from .base_agent import BaseAgent
 
 # Domain-specific expertise signals for People Analytics roles.
@@ -57,8 +58,31 @@ class Agent06PeopleAnalytics(BaseAgent):
         dimension_scores = []
         weight = 1.0 / len(PA_SIGNALS)
 
+        review = []  # ambiguous judgments routed to a person
+        judged = typesafe_judge.judge_expertise(candidate, job, list(PA_SIGNALS))
+
         total = 0.0
         for dimension, signals in PA_SIGNALS.items():
+            if judged is not None:
+                # Graded evidence: 40 = none, 70 = named only, 100 = used in depth.
+                j = judged[dimension]
+                hits = [dimension] if j.value >= 1.5 else []
+                dim_score = 40.0 + 60.0 * j.unit
+                if hits:
+                    strengths.append(f"{dimension}: evidenced")
+                else:
+                    gaps.append(f"No evidence of {dimension}")
+                if j.uncertain:
+                    review.append(typesafe_judge.uncertain_note(dimension, j))
+                total += dim_score * weight
+                dimension_scores.append(
+                    self._dimension_score(dimension, int(dim_score), weight,
+                                          strengths=hits,
+                                          gap_items=[] if hits else [dimension],
+                                          strength_items=[dimension] if hits else [])
+                )
+                continue
+
             hits = [s.strip() for s in signals if s in corpus]
             if hits:
                 dim_score = min(100.0, 70.0 + 15.0 * len(hits))
@@ -86,5 +110,5 @@ class Agent06PeopleAnalytics(BaseAgent):
             analysis=analysis,
             dimension_scores=dimension_scores,
             red_flags=gaps,
-            recommendations=[f"Assess in case study: {g[15:]}" for g in gaps],
+            recommendations=[f"Assess in case study: {g[15:]}" for g in gaps] + review,
         )

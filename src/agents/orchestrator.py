@@ -10,6 +10,7 @@ from src.models import (
 )
 from src.services.i18n_service import t, t_list, DEFAULT_LOCALE
 from src.services.interview_guide import build_interview_guide
+from src.services import typesafe_judge
 from .agent_01_profile import Agent01Profile
 from .agent_02_technical import Agent02Technical
 from .agent_03_culture import Agent03Culture
@@ -159,10 +160,25 @@ class RecruitmentOrchestrator:
         elif min_score < 60:
             confidence -= 10  # Minor gap
 
+        # Each ambiguous TypeSafe judgment (confidence < 0.5) is evidence the
+        # score may move once a person looks; 4 points each, capped at 20.
+        confidence -= min(20, 4 * len(self._review_items(evaluation)))
+
         # Reduce if references pending
         # (In production, check reference verification status)
 
         return max(0, min(100, confidence))
+
+    @staticmethod
+    def _review_items(evaluation: Evaluation) -> List[str]:
+        """Judgments the agents flagged as ambiguous, for a person to verify."""
+        items: List[str] = []
+        for agent_score in (evaluation.agent_scores or {}).values():
+            items += [
+                r for r in agent_score.recommendations
+                if r.startswith(typesafe_judge.UNCERTAIN_PREFIX)
+            ]
+        return items
 
     def _effective_technical(
         self,
@@ -205,7 +221,8 @@ class RecruitmentOrchestrator:
             key_strengths=self._extract_strengths(evaluation, use_people_analytics, language),
             addressable_gaps=self._extract_gaps(evaluation, use_people_analytics, language),
             critical_flags=self._extract_flags(evaluation, use_people_analytics, language),
-            next_steps=self._generate_next_steps(status, language),
+            next_steps=self._generate_next_steps(status, language)
+            + self._review_items(evaluation)[:5],
             onboarding_plan=self._generate_onboarding(status, language),
             interview_guide=build_interview_guide(
                 evaluation, candidate, job, use_people_analytics, language
