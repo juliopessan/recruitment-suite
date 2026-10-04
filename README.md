@@ -56,6 +56,12 @@ People Analytics roles: Final = Profile 15% + People Analytics 40% + Culture 25%
 
 The very first pre-notes score/status is snapshotted once (`pre_interview_score`/`pre_interview_status`) so the report can always show the before/after delta, no matter how many rounds of notes are added afterward.
 
+### CV extraction and OCR
+
+- **Text extraction**: PDFs are read with PyMuPDF (layout-aware, one visual line per line), with `pypdf` as a fallback. DOCX, TXT and MD are read directly.
+- **Profile fields**: `src/services/cv_sections.py` reads the CV's own **Education**, **Certifications** and **Languages** sections (English and Portuguese headings, bullets and zero-width characters tolerated) and falls back to degree patterns and "Fluent in ..." phrases. Only real human languages count: a toolkit line like `Languages: Python, SQL` is ignored. LinkedIn text fills whatever the CV does not list. The pipeline notes show how many items were read.
+- **OCR (opt-in)**: a scanned PDF (almost no text layer) or a PNG / JPG / WEBP upload is transcribed by a vision model through OpenRouter (`src/services/ocr.py`), so no system `tesseract` is needed on Vercel. Set `OPENROUTER_API_KEY` and `OPENROUTER_VISION_MODEL`. Without them the API answers with a clear message instead of an empty score. Page images leave the server for that provider, so enable it only if your data-processing basis covers it. Text PDFs never go through OCR.
+
 ### Semantic judgments with TypeSafe Jev (optional, live in production)
 
 With `TYPESAFE_API_KEY` set, the agents read the CV and LinkedIn text through [TypeSafe](https://docs.typesafe.ai) (Jev) instead of matching keywords. Code still owns weights, thresholds and GO / HOLD / NO-GO; TypeSafe only answers narrow, typed questions (`src/services/typesafe_judge.py`).
@@ -142,6 +148,7 @@ version
 |---|---|
 | `DATABASE_URL` | SQLite by default (`sqlite:///./recruitment_suite.db`); **on Vercel serverless this falls back to an ephemeral `/tmp` file that resets on cold start** — set a persistent Postgres URL (Vercel Postgres/Neon/Supabase) for production durability |
 | `EXA_API_KEY` | Required for LinkedIn enrichment in `/api/analyze/run`; degrades gracefully (uses CV only) if missing |
+| `OPENROUTER_VISION_MODEL` | Optional. Any OpenRouter model that accepts images; enables OCR for scanned PDFs and image CVs (needs `OPENROUTER_API_KEY`) |
 | `TYPESAFE_API_KEY`, `TYPESAFE_MODEL` | Optional. Enables TypeSafe semantic judgments (see above); key from https://console.typesafe.ai/, model defaults to `jev-latest`. Server-side only, never a `VITE_*` variable |
 | `SQL_ECHO`, `API_HOST`, `API_PORT`, `CORS_ORIGINS` | Standard FastAPI/dev server tuning |
 

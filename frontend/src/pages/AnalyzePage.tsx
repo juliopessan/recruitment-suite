@@ -149,7 +149,7 @@ export default function AnalyzePage() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,.docx,.txt,.md"
+                accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.webp"
                 className="hidden"
                 onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
               />
@@ -177,7 +177,7 @@ export default function AnalyzePage() {
                   <UploadCloud size={26} className="text-ink-300" />
                   <p className="font-semibold text-sm">Drop the CV here, or click to upload</p>
                   <p className="font-mono text-[11px] uppercase tracking-label text-ink-400">
-                    PDF · DOCX · TXT — max 10 MB
+                    PDF · DOCX · TXT · PNG / JPG — max 10 MB
                   </p>
                 </>
               )}

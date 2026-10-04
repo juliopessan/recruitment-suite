@@ -14,6 +14,7 @@ from src.services.cv_parser import (
     guess_candidate_fields,
     guess_name_from_linkedin_title,
 )
+from src.services.cv_sections import extract_profile_sections
 from src.services.linkedin_enricher import EnrichmentError, enrich_linkedin
 from src.services.jd_parser import is_people_analytics_role, parse_job_description
 from src.services.i18n_service import DEFAULT_LOCALE, normalize_locale
@@ -121,6 +122,25 @@ async def run_analysis(
         extra = linkedin_profile.get("summary") or linkedin_profile.get("text") or ""
         combined_cv_text = (combined_cv_text + "\n\n[LinkedIn]\n" + extra).strip()
 
+    # Education, certifications and spoken languages come from the CV's own
+    # sections, with LinkedIn filling whatever the CV does not list.
+    sections = extract_profile_sections(cv_text) if cv_text else {}
+    if linkedin_profile:
+        li_sections = extract_profile_sections(
+            (linkedin_profile.get("text") or "") + "\n" + (linkedin_profile.get("summary") or "")
+        )
+        for key, values in li_sections.items():
+            merged = list(sections.get(key, []))
+            merged += [v for v in values if v not in merged]
+            sections[key] = merged
+    education = sections.get("education", [])
+    certifications = sections.get("certifications", [])
+    languages = sections.get("languages", [])
+    notes.append(
+        f"Profile fields read: {len(education)} education, "
+        f"{len(certifications)} certification(s), {len(languages)} spoken language(s)"
+    )
+
     candidate = Candidate(
         id=f"cand_{uuid.uuid4().hex[:12]}",
         profile={
@@ -128,9 +148,9 @@ async def run_analysis(
             "email": email,
             "linkedin_url": linkedin_url or None,
             "total_years_experience": years,
-            "languages": [],
-            "education": [],
-            "certifications": [],
+            "languages": languages,
+            "education": education,
+            "certifications": certifications,
         },
         cv_text=combined_cv_text or None,
         linkedin_profile=linkedin_profile,

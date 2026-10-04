@@ -3,6 +3,11 @@
 import io
 import re
 
+from src.services import ocr
+
+# A text PDF carries far more than this per page; below it the PDF is a scan.
+MIN_CHARS_PER_PAGE = 120
+
 
 class CVParseError(Exception):
     """Raised when a CV file cannot be parsed."""
@@ -14,30 +19,79 @@ def extract_cv_text(filename: str, content: bytes) -> str:
 
     if name.endswith(".pdf"):
         return _extract_pdf(content)
+    if name.endswith(tuple(ocr.IMAGE_TYPES)):
+        return _ocr_or_error(lambda: ocr.ocr_image(content, name), "image")
     if name.endswith(".docx"):
         return _extract_docx(content)
     if name.endswith((".txt", ".md")):
         return content.decode("utf-8", errors="replace")
 
     raise CVParseError(
-        f"Unsupported file type: {filename}. Use PDF, DOCX, TXT or MD."
+        f"Unsupported file type: {filename}. Use PDF, DOCX, TXT, MD, PNG or JPG."
     )
+
+
+def _pdf_text_pymupdf(content: bytes) -> tuple[str, int] | None:
+    """Layout-aware extraction: keeps one visual line per line, so headings and
+    list items stay whole. Returns None when PyMuPDF is not installed."""
+    try:
+        import pymupdf
+    except ImportError:
+        return None
+    doc = pymupdf.open(stream=content, filetype="pdf")
+    return "\n".join(page.get_text() for page in doc), max(len(doc), 1)
+
+
+def _pdf_text_pypdf(content: bytes) -> tuple[str, int]:
+    from pypdf import PdfReader
+
+    reader = PdfReader(io.BytesIO(content))
+    text = "\n".join(page.extract_text() or "" for page in reader.pages)
+    # Some PDFs make pypdf emit one word per line, which destroys headings and
+    # list structure; rejoin the words so the text at least reads as prose.
+    lines = [l for l in text.splitlines() if l.strip()]
+    if lines and sum(len(l.split()) for l in lines) / len(lines) < 1.5:
+        text = " ".join(l.strip() for l in lines)
+    return text, max(len(reader.pages), 1)
 
 
 def _extract_pdf(content: bytes) -> str:
     try:
-        from pypdf import PdfReader
-    except ImportError as exc:
-        raise CVParseError("PDF support requires the 'pypdf' package") from exc
-
-    try:
-        reader = PdfReader(io.BytesIO(content))
-        text = "\n".join(page.extract_text() or "" for page in reader.pages)
+        extracted = None
+        try:
+            extracted = _pdf_text_pymupdf(content)
+        except Exception:
+            extracted = None  # fall through to pypdf
+        if extracted is None or not extracted[0].strip():
+            try:
+                extracted = _pdf_text_pypdf(content)
+            except ImportError as exc:
+                if extracted is None:
+                    raise CVParseError("PDF support requires 'pymupdf' or 'pypdf'") from exc
+        text, page_count = extracted
+    except CVParseError:
+        raise
     except Exception as exc:
         raise CVParseError(f"Could not read PDF: {exc}") from exc
 
+    if len(text.strip()) >= MIN_CHARS_PER_PAGE * page_count * 0.5:
+        return text
+
+    # Scanned or image-only PDF: read it with OCR instead of failing. A short
+    # but real text layer is kept when OCR is not configured.
+    if text.strip() and not ocr.is_configured():
+        return text
+    ocr_text = _ocr_or_error(lambda: ocr.ocr_pdf(content), "scanned PDF")
+    return ocr_text if len(ocr_text.strip()) > len(text.strip()) else text
+
+
+def _ocr_or_error(run, kind: str) -> str:
+    try:
+        text = run()
+    except ocr.OCRUnavailable as exc:
+        raise CVParseError(str(exc)) from exc
     if not text.strip():
-        raise CVParseError("PDF contains no extractable text (scanned image?)")
+        raise CVParseError(f"OCR found no text in this {kind}")
     return text
 
 

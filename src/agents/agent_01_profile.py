@@ -94,7 +94,7 @@ Profile Evaluation for {candidate.profile.name}:
 
 **Experience:** {candidate.profile.total_years_experience} years (requires {job.years_experience_required}y)
 **Education:** {', '.join(candidate.profile.education or ['Not specified'])}
-**Languages:** {', '.join(candidate.profile.languages or [])}
+**Languages:** {', '.join(candidate.profile.languages or ['Not specified'])}
 
 Strengths: {', '.join(strengths) if strengths else 'None detected'}
 Gaps: {', '.join(gaps) if gaps else 'None detected'}

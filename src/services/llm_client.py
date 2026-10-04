@@ -27,8 +27,18 @@ def is_configured() -> bool:
     return bool(os.environ.get("OPENROUTER_API_KEY"))
 
 
-def complete(prompt: str, system: str = "", timeout: int = 30, max_tokens: int = 800) -> str:
+def complete(
+    prompt: str,
+    system: str = "",
+    timeout: int = 30,
+    max_tokens: int = 800,
+    images: list[str] | None = None,
+    model: str | None = None,
+) -> str:
     """Send a single-turn prompt to OpenRouter and return the reply text.
+
+    ``images`` are ``data:`` URLs sent alongside the prompt (vision models only);
+    ``model`` overrides ``OPENROUTER_MODEL`` for that call.
 
     Raises LLMError when the key is missing or the request fails, so callers
     can degrade gracefully instead of failing the whole evaluation.
@@ -38,12 +48,18 @@ def complete(prompt: str, system: str = "", timeout: int = 30, max_tokens: int =
         raise LLMError("OPENROUTER_API_KEY is not configured")
 
     base_url = os.environ.get("OPENROUTER_BASE_URL", DEFAULT_BASE_URL).rstrip("/")
-    model = os.environ.get("OPENROUTER_MODEL", DEFAULT_MODEL)
+    model = model or os.environ.get("OPENROUTER_MODEL", DEFAULT_MODEL)
 
     messages = []
     if system:
         messages.append({"role": "system", "content": system})
-    messages.append({"role": "user", "content": prompt})
+    if images:
+        user_content = [{"type": "text", "text": prompt}] + [
+            {"type": "image_url", "image_url": {"url": url}} for url in images
+        ]
+        messages.append({"role": "user", "content": user_content})
+    else:
+        messages.append({"role": "user", "content": prompt})
 
     payload = {
         "model": model,
