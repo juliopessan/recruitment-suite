@@ -347,6 +347,10 @@ export default function LandingPage() {
                     HR &amp; People roles swap agent 02 for a People Analytics specialist —
                     listening platforms, org psychology, survey programmes, executive stakeholders.
                   </p>
+                  <p className="pt-3 font-mono text-[11px] uppercase tracking-label text-ink-400 leading-relaxed">
+                    Agent 07 checks the job&apos;s hard constraints — location, work model, right to
+                    work, start date — and asks the candidate instead of scoring them.
+                  </p>
                 </div>
               </StaggerItem>
             </div>

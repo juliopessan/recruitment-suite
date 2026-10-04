@@ -137,6 +137,7 @@ class HTMLReportGenerator:
             "next_steps": evaluation_result.recommendation.next_steps,
             "onboarding": evaluation_result.recommendation.onboarding_plan,
             "interview_guide": evaluation_result.recommendation.interview_guide,
+            "eligibility_checks": evaluation_result.recommendation.eligibility_checks,
             "agent_analysis": build_agent_analysis(evaluation_result.evaluation),
         }
 
@@ -166,6 +167,7 @@ class HTMLReportGenerator:
             "next_steps": [],
             "onboarding": [],
             "interview_guide": [],
+            "eligibility_checks": [],
             "agent_analysis": {},
             "interview_notes": None,
             "pre_interview_score": None,

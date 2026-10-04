@@ -17,6 +17,7 @@ from .agent_03_culture import Agent03Culture
 from .agent_04_references import Agent04References
 from .agent_05_recommendation import Agent05Recommendation
 from .agent_06_people_analytics import Agent06PeopleAnalytics
+from .agent_07_eligibility import Agent07Eligibility, CONFIRM
 
 
 class RecruitmentOrchestrator:
@@ -30,6 +31,7 @@ class RecruitmentOrchestrator:
         self.agent_04 = Agent04References()
         self.agent_05 = Agent05Recommendation()
         self.agent_06 = Agent06PeopleAnalytics()
+        self.agent_07 = Agent07Eligibility()
 
     def evaluate(
         self,
@@ -91,6 +93,10 @@ class RecruitmentOrchestrator:
             score_06 = self.agent_06.evaluate(candidate, job)
             agent_scores["06-people-analytics"] = score_06
             evaluation.people_analytics_score = score_06.score
+
+        # Agent 07: Eligibility (hard constraints, not scored)
+        print(f"🔍 [Agent 07] Checking eligibility constraints...")
+        evaluation.eligibility_checks = self.agent_07.check(candidate, job)
 
         # Strategic bonus (business case, urgency, rarity)
         evaluation.strategic_bonus = self._calculate_strategic_bonus(job)
@@ -222,15 +228,26 @@ class RecruitmentOrchestrator:
             addressable_gaps=self._extract_gaps(evaluation, use_people_analytics, language),
             critical_flags=self._extract_flags(evaluation, use_people_analytics, language),
             next_steps=self._generate_next_steps(status, language)
+            + self._eligibility_steps(evaluation, language)
             + self._review_items(evaluation)[:5],
             onboarding_plan=self._generate_onboarding(status, language),
             interview_guide=build_interview_guide(
                 evaluation, candidate, job, use_people_analytics, language
             ),
             confidence_level=evaluation.confidence,
+            eligibility_checks=list(evaluation.eligibility_checks or []),
         )
 
         return recommendation
+
+    @staticmethod
+    def _eligibility_steps(evaluation: Evaluation, language: str = DEFAULT_LOCALE) -> List[str]:
+        """One 'confirm with the candidate' step per unsettled hard constraint."""
+        return [
+            t("eligibility.confirm_step", language, requirement=c["requirement"])
+            for c in (evaluation.eligibility_checks or [])
+            if c.get("status") == CONFIRM
+        ]
 
     def _extract_strengths(
         self,

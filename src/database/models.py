@@ -104,6 +104,8 @@ class EvaluationRecord(Base):
     # Gap-derived questions for the interview: list of
     # {dimension, focus, question, listen_for}
     interview_guide = Column(JSON, default=[])
+    # Agent 07: [{kind, requirement, status: met|confirm, evidence, probability}]
+    eligibility_checks = Column(JSON, default=[])
 
     # Per-agent narrative analysis and dimension breakdown, keyed by category
     # (Profile/Technical/Culture/References/People Analytics). Powers the

@@ -55,6 +55,7 @@ class EvaluationDetailResponse(EvaluationResponse):
     next_steps: List[str] = []
     onboarding_plan: Optional[List[str]] = None
     interview_guide: List[dict] = []
+    eligibility_checks: List[dict] = []
     interview_notes: Optional[str] = None
     pre_interview_score: Optional[float] = None
     pre_interview_status: Optional[str] = None
@@ -153,6 +154,7 @@ def run_evaluation(
         next_steps=result.recommendation.next_steps or [],
         onboarding_plan=result.recommendation.onboarding_plan or [],
         interview_guide=result.recommendation.interview_guide or [],
+        eligibility_checks=result.recommendation.eligibility_checks or [],
         agent_analysis=build_agent_analysis(result.evaluation),
         playbook=request.playbook,
         use_people_analytics=1 if request.use_people_analytics else 0,
@@ -338,6 +340,7 @@ def add_interview_notes(
     clamped.calculate_final_score(use_people_analytics=use_pa)
     clamped.confidence = result.evaluation.confidence
     clamped.agent_scores = result.evaluation.agent_scores
+    clamped.eligibility_checks = result.evaluation.eligibility_checks
 
     recommendation = orchestrator._create_recommendation(clamped, candidate, job, use_pa, language)
 
@@ -357,6 +360,7 @@ def add_interview_notes(
     evaluation.next_steps = recommendation.next_steps or []
     evaluation.onboarding_plan = recommendation.onboarding_plan or []
     evaluation.interview_guide = recommendation.interview_guide or []
+    evaluation.eligibility_checks = recommendation.eligibility_checks or []
     evaluation.agent_analysis = build_agent_analysis(clamped)
     evaluation.interview_notes = request.notes
     evaluation.notes_updated_at = datetime.utcnow()
@@ -428,6 +432,7 @@ def get_evaluation_report(evaluation_id: str, db: Session = Depends(get_db)):
         "next_steps": evaluation.next_steps or [],
         "onboarding": evaluation.onboarding_plan or [],
         "interview_guide": evaluation.interview_guide or [],
+        "eligibility_checks": evaluation.eligibility_checks or [],
         "agent_analysis": evaluation.agent_analysis or {},
         "language": normalize_locale(evaluation.language),
         "interview_notes": evaluation.interview_notes,

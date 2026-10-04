@@ -390,6 +390,30 @@ def judge_verifiability(candidate, job) -> Optional[Verifiability]:
     )
 
 
+def judge_eligibility(candidate, requirements: Sequence[str]) -> Optional[List[Judgment]]:
+    """One Noul per hard constraint: does the record *state* the candidate meets it?
+
+    Only explicit statements count. Location, right to work or availability
+    must never be inferred from a name, nationality or the CV's language.
+    """
+    cv, li = _sources(candidate)
+    if not requirements or (not cv and not li):
+        return None
+    specs = {
+        f"req_{i}": _noul(
+            "Does `candidate` explicitly state something showing they meet this job "
+            f"requirement: \"{req}\"? Answer yes only for a direct statement in the record "
+            "(a stated current location, work arrangement, availability, travel or "
+            "relocation preference, or right to work). Silence or a guess counts as no."
+        )
+        for i, req in enumerate(requirements)
+    }
+    answers = ask(_state(candidate, None, with_job=False), specs)
+    if answers is None:
+        return None
+    return [answers[f"req_{i}"] for i in range(len(requirements))]
+
+
 def uncertain_note(subject: str, judgment: Judgment) -> str:
     """Standard review-routing line for an ambiguous judgment."""
     return f"{UNCERTAIN_PREFIX}{subject} (confidence {judgment.confidence:.2f})"

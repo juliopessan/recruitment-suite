@@ -32,6 +32,9 @@ class Recommendation(BaseModel):
     # {dimension, focus, question, listen_for}. See services/interview_guide.
     interview_guide: List[Dict[str, Any]] = Field(default_factory=list)
 
+    # Agent 07 eligibility checks, copied from the evaluation for the report.
+    eligibility_checks: List[Dict[str, Any]] = Field(default_factory=list)
+
     confidence_level: int = Field(default=0, ge=0, le=100)
 
     created_at: datetime = Field(default_factory=datetime.now)

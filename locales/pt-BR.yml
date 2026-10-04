@@ -24,6 +24,9 @@ pt-BR:
 
   onboarding: "Semana 1-2: Orientação e cultura da empresa\nSemana 2-4: Aprofundamento técnico e avaliação de skills\nSemana 4-6: Primeiro projeto (com mentor)\nSemana 6+: Autonomia total e ramp-up"
 
+  eligibility:
+    confirm_step: "Confirmar com o candidato: %{requirement}"
+
   report:
     title: "Relatório de Avaliação do Candidato"
     candidate: "Candidato"
@@ -65,6 +68,10 @@ pt-BR:
     interview_notes: "Notas Pós-Entrevista"
     interview_notes_tip: "Notas do recrutador adicionadas após a entrevista, realimentadas nos agentes para recalcular as notas acima."
     score_before_notes: "Nota antes das notas da entrevista"
+    eligibility: "Elegibilidade"
+    eligibility_tip: "Exigências objetivas da vaga: local, modelo de trabalho, fuso, autorização de trabalho, data de início, viagens. Não entram na nota. Cada uma está declarada no registro do candidato ou precisa ser confirmada com ele."
+    eligibility_met: "Declarado"
+    eligibility_confirm: "Confirmar"
     export_pdf: "Imprimir / Salvar como PDF"
 
   interview:

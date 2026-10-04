@@ -24,6 +24,9 @@ en-US:
 
   onboarding: "Week 1-2: Orientation & company culture\nWeek 2-4: Technical deep-dive & skill assessment\nWeek 4-6: First project (paired with mentor)\nWeek 6+: Full autonomy & ramp-up"
 
+  eligibility:
+    confirm_step: "Confirm with the candidate: %{requirement}"
+
   report:
     title: "Candidate Evaluation Report"
     candidate: "Candidate"
@@ -65,6 +68,10 @@ en-US:
     interview_notes: "Post-Interview Notes"
     interview_notes_tip: "Recruiter notes added after the interview, fed back into the agents to recalculate the scores above."
     score_before_notes: "Score before interview notes"
+    eligibility: "Eligibility"
+    eligibility_tip: "Hard constraints stated in the job description: location, work model, time zone, right to work, start date, travel. Not scored. Each one is either stated in the candidate's record or needs confirming with them."
+    eligibility_met: "Stated"
+    eligibility_confirm: "Confirm"
     export_pdf: "Print / Save as PDF"
 
   interview:

@@ -4,6 +4,12 @@ from src.models import Candidate, JobDescription, AgentScore, AgentType
 from src.services import typesafe_judge
 from .base_agent import BaseAgent
 
+# Relative weights 25 / 30 / 20 / 15, normalised to sum to 1.
+W_EXPERIENCE = 0.25 / 0.90
+W_EDUCATION = 0.30 / 0.90
+W_TRAJECTORY = 0.20 / 0.90
+W_LANGUAGES = 0.15 / 0.90
+
 
 class Agent01Profile(BaseAgent):
     """Profile & Background Evaluator."""
@@ -34,7 +40,7 @@ class Agent01Profile(BaseAgent):
         # Graded judgments from TypeSafe when available; None -> rule-based paths.
         judged = typesafe_judge.judge_profile(candidate, job)
 
-        # Years of experience (25%)
+        # Years of experience
         exp_score = self._evaluate_experience(
             candidate.profile.total_years_experience,
             job.years_experience_required,
@@ -42,7 +48,7 @@ class Agent01Profile(BaseAgent):
             strengths,
         )
 
-        # Education & domain expertise (30%)
+        # Education & domain expertise
         if judged is not None:
             edu_score = self._judged_education(judged.education, gaps, strengths, review)
         else:
@@ -53,7 +59,7 @@ class Agent01Profile(BaseAgent):
                 strengths,
             )
 
-        # Seniority trajectory (20%)
+        # Seniority trajectory
         if judged is not None:
             traj_score = self._judged_trajectory(
                 judged, job.seniority_level, gaps, strengths, review
@@ -66,7 +72,7 @@ class Agent01Profile(BaseAgent):
                 strengths,
             )
 
-        # Language requirements (15%)
+        # Language requirements
         if judged is not None and job.required_languages:
             lang_score = self._judged_languages(judged.languages, gaps, strengths, review)
         else:
@@ -77,16 +83,14 @@ class Agent01Profile(BaseAgent):
                 strengths,
             )
 
-        # Geographic fit (10%)
-        geo_score = 75  # Simplified for now
-
-        # Weighted score
+        # Location / work model used to be a fixed 75 here. Hard constraints
+        # now belong to Agent 07 (eligibility), which confirms rather than
+        # scores, so the four measured dimensions carry the whole weight.
         score = (
-            exp_score * 0.25
-            + edu_score * 0.30
-            + traj_score * 0.20
-            + lang_score * 0.15
-            + geo_score * 0.10
+            exp_score * W_EXPERIENCE
+            + edu_score * W_EDUCATION
+            + traj_score * W_TRAJECTORY
+            + lang_score * W_LANGUAGES
         )
 
         analysis = f"""
@@ -105,24 +109,24 @@ Gaps: {', '.join(gaps) if gaps else 'None detected'}
             self._dimension_score(
                 "Years of Experience",
                 int(exp_score),
-                0.25,
+                W_EXPERIENCE,
                 gaps=["Experience gap"] if exp_score < 70 else [],
                 strengths=["Exceeds requirement"] if exp_score >= 80 else [],
             ),
             self._dimension_score(
                 "Education & Domain Expertise",
                 int(edu_score),
-                0.30,
+                W_EDUCATION,
             ),
             self._dimension_score(
                 "Career Trajectory",
                 int(traj_score),
-                0.20,
+                W_TRAJECTORY,
             ),
             self._dimension_score(
                 "Language Requirements",
                 int(lang_score),
-                0.15,
+                W_LANGUAGES,
             ),
         ]
 

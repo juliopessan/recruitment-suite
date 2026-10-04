@@ -1,7 +1,7 @@
 """Evaluation and scoring models."""
 
 from datetime import datetime
-from typing import Optional, List, Dict
+from typing import Any, Optional, List, Dict
 from enum import Enum
 from pydantic import BaseModel, Field
 
@@ -15,6 +15,7 @@ class AgentType(str, Enum):
     REFERENCES = "04-references"
     RECOMMENDATION = "05-recommendation"
     PEOPLE_ANALYTICS = "06-people-analytics"
+    ELIGIBILITY = "07-eligibility"
 
 
 class DimensionScore(BaseModel):
@@ -63,6 +64,9 @@ class Evaluation(BaseModel):
     job_id: str
 
     agent_scores: Dict[str, AgentScore] = Field(default_factory=dict)
+    # Agent 07: hard constraints from the job, each {kind, requirement,
+    # status: met|confirm, evidence, probability}. Not scored.
+    eligibility_checks: List[Dict[str, Any]] = Field(default_factory=list)
 
     # Weighted scoring
     profile_score: int = 0

@@ -39,19 +39,19 @@ def init_db():
     table that already exists. On serverless that goes unnoticed because the
     ephemeral SQLite file is rebuilt on every cold start, but a developer's
     local .db survives, so every new model column would break its next SELECT
-    with "no such column". `_add_missing_sqlite_columns` closes that gap.
+    with "no such column". `_add_missing_columns` closes that gap, for SQLite
+    and for a persistent database (e.g. Postgres via DATABASE_URL) alike.
     """
     Base.metadata.create_all(bind=engine)
-    if engine.dialect.name == "sqlite":
-        _add_missing_sqlite_columns()
+    _add_missing_columns()
 
 
-def _add_missing_sqlite_columns():
-    """Add columns present on the models but missing from the SQLite file.
+def _add_missing_columns():
+    """Add columns present on the models but missing from the database.
 
     Deliberately narrow: it only ever ADDs nullable columns, never drops,
     renames or retypes anything, so it cannot lose data. Anything beyond that
-    (and any non-SQLite engine) needs a real migration tool.
+    needs a real migration tool.
     """
     from sqlalchemy import inspect, text
 

@@ -228,6 +228,7 @@ async def run_analysis(
         next_steps=result.recommendation.next_steps or [],
         onboarding_plan=result.recommendation.onboarding_plan or [],
         interview_guide=result.recommendation.interview_guide or [],
+        eligibility_checks=result.recommendation.eligibility_checks or [],
         agent_analysis=build_agent_analysis(result.evaluation),
         playbook="agentic-analysis",
         use_people_analytics=1 if use_pa else 0,

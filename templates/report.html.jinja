@@ -139,6 +139,20 @@
   .tag-gap{color:var(--ink)}
   .tag-strength{color:var(--mint-ink)}
 
+
+  /* ---------- Eligibility (Agent 07) ---------- */
+  .elig{border-top:1px solid var(--ink)}
+  .erow{display:grid;grid-template-columns:28px 1fr auto;gap:16px;align-items:start;
+    padding:16px 4px;border-bottom:1px solid var(--line)}
+  .eflag{display:inline-grid;place-items:center;width:22px;height:22px;font-family:var(--mono);
+    font-size:12px;font-weight:600;color:#0C0A08}
+  .st-met .eflag{background:var(--mint)}
+  .st-confirm .eflag{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .ereq{font-size:15px;color:var(--ink);line-height:1.5}
+  .eev{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:4px}
+  .estat{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink);border:1px solid var(--line);padding:3px 8px;white-space:nowrap}
+
   /* ---------- Strengths / gaps / flags ---------- */
   .surfaces{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;
     background:var(--ink);border:1px solid var(--ink)}
@@ -413,10 +427,34 @@
   </div>
 </section>
 
-<!-- STRENGTHS / GAPS / FLAGS -->
+{% if eligibility_checks %}
+<!-- ELIGIBILITY (Agent 07: hard constraints, not scored) -->
 <section>
   <div class="wrap">
     <span class="eyebrow rule-eyebrow">02</span>
+    <h2 class="h">{{ 'report.eligibility' | t(language) }}</h2>
+    <div class="section-intro">{{ 'report.eligibility_tip' | t(language) }}</div>
+    <div class="elig">
+      {% for c in eligibility_checks %}
+      <div class="erow st-{{ c.status }}">
+        <span class="eflag" aria-hidden="true">{{ '✓' if c.status == 'met' else '▲' }}</span>
+        <div>
+          <p class="ereq">{{ c.requirement }}</p>
+          {% if c.evidence %}<p class="eev">{{ c.evidence }}</p>{% endif %}
+        </div>
+        <span class="estat">{{ ('report.eligibility_met' if c.status == 'met' else 'report.eligibility_confirm') | t(language) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% set n = 1 if eligibility_checks else 0 %}
+
+<!-- STRENGTHS / GAPS / FLAGS -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow rule-eyebrow">{{ '%02d' % (2 + n) }}</span>
     <h2 class="h">{{ 'report.key_strengths' | t(language) }} · {{ 'report.addressable_gaps' | t(language) }}</h2>
     <div class="section-intro">{{ 'report.key_strengths_tip' | t(language) }}</div>
 
@@ -458,7 +496,7 @@
 <!-- ROADMAP (next steps + onboarding) -->
 <section>
   <div class="wrap">
-    <span class="eyebrow rule-eyebrow">03</span>
+    <span class="eyebrow rule-eyebrow">{{ '%02d' % (3 + n) }}</span>
     <h2 class="h">{{ 'report.next_steps' | t(language) }}</h2>
     <div class="road">
       {% for step in next_steps %}
@@ -476,7 +514,7 @@
 {% if interview_guide %}
 <section>
   <div class="wrap">
-    <span class="eyebrow rule-eyebrow">04</span>
+    <span class="eyebrow rule-eyebrow">{{ '%02d' % (4 + n) }}</span>
     <h2 class="h">{{ 'interview.title' | t(language) }}</h2>
     <div class="section-intro">{{ 'interview.tip' | t(language) }}</div>
     <div class="guide">
@@ -504,7 +542,7 @@
 {% if interview_notes %}
 <section>
   <div class="wrap">
-    <span class="eyebrow rule-eyebrow">05</span>
+    <span class="eyebrow rule-eyebrow">{{ '%02d' % (5 + n) }}</span>
     <h2 class="h">{{ 'report.interview_notes' | t(language) }}</h2>
     <div class="section-intro">{{ 'report.interview_notes_tip' | t(language) }}</div>
     <div class="notes-card">
