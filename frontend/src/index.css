@@ -617,3 +617,24 @@
     .rail.is-in::before { transform: scaleY(1); }
   }
 }
+
+/* Brandmark push: R (Recruitment) and S (Suite) trade places, and the
+   wordmark leans on the matching word. Static R under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .mark-push { animation: markPush 7s cubic-bezier(0.76, 0, 0.24, 1) infinite; }
+  .wm-r { animation: wmLeanR 7s cubic-bezier(0.76, 0, 0.24, 1) infinite; }
+  .wm-s { animation: wmLeanS 7s cubic-bezier(0.76, 0, 0.24, 1) infinite; }
+}
+@keyframes markPush {
+  0%, 40% { transform: translateX(0); }
+  48%, 90% { transform: translateX(-32px); }
+  98%, 100% { transform: translateX(0); }
+}
+@keyframes wmLeanR {
+  0%, 40%, 98%, 100% { opacity: 1; }
+  48%, 90% { opacity: 0.45; }
+}
+@keyframes wmLeanS {
+  0%, 40%, 98%, 100% { opacity: 0.45; }
+  48%, 90% { opacity: 1; }
+}
